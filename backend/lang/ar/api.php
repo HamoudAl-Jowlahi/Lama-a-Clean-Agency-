@@ -1,0 +1,70 @@
+<?php
+
+return [
+    'errors' => [
+        'GENERIC' => 'تعذر تنفيذ العملية.',
+        'VALIDATION_FAILED' => 'البيانات المدخلة غير صحيحة.',
+        'UNAUTHENTICATED' => 'يرجى تسجيل الدخول.',
+        'INVALID_CREDENTIALS' => 'رقم الجوال أو كلمة المرور غير صحيحة.',
+        'ACCOUNT_SUSPENDED' => 'الحساب موقوف. تواصل مع الوكالة.',
+        'FORBIDDEN' => 'لا تملك صلاحية لهذه العملية.',
+        'NOT_FOUND' => 'العنصر غير موجود.',
+        'TOO_MANY_REQUESTS' => 'محاولات كثيرة. حاول بعد قليل.',
+        'HTTP_ERROR' => 'تعذر تنفيذ الطلب.',
+        'SERVER_ERROR' => 'حدث خطأ غير متوقع. حاول مرة أخرى.',
+        'IDEMPOTENCY_IN_PROGRESS' => 'الطلب نفسه قيد المعالجة.',
+
+        'INVALID_TRANSITION' => 'لا يمكن الانتقال من ":from" إلى ":to".',
+        'SERVICE_UNAVAILABLE' => 'هذه الخدمة غير متاحة حالياً.',
+        'SLOT_INVALID' => 'الوقت المختار خارج أوقات العمل.',
+        'SLOT_UNAVAILABLE' => 'الوقت المختار لم يعد متاحاً. اختر وقتاً آخر.',
+        'CANCEL_NOT_ALLOWED' => 'لا يمكن الإلغاء في هذه المرحلة.',
+        'CANCEL_TOO_LATE' => 'لا يمكن الإلغاء قبل الموعد بأقل من :hours ساعات.',
+        'WORKER_INACTIVE' => 'العاملة غير نشطة.',
+        'WORKER_BUSY_BOOKING' => 'العاملة لديها زيارة في نفس الفترة.',
+        'WORKER_BUSY_CONTRACT' => 'العاملة مرتبطة بعقد في نفس الفترة.',
+        'ASSIGNMENT_ALREADY_ANSWERED' => 'تم الرد على هذا الإسناد مسبقاً.',
+        'ASSIGNMENT_REJECT_NOT_ALLOWED' => 'سياسة الوكالة لا تسمح برفض الإسناد.',
+        'ASSIGNMENT_NOT_ACCEPTED' => 'يجب قبول الطلب أولاً.',
+
+        'TERMS_OUTDATED' => 'تم تحديث شروط العقد. يرجى مراجعتها والموافقة عليها.',
+        'CONTRACT_MONTHS_OUT_OF_RANGE' => 'مدة العقد يجب أن تكون بين :min و :max أشهر.',
+        'CONTRACT_START_TOO_SOON' => 'أقرب تاريخ بدء متاح هو :date.',
+        'CONTRACT_NOT_ACTIVE' => 'العقد غير ساري.',
+        'TERMINATION_DATE_INVALID' => 'تاريخ الإنهاء يجب أن يكون من اليوم وحتى :date.',
+        'REQUEST_ALREADY_OPEN' => 'لديك طلب مماثل قيد المعالجة.',
+        'REPLACEMENT_LIMIT_REACHED' => 'وصلت للحد الأقصى لطلبات الاستبدال (:max).',
+        'REQUEST_ALREADY_HANDLED' => 'تمت معالجة هذا الطلب مسبقاً.',
+        'REQUEST_TYPE_MISMATCH' => 'نوع الطلب لا يناسب هذا الإجراء.',
+        'REPLACEMENT_DATE_INVALID' => 'تاريخ بدء البديلة يجب أن يكون من اليوم وحتى :date.',
+        'REPLACEMENT_SAME_WORKER' => 'اختر عاملة مختلفة عن العاملة الحالية.',
+
+        'PAYMENT_NOT_DUE' => 'هذا المبلغ ليس مستحقاً.',
+        'RATING_NOT_ALLOWED_YET' => 'يمكن التقييم بعد إتمام الخدمة.',
+        'ALREADY_RATED' => 'تم التقييم مسبقاً.',
+        'COMPLAINT_SUBJECT_REQUIRED' => 'اختر زيارة أو عقداً واحداً للشكوى.',
+        'COMPLAINT_CLOSED' => 'الشكوى مغلقة.',
+    ],
+
+    'complaint_types' => [
+        'late' => 'تأخر عن الموعد',
+        'quality' => 'جودة الخدمة',
+        'behavior' => 'سلوك',
+        'payment' => 'مشكلة في الدفع',
+        'other' => 'أخرى',
+    ],
+
+    'change_request_reasons' => [
+        'frequent_delay' => 'تأخر متكرر',
+        'quality' => 'جودة العمل',
+        'absence' => 'غياب',
+        'behavior' => 'سلوك',
+        'no_longer_needed' => 'لم أعد بحاجة للخدمة',
+        'other' => 'سبب آخر',
+    ],
+
+    'logged_out' => 'تم تسجيل الخروج.',
+    'password_changed' => 'تم تغيير كلمة المرور.',
+    'deleted' => 'تم الحذف.',
+    'marked_read' => 'تم التحديث.',
+];

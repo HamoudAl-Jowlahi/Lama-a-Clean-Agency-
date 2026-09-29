@@ -34,6 +34,7 @@ return [
     // ---- العقود (CR-2) ----
     'contracts' => [
         'terms_version' => '2026-10',
+        'min_start_lead_days' => 1,                // أقرب تاريخ بدء = اليوم + هذه الأيام
         'min_months' => 1,
         'max_months' => 12,
         'payment_schedule' => 'monthly',          // monthly | end_of_contract

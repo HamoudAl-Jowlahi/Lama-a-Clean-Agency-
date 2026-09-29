@@ -13,8 +13,8 @@
 | 1. التحليل والمعمارية | ✅ [docs/01](docs/01_phase1_analysis_architecture.md) |
 | — التصاميم و Design System | ✅ [design/](design/) |
 | 2. قاعدة البيانات | ✅ [docs/02](docs/02_phase2_database.md) |
-| 3. Backend API وتسجيل الدخول | ⏳ |
-| 4. لوحة الإدارة | — |
+| 3. Backend API وتسجيل الدخول | ✅ [docs/03](docs/03_phase3_api.md) |
+| 4. لوحة الإدارة | ⏳ |
 | 5. تطبيق Flutter | — |
 | 6. الإشعارات | — |
 | 7. الاختبارات والأمان | — |

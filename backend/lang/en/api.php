@@ -1,0 +1,70 @@
+<?php
+
+return [
+    'errors' => [
+        'GENERIC' => 'The operation could not be completed.',
+        'VALIDATION_FAILED' => 'The given data was invalid.',
+        'UNAUTHENTICATED' => 'Please sign in.',
+        'INVALID_CREDENTIALS' => 'Incorrect phone number or password.',
+        'ACCOUNT_SUSPENDED' => 'This account is suspended. Please contact the agency.',
+        'FORBIDDEN' => 'You are not allowed to do this.',
+        'NOT_FOUND' => 'Not found.',
+        'TOO_MANY_REQUESTS' => 'Too many attempts. Please try again shortly.',
+        'HTTP_ERROR' => 'The request could not be completed.',
+        'SERVER_ERROR' => 'Something went wrong. Please try again.',
+        'IDEMPOTENCY_IN_PROGRESS' => 'The same request is already being processed.',
+
+        'INVALID_TRANSITION' => 'Cannot move from ":from" to ":to".',
+        'SERVICE_UNAVAILABLE' => 'This service is currently unavailable.',
+        'SLOT_INVALID' => 'The selected time is outside working hours.',
+        'SLOT_UNAVAILABLE' => 'The selected time is no longer available.',
+        'CANCEL_NOT_ALLOWED' => 'Cancellation is not allowed at this stage.',
+        'CANCEL_TOO_LATE' => 'Cancellation is not allowed less than :hours hours before the appointment.',
+        'WORKER_INACTIVE' => 'The worker is not active.',
+        'WORKER_BUSY_BOOKING' => 'The worker has a visit in the same period.',
+        'WORKER_BUSY_CONTRACT' => 'The worker is on a contract in the same period.',
+        'ASSIGNMENT_ALREADY_ANSWERED' => 'This assignment was already answered.',
+        'ASSIGNMENT_REJECT_NOT_ALLOWED' => 'Agency policy does not allow rejecting assignments.',
+        'ASSIGNMENT_NOT_ACCEPTED' => 'Accept the booking first.',
+
+        'TERMS_OUTDATED' => 'The contract terms were updated. Please review and accept them.',
+        'CONTRACT_MONTHS_OUT_OF_RANGE' => 'Contract length must be between :min and :max months.',
+        'CONTRACT_START_TOO_SOON' => 'The earliest available start date is :date.',
+        'CONTRACT_NOT_ACTIVE' => 'The contract is not active.',
+        'TERMINATION_DATE_INVALID' => 'The end date must be between today and :date.',
+        'REQUEST_ALREADY_OPEN' => 'You already have a similar request in progress.',
+        'REPLACEMENT_LIMIT_REACHED' => 'Replacement request limit reached (:max).',
+        'REQUEST_ALREADY_HANDLED' => 'This request was already handled.',
+        'REQUEST_TYPE_MISMATCH' => 'This action does not match the request type.',
+        'REPLACEMENT_DATE_INVALID' => 'The replacement start date must be between today and :date.',
+        'REPLACEMENT_SAME_WORKER' => 'Choose a different worker than the current one.',
+
+        'PAYMENT_NOT_DUE' => 'This amount is not due.',
+        'RATING_NOT_ALLOWED_YET' => 'You can rate after the service is completed.',
+        'ALREADY_RATED' => 'Already rated.',
+        'COMPLAINT_SUBJECT_REQUIRED' => 'Choose exactly one visit or contract for the complaint.',
+        'COMPLAINT_CLOSED' => 'The complaint is closed.',
+    ],
+
+    'complaint_types' => [
+        'late' => 'Late arrival',
+        'quality' => 'Service quality',
+        'behavior' => 'Behavior',
+        'payment' => 'Payment issue',
+        'other' => 'Other',
+    ],
+
+    'change_request_reasons' => [
+        'frequent_delay' => 'Frequent delays',
+        'quality' => 'Work quality',
+        'absence' => 'Absence',
+        'behavior' => 'Behavior',
+        'no_longer_needed' => 'No longer needed',
+        'other' => 'Other',
+    ],
+
+    'logged_out' => 'Signed out.',
+    'password_changed' => 'Password changed.',
+    'deleted' => 'Deleted.',
+    'marked_read' => 'Updated.',
+];

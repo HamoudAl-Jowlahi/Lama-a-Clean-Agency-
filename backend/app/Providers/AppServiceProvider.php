@@ -15,8 +15,11 @@ use App\Models\Service;
 use App\Models\ServicePrice;
 use App\Models\User;
 use App\Models\Worker;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -47,5 +50,12 @@ class AppServiceProvider extends ServiceProvider
 
         // في التطوير: خطأ عند lazy loading أو حقل غير موجود بدل التجاهل الصامت
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        // الدخول والتسجيل: 5 محاولات في الدقيقة لكل رقم جوال + IP (ضد التخمين)
+        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(5)
+            ->by(mb_strtolower((string) $request->input('phone')).'|'.$request->ip()));
+
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)
+            ->by($request->user()?->id ?: $request->ip()));
     }
 }
