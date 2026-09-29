@@ -13,6 +13,7 @@ use App\Models\Payment;
 use App\Models\Rating;
 use App\Models\Service;
 use App\Models\ServicePrice;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Worker;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             'admin_user' => AdminUser::class,
             'customer' => Customer::class,
             'worker' => Worker::class,
+            'team' => Team::class,
             'booking' => Booking::class,
             'contract' => Contract::class,
             'change_request' => ContractChangeRequest::class,

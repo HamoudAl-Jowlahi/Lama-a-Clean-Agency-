@@ -4,6 +4,7 @@ return [
     'user_role' => ['customer' => 'Customer', 'worker' => 'Worker'],
     'user_status' => ['active' => 'Active', 'suspended' => 'Suspended'],
     'worker_status' => ['active' => 'Active', 'inactive' => 'Inactive', 'on_leave' => 'On leave'],
+    'worker_type' => ['cleaner' => 'Visit team', 'housekeeper' => 'Housekeeper (contracts)'],
     'admin_role' => ['super_admin' => 'Super admin', 'operations' => 'Operations', 'support' => 'Support'],
 
     'booking_status' => [

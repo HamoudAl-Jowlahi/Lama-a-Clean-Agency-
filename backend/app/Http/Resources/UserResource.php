@@ -21,6 +21,13 @@ class UserResource extends JsonResource
             'role' => $this->enum($this->role),
             'locale' => $this->locale,
             'default_address_id' => $this->whenLoaded('customer', fn () => $this->customer?->default_address_id),
+            // CR-3: نوع الموظف يحدد واجهة التطبيق (فريق زيارات أو خادمة بعقود)
+            'worker' => $this->whenLoaded('worker', fn () => [
+                'type' => $this->enum($this->worker->type),
+                'team' => ($team = $this->worker->teams->first())
+                    ? ['id' => $team->id, 'name' => $team->name, 'is_leader' => $team->isLeader($this->worker)]
+                    : null,
+            ]),
         ];
     }
 }

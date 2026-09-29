@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Address;
 use App\Models\AdminUser;
 use App\Models\Customer;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Worker;
 use Database\Seeders\CatalogSeeder;
@@ -43,9 +44,22 @@ abstract class ApiTestCase extends TestCase
         return [$customer->user, $customer, $customer->defaultAddress];
     }
 
+    /** خادمة (عقود). */
     protected function worker(): Worker
     {
-        return Worker::factory()->create()->load('user');
+        return Worker::factory()->housekeeper()->create()->load('user');
+    }
+
+    /** فريق زيارات: قائد + عضوان. */
+    protected function team(): Team
+    {
+        return Team::factory()->create()->load('leader.user', 'members.user');
+    }
+
+    /** عضو في الفريق ليس القائد. */
+    protected function member(Team $team): Worker
+    {
+        return $team->members->firstWhere('id', '!=', $team->leader_id);
     }
 
     protected function actingAsUser(User $user): static

@@ -56,7 +56,7 @@ class AuthController extends Controller
 
     public function me(Request $request): UserResource
     {
-        return new UserResource($request->user()->load('customer'));
+        return new UserResource($request->user()->load(['customer', 'worker.teams']));
     }
 
     public function updateProfile(Request $request): UserResource
@@ -69,7 +69,7 @@ class AuthController extends Controller
         ]);
         $user->update($data);
 
-        return new UserResource($user->load('customer'));
+        return new UserResource($user->load(['customer', 'worker.teams']));
     }
 
     public function changePassword(Request $request): JsonResponse
@@ -97,7 +97,7 @@ class AuthController extends Controller
                 'token' => $token->plainTextToken,
                 'token_type' => 'Bearer',
                 'expires_at' => $token->accessToken->expires_at?->toAtomString(),
-                'user' => new UserResource($user->load('customer')),
+                'user' => new UserResource($user->load(['customer', 'worker.teams'])),
             ],
         ], $status);
     }

@@ -54,15 +54,19 @@ class AuthorizationTest extends ApiTestCase
     public function test_worker_sees_only_assigned_bookings_and_contracts(): void
     {
         [, $customer] = $this->customer();
-        $worker = $this->worker();
+        $leader = $this->team()->leader;
+        $housekeeper = $this->worker();
         $booking = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create();
         $contract = Contract::factory()->for($customer)->create();
 
-        $this->actingAsWorker($worker);
+        $this->actingAsWorker($leader);
         $this->getJson("/api/v1/worker/bookings/{$booking->id}")->assertStatus(404);
         $this->postJson("/api/v1/worker/bookings/{$booking->id}/status", ['status' => 'on_the_way'])->assertStatus(404);
-        $this->getJson("/api/v1/worker/contracts/{$contract->id}")->assertStatus(404);
         $this->getJson('/api/v1/worker/bookings')->assertOk()->assertJsonCount(0, 'data');
+
+        $this->actingAsWorker($housekeeper);
+        $this->getJson("/api/v1/worker/contracts/{$contract->id}")->assertStatus(404);
+        $this->getJson('/api/v1/worker/contracts')->assertOk()->assertJsonCount(0, 'data');
     }
 
     public function test_roles_cannot_use_each_others_endpoints(): void
@@ -81,7 +85,7 @@ class AuthorizationTest extends ApiTestCase
     public function test_customer_cannot_advance_status_or_forge_prices(): void
     {
         [$user, , $address] = $this->customer();
-        $this->worker();
+        $this->team();
         $price = ServicePrice::where('label_ar', 'شقة حتى 3 غرف')->firstOrFail();
 
         // المبلغ من الخادم فقط — أي total/status مرسل يُتجاهل

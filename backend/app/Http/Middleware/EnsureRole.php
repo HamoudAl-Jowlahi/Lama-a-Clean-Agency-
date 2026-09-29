@@ -26,6 +26,9 @@ class EnsureRole
             throw BusinessRuleException::make('ACCOUNT_SUSPENDED', status: 403);
         }
 
+        // ملف الدور يُحمّل مرة واحدة لكل الطلب ($request->user()->customer / ->worker)
+        $user->loadMissing($role === UserRole::Customer->value ? 'customer' : 'worker');
+
         return $next($request);
     }
 }

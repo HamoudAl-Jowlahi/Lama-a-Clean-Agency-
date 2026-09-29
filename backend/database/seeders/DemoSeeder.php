@@ -14,6 +14,7 @@ use App\Enums\ComplaintStatus;
 use App\Enums\ContractStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\WorkerStatus;
+use App\Enums\WorkerType;
 use App\Models\Address;
 use App\Models\AdminUser;
 use App\Models\Booking;
@@ -22,8 +23,10 @@ use App\Models\Contract;
 use App\Models\ContractPlan;
 use App\Models\Customer;
 use App\Models\ServicePrice;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Worker;
+use App\Services\TeamService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -40,6 +43,9 @@ class DemoSeeder extends Seeder
     /** @var array<string, Worker> */
     private array $workers = [];
 
+    /** @var array<string, Team> */
+    private array $teams = [];
+
     /** @var array<string, Customer> */
     private array $customers = [];
 
@@ -54,11 +60,19 @@ class DemoSeeder extends Seeder
         $this->ops = $this->admin('مدير العمليات', 'ops@lamaa.test', AdminRole::Operations);
         $this->support = $this->admin('خدمة العملاء', 'support@lamaa.test', AdminRole::Support);
 
-        foreach (['فاطمة', 'مريم', 'عائشة', 'خديجة', 'أمل'] as $name) {
+        // الخادمات — للعقود فقط
+        foreach (['فاطمة', 'مريم', 'عائشة', 'خديجة'] as $name) {
             $this->workers[$name] = $this->worker($name);
         }
         $this->workers['زينب'] = $this->worker('زينب', WorkerStatus::OnLeave);
         $this->workers['حليمة'] = $this->worker('حليمة', WorkerStatus::Inactive);
+
+        // فرق الزيارات (CR-3) — القائد أول اسم
+        $teams = app(TeamService::class);
+        foreach (['فريق أ' => ['هدى', 'سلمى', 'رحاب'], 'فريق ب' => ['منيرة', 'جميلة', 'أمل']] as $teamName => $names) {
+            $members = array_map(fn ($n) => $this->workers[$n] = $this->worker($n, type: WorkerType::Cleaner), $names);
+            $this->teams[$teamName] = $teams->create($teamName, array_map(fn ($w) => $w->id, $members), $members[0]->id, $this->ops);
+        }
 
         foreach ([
             'سارة أحمد' => 'حي النرجس', 'نورة العتيبي' => 'حي الربيع', 'خالد الحربي' => 'حي الصحافة',
@@ -82,13 +96,13 @@ class DemoSeeder extends Seeder
 
         $this->booking('نورة العتيبي', $villa, $today->copy()->addDay(), '08:00', BookingStatus::Pending);
         $this->booking('ريم القحطاني', $windows, $today->copy()->addDay(), '16:00', BookingStatus::Confirmed);
-        $this->booking('سارة أحمد', $full, $today, '10:00', BookingStatus::OnTheWay, 'فاطمة');
-        $this->booking('خالد الحربي', $full, $today, '14:00', BookingStatus::Assigned, 'خديجة');
+        $this->booking('سارة أحمد', $full, $today, '10:00', BookingStatus::OnTheWay, 'فريق أ');
+        $this->booking('خالد الحربي', $full, $today, '14:00', BookingStatus::Assigned, 'فريق ب');
 
-        $done = $this->booking('عبدالله السبيعي', $full, $today->copy()->subDay(), '10:00', BookingStatus::Completed, 'أمل');
+        $done = $this->booking('عبدالله السبيعي', $full, $today->copy()->subDay(), '10:00', BookingStatus::Completed, 'فريق ب');
         $done->rating()->create([
             'customer_id' => $done->customer_id,
-            'worker_id' => $this->workers['أمل']->id,
+            'team_id' => $this->teams['فريق ب']->id,
             'service_score' => 2,
             'worker_score' => 3,
             'comment' => 'التنظيف غير مكتمل في المطبخ',
@@ -98,8 +112,9 @@ class DemoSeeder extends Seeder
         $this->booking('ريم القحطاني', $windows, $today->copy()->subDays(2), '18:00', BookingStatus::Cancelled);
     }
 
-    private function booking(string $customer, ServicePrice $price, Carbon $date, string $time, BookingStatus $target, ?string $worker = null): Booking
+    private function booking(string $customer, ServicePrice $price, Carbon $date, string $time, BookingStatus $target, ?string $teamName = null): Booking
     {
+        $team = $teamName ? $this->teams[$teamName] : null;
         $c = $this->customers[$customer];
         $address = Address::findOrFail($c->default_address_id);
         $price->loadMissing('service');
@@ -135,16 +150,18 @@ class DemoSeeder extends Seeder
             $actor = match ($status) {
                 BookingStatus::Pending, BookingStatus::Cancelled => [ActorType::Customer, $c->user_id],
                 BookingStatus::Confirmed, BookingStatus::Assigned => [ActorType::Admin, $this->ops->id],
-                default => [ActorType::Worker, $this->workers[$worker]->user_id],
+                default => [ActorType::Worker, Worker::whereKey($team->leader_id)->value('user_id')],
             };
             $booking->statusLogs()->create(['from_status' => $from?->value, 'to_status' => $status->value, 'actor_type' => $actor[0], 'actor_id' => $actor[1]]);
 
             if ($status === BookingStatus::Assigned) {
+                $answered = $target !== BookingStatus::Assigned;
                 $booking->assignments()->create([
-                    'worker_id' => $this->workers[$worker]->id,
+                    'team_id' => $team->id,
                     'assigned_by' => $this->ops->id,
-                    'status' => $target === BookingStatus::Assigned ? AssignmentStatus::Pending : AssignmentStatus::Accepted,
-                    'responded_at' => $target === BookingStatus::Assigned ? null : now(),
+                    'status' => $answered ? AssignmentStatus::Accepted : AssignmentStatus::Pending,
+                    'responded_by' => $answered ? $team->leader_id : null,
+                    'responded_at' => $answered ? now() : null,
                 ]);
             }
             $from = $status;
@@ -302,11 +319,11 @@ class DemoSeeder extends Seeder
         return $admin;
     }
 
-    private function worker(string $name, WorkerStatus $status = WorkerStatus::Active): Worker
+    private function worker(string $name, WorkerStatus $status = WorkerStatus::Active, WorkerType $type = WorkerType::Housekeeper): Worker
     {
         return Worker::factory()
             ->for(User::factory()->worker()->state(['name' => $name]))
-            ->create(['status' => $status]);
+            ->create(['status' => $status, 'type' => $type]);
     }
 
     private function customer(string $name, string $district): Customer

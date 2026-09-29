@@ -23,9 +23,16 @@ class Rating extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    /** للعقود: الخادمة المُقيَّمة. */
     public function worker(): BelongsTo
     {
         return $this->belongsTo(Worker::class);
+    }
+
+    /** للزيارات: الفريق المُقيَّم (CR-3). */
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
     }
 
     public function scopeVisible(Builder $query): void

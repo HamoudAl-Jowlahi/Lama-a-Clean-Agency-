@@ -61,13 +61,13 @@ class Booking extends Model
 
     public function assignments(): HasMany
     {
-        return $this->hasMany(WorkerAssignment::class);
+        return $this->hasMany(BookingAssignment::class);
     }
 
     /** الإسناد الفعّال (بانتظار الرد أو مقبول). */
     public function activeAssignment(): HasOne
     {
-        return $this->hasOne(WorkerAssignment::class)
+        return $this->hasOne(BookingAssignment::class)
             ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted])
             ->latestOfMany();
     }
@@ -92,11 +92,18 @@ class Booking extends Model
         $query->where('customer_id', $customer->id);
     }
 
-    /** الزيارات المسندة حالياً لعاملة (للـ API الخاص بها). */
+    /** الزيارات المسندة حالياً لفريق هذا العضو (CR-3) — للـ API الخاص به. */
     public function scopeAssignedTo(Builder $query, Worker $worker): void
     {
         $query->whereHas('assignments', fn ($q) => $q
-            ->where('worker_id', $worker->id)
+            ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted])
+            ->whereHas('team.members', fn ($m) => $m->whereKey($worker->id)));
+    }
+
+    public function scopeAssignedToTeam(Builder $query, Team $team): void
+    {
+        $query->whereHas('assignments', fn ($q) => $q
+            ->where('team_id', $team->id)
             ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted]));
     }
 }

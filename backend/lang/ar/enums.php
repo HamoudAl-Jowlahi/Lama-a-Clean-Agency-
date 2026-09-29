@@ -4,6 +4,7 @@ return [
     'user_role' => ['customer' => 'عميل', 'worker' => 'عاملة'],
     'user_status' => ['active' => 'نشط', 'suspended' => 'موقوف'],
     'worker_status' => ['active' => 'نشطة', 'inactive' => 'غير نشطة', 'on_leave' => 'إجازة'],
+    'worker_type' => ['cleaner' => 'فريق الزيارات', 'housekeeper' => 'خادمة (عقود)'],
     'admin_role' => ['super_admin' => 'مدير عام', 'operations' => 'مدير العمليات', 'support' => 'خدمة العملاء'],
 
     'booking_status' => [

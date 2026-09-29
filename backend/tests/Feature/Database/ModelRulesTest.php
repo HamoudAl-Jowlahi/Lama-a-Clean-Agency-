@@ -14,6 +14,7 @@ use App\Models\Contract;
 use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\Rating;
+use App\Models\Team;
 use App\Models\User;
 use App\Models\Worker;
 use App\Support\Settings;
@@ -139,16 +140,19 @@ class ModelRulesTest extends TestCase
     public function test_scopes_isolate_customers_and_workers(): void
     {
         [$mine, $other] = Booking::factory()->count(2)->create();
-        $worker = Worker::factory()->create();
+        $team = Team::factory()->create();
+        $member = $team->members()->whereKeyNot($team->leader_id)->firstOrFail();
+        $outsider = Worker::factory()->cleaner()->create();
         $admin = AdminUser::factory()->create();
-        $mine->assignments()->create(['worker_id' => $worker->id, 'assigned_by' => $admin->id, 'status' => AssignmentStatus::Accepted]);
-        $other->assignments()->create(['worker_id' => $worker->id, 'assigned_by' => $admin->id, 'status' => AssignmentStatus::Rejected]);
+        $mine->assignments()->create(['team_id' => $team->id, 'assigned_by' => $admin->id, 'status' => AssignmentStatus::Accepted]);
+        $other->assignments()->create(['team_id' => $team->id, 'assigned_by' => $admin->id, 'status' => AssignmentStatus::Rejected]);
 
         $customer = Customer::findOrFail($mine->customer_id);
 
         $this->assertSame([$mine->id], Booking::forCustomer($customer)->pluck('id')->all());
-        // الإسناد المرفوض لا يمنح العاملة حق رؤية الطلب
-        $this->assertSame([$mine->id], Booking::assignedTo($worker)->pluck('id')->all());
+        // كل أعضاء الفريق يرون زيارته، والإسناد المرفوض لا يمنح حق الرؤية
+        $this->assertSame([$mine->id], Booking::assignedTo($member)->pluck('id')->all());
+        $this->assertSame([], Booking::assignedTo($outsider)->pluck('id')->all());
     }
 
     public function test_user_role_helpers(): void

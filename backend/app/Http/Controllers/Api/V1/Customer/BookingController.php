@@ -19,7 +19,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 /** زيارات العميل. كل استعلام عبر forCustomer() → طلب غير مملوك = 404. */
 class BookingController extends Controller
 {
-    private const WITH = ['items', 'payment', 'rating', 'statusLogs', 'activeAssignment.worker.user'];
+    private const WITH = ['items', 'payment', 'rating', 'statusLogs', 'activeAssignment.team'];
 
     public function __construct(private BookingService $bookings) {}
 
@@ -46,7 +46,7 @@ class BookingController extends Controller
         $request->validate(['status' => ['nullable', 'string', 'max:20']]);
 
         $page = Booking::forCustomer($request->user()->customer)
-            ->with(['items', 'activeAssignment.worker.user'])
+            ->with(['items', 'activeAssignment.team'])
             ->when($request->input('status'), fn ($q, $s) => $q->where('status', $s))
             ->latest('id')
             ->paginate(20);

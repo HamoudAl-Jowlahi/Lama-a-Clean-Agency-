@@ -6,16 +6,20 @@ use App\Enums\AssignmentStatus;
 use App\Enums\BookingStatus;
 use App\Enums\ContractStatus;
 use App\Enums\WorkerStatus;
+use App\Enums\WorkerType;
 use App\Exceptions\BusinessRuleException;
 use App\Models\Booking;
 use App\Models\ContractAssignment;
+use App\Models\Team;
 use App\Models\Worker;
 use App\Support\Settings;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 /**
- * مصدر واحد لتوفر العاملات — يستخدمه إسناد الزيارات والعقود والاستبدال.
+ * مصدر واحد للتوفر (CR-3):
+ * - الزيارات تُسند لفرق: الطاقة في أي فترة = عدد الفرق المتاحة.
+ * - العقود تُسند لخادمات فقط، ولا تتداخل عقود الخادمة الواحدة.
  * الأوقات (scheduled_date/time) بتوقيت الوكالة (agency.timezone).
  */
 class AvailabilityService
@@ -33,13 +37,12 @@ class AvailabilityService
 
     // ------------------------------------------------------------ visits
 
-    public function ensureWorkerCanTakeBooking(Worker $worker, Booking $booking): void
+    public function ensureTeamCanTakeBooking(Team $team, Booking $booking): void
     {
-        $this->ensureWorkerActive($worker);
-        $date = CarbonImmutable::parse($booking->scheduled_date);
-
-        if ($this->hasContractOn($worker, $date, $date)) {
-            throw BusinessRuleException::make('WORKER_BUSY_CONTRACT');
+        $team->loadMissing('leader.user');
+        if (! $team->is_active || ! $team->leader
+            || $team->leader->status !== WorkerStatus::Active || ! $team->leader->user->isActive()) {
+            throw BusinessRuleException::make('TEAM_UNAVAILABLE');
         }
 
         $slot = (int) Settings::get('slot_minutes');
@@ -47,15 +50,15 @@ class AvailabilityService
 
         $clash = Booking::query()
             ->whereKeyNot($booking->id)
-            ->whereDate('scheduled_date', $date->toDateString())
+            ->whereDate('scheduled_date', CarbonImmutable::parse($booking->scheduled_date)->toDateString())
             ->whereIn('status', BookingStatus::occupyingWorker())
-            ->whereHas('assignments', fn ($q) => $q->where('worker_id', $worker->id)
+            ->whereHas('assignments', fn ($q) => $q->where('team_id', $team->id)
                 ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted]))
             ->pluck('scheduled_time')
             ->contains(fn ($t) => abs($this->minutes($t) - $time) < $slot);
 
         if ($clash) {
-            throw BusinessRuleException::make('WORKER_BUSY_BOOKING');
+            throw BusinessRuleException::make('TEAM_BUSY');
         }
     }
 
@@ -63,25 +66,17 @@ class AvailabilityService
 
     public function ensureWorkerCanTakeContract(Worker $worker, CarbonInterface $from, CarbonInterface $to, ?int $exceptContractId = null): void
     {
+        if ($worker->type !== WorkerType::Housekeeper) {
+            throw BusinessRuleException::make('WORKER_TYPE_MISMATCH', status: 422);
+        }
         $this->ensureWorkerActive($worker);
 
         if ($this->hasContractOn($worker, $from, $to, $exceptContractId)) {
             throw BusinessRuleException::make('WORKER_BUSY_CONTRACT');
         }
-
-        $hasVisits = Booking::query()
-            ->whereBetween('scheduled_date', [$from->toDateString(), $to->toDateString()])
-            ->whereIn('status', BookingStatus::occupyingWorker())
-            ->whereHas('assignments', fn ($q) => $q->where('worker_id', $worker->id)
-                ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted]))
-            ->exists();
-
-        if ($hasVisits) {
-            throw BusinessRuleException::make('WORKER_BUSY_BOOKING');
-        }
     }
 
-    /** هل لدى العاملة إسناد عقد (قائم أو قادم) يتقاطع مع الفترة؟ */
+    /** هل لدى الخادمة إسناد عقد (قائم أو قادم) يتقاطع مع الفترة؟ */
     public function hasContractOn(Worker $worker, CarbonInterface $from, CarbonInterface $to, ?int $exceptContractId = null): bool
     {
         return ContractAssignment::query()
@@ -110,11 +105,9 @@ class AvailabilityService
         $step = (int) Settings::get('slot_minutes');
         $earliest = $this->now()->addHours((int) Settings::get('min_booking_lead_hours'));
 
-        $freeWorkers = Worker::query()
-            ->where('status', WorkerStatus::Active)
-            ->whereHas('user', fn ($q) => $q->where('status', 'active'))
-            ->get()
-            ->reject(fn (Worker $w) => $this->hasContractOn($w, $day, $day))
+        $teams = Team::available()
+            ->whereHas('leader', fn ($q) => $q->where('status', WorkerStatus::Active)
+                ->whereHas('user', fn ($u) => $u->where('status', 'active')))
             ->count();
 
         $taken = Booking::query()
@@ -129,7 +122,7 @@ class AvailabilityService
             $time = $t->format('H:i');
             $slots[] = [
                 'time' => $time,
-                'available' => $t->gte($earliest) && ($taken[$time] ?? 0) < $freeWorkers,
+                'available' => $t->gte($earliest) && ($taken[$time] ?? 0) < $teams,
             ];
         }
 

@@ -19,7 +19,8 @@ class BookingFlowTest extends ApiTestCase
     public function test_full_visit_lifecycle(): void
     {
         [$user, $customer, $address] = $this->customer();
-        $worker = $this->worker();
+        $team = $this->team();
+        $leader = $team->leader;
         $price = ServicePrice::where('label_ar', 'شقة حتى 3 غرف')->firstOrFail();
 
         // 1) العميل يرى الخدمات والأوقات ويحسب السعر
@@ -48,10 +49,10 @@ class BookingFlowTest extends ApiTestCase
         // 3) الإدارة تراجع وتسند (SRS: تستطيع الإدارة رؤية الطلب وإسناده)
         $service = app(BookingService::class);
         $service->confirm($booking, $this->admin);
-        $service->assign($booking, $worker, $this->admin);
+        $service->assign($booking, $team, $this->admin);
 
-        // 4) العاملة ترى الطلب المسند وتحدّث حالته (SRS)
-        $this->actingAsWorker($worker)->getJson('/api/v1/worker/bookings?scope=new')
+        // 4) قائد الفريق يرى الطلب المسند ويحدّث حالته (SRS + CR-3)
+        $this->actingAsWorker($leader)->getJson('/api/v1/worker/bookings?scope=new')
             ->assertOk()->assertJsonPath('data.0.id', $bookingId)
             ->assertJsonPath('data.0.customer.phone', null); // الهاتف مخفي قبل التوجه
 
@@ -74,7 +75,7 @@ class BookingFlowTest extends ApiTestCase
         // 5) العميل يتابع الحالة بسجل زمني كامل + استحقاق نقدي (SRS + CR-1)
         $this->actingAsUser($user)->getJson("/api/v1/bookings/{$bookingId}")->assertOk()
             ->assertJsonPath('data.status.value', 'completed')
-            ->assertJsonPath('data.worker.name', explode(' ', $worker->user->name)[0])
+            ->assertJsonPath('data.team.name', $team->name)
             ->assertJsonPath('data.payment.status.value', 'due')
             ->assertJsonPath('data.payment.amount', '250.00')
             ->assertJsonPath('data.can_rate', true)
@@ -121,7 +122,7 @@ class BookingFlowTest extends ApiTestCase
     public function test_idempotency_key_prevents_duplicate_bookings(): void
     {
         [$user, , $address] = $this->customer();
-        $this->worker();
+        $this->team();
         $payload = [
             'service_price_id' => ServicePrice::firstOrFail()->id,
             'address_id' => $address->id,
@@ -139,7 +140,7 @@ class BookingFlowTest extends ApiTestCase
     public function test_customer_cancellation_policy(): void
     {
         [$user, , $address] = $this->customer();
-        $this->worker();
+        $this->team();
         $priceId = ServicePrice::firstOrFail()->id;
 
         // اليوم 9:00 → موعد الغد 10:00 قابل للإلغاء
@@ -164,11 +165,11 @@ class BookingFlowTest extends ApiTestCase
         $priceId = ServicePrice::firstOrFail()->id;
         $base = ['service_price_id' => $priceId, 'address_id' => $address->id, 'scheduled_date' => $this->day(1)];
 
-        // لا توجد عاملات نشطة → لا طاقة
+        // لا توجد فرق → لا طاقة
         $this->actingAsUser($user)->postJson('/api/v1/bookings', $base + ['scheduled_time' => '10:00'])
             ->assertStatus(409)->assertJsonPath('code', 'SLOT_UNAVAILABLE');
 
-        $this->worker();
+        $this->team();
         // خارج أوقات العمل / ليس بداية فترة
         $this->postJson('/api/v1/bookings', $base + ['scheduled_time' => '22:00'])
             ->assertStatus(422)->assertJsonPath('code', 'SLOT_INVALID');
@@ -176,18 +177,41 @@ class BookingFlowTest extends ApiTestCase
         $this->postJson('/api/v1/bookings', ['scheduled_date' => $this->day(0), 'scheduled_time' => '14:00'] + $base)
             ->assertStatus(409)->assertJsonPath('code', 'SLOT_UNAVAILABLE');
 
-        // عاملة واحدة = حجز واحد لكل فترة
+        // فريق واحد = زيارة واحدة لكل فترة
         $this->postJson('/api/v1/bookings', $base + ['scheduled_time' => '10:00'])->assertCreated();
         $this->postJson('/api/v1/bookings', $base + ['scheduled_time' => '10:00'])
             ->assertStatus(409)->assertJsonPath('code', 'SLOT_UNAVAILABLE');
     }
 
+    public function test_worker_must_accept_explicitly_before_starting(): void
+    {
+        [, $customer] = $this->customer();
+        $team = $this->team();
+        $worker = $team->leader; // القائد
+        $booking = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create();
+        app(BookingService::class)->assign($booking, $team, $this->admin);
+
+        // قبل القبول: لا خطوة تالية، و"في الطريق" مرفوض
+        $this->actingAsWorker($worker)->getJson("/api/v1/worker/bookings/{$booking->id}")->assertOk()
+            ->assertJsonPath('data.assignment_status.value', 'pending')
+            ->assertJsonPath('data.next_statuses', []);
+        $this->postJson("/api/v1/worker/bookings/{$booking->id}/status", ['status' => 'on_the_way'])
+            ->assertStatus(409)->assertJsonPath('code', 'ASSIGNMENT_NOT_ACCEPTED');
+        $this->assertSame(BookingStatus::Assigned, $booking->fresh()->status);
+
+        // بعد القبول الصريح
+        $this->postJson("/api/v1/worker/bookings/{$booking->id}/accept")->assertOk();
+        $this->postJson("/api/v1/worker/bookings/{$booking->id}/status", ['status' => 'on_the_way'])
+            ->assertOk()->assertJsonPath('data.status.value', 'on_the_way');
+    }
+
     public function test_worker_rejection_returns_booking_to_confirmed(): void
     {
         [, $customer] = $this->customer();
-        $worker = $this->worker();
+        $team = $this->team();
+        $worker = $team->leader; // القائد
         $booking = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create();
-        app(BookingService::class)->assign($booking, $worker, $this->admin);
+        app(BookingService::class)->assign($booking, $team, $this->admin);
 
         $this->actingAsWorker($worker)->postJson("/api/v1/worker/bookings/{$booking->id}/reject", ['reason' => 'تعارض في الموعد'])
             ->assertOk()->assertJsonPath('data.status.value', 'confirmed');

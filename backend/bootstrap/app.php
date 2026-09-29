@@ -2,6 +2,7 @@
 
 use App\Exceptions\BusinessRuleException;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureWorkerType;
 use App\Http\Middleware\SetLocaleFromHeader;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -25,7 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['role' => EnsureRole::class]);
+        $middleware->alias([
+            'role' => EnsureRole::class,
+            'worker.type' => EnsureWorkerType::class,
+        ]);
         $middleware->api(prepend: [SetLocaleFromHeader::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

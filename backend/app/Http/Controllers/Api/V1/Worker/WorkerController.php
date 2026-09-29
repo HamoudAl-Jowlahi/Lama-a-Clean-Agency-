@@ -9,6 +9,7 @@ use App\Http\Resources\WorkerBookingResource;
 use App\Http\Resources\WorkerContractResource;
 use App\Models\Booking;
 use App\Models\Contract;
+use App\Models\Rating;
 use App\Models\Worker;
 use App\Services\AvailabilityService;
 use App\Services\BookingService;
@@ -22,7 +23,7 @@ use Illuminate\Validation\Rule;
  */
 class WorkerController extends Controller
 {
-    private const BOOKING_WITH = ['items', 'customer.user', 'activeAssignment'];
+    private const BOOKING_WITH = ['items', 'customer.user', 'activeAssignment.team'];
 
     public function __construct(private BookingService $bookings) {}
 
@@ -38,7 +39,7 @@ class WorkerController extends Controller
         $page = Booking::assignedTo($worker)
             ->with(self::BOOKING_WITH)
             ->when($data['scope'] ?? null, fn ($q, $scope) => match ($scope) {
-                'new' => $q->whereHas('assignments', fn ($a) => $a->where('worker_id', $worker->id)->where('status', 'pending')),
+                'new' => $q->whereHas('assignments', fn ($a) => $a->where('status', 'pending')),
                 'today' => $q->whereDate('scheduled_date', $today),
                 'upcoming' => $q->whereDate('scheduled_date', '>', $today)->whereNotIn('status', ['completed', 'cancelled']),
                 'done' => $q->where('status', BookingStatus::Completed),
@@ -113,7 +114,10 @@ class WorkerController extends Controller
     public function ratings(Request $request): AnonymousResourceCollection
     {
         $worker = $this->worker($request);
-        $visible = $worker->ratings()->visible();
+        // فريق الزيارات: تقييمات فريقه · الخادمة: تقييماتها في العقود
+        $visible = $worker->isCleaner()
+            ? Rating::whereIn('team_id', $worker->teams()->pluck('teams.id'))->visible()
+            : $worker->ratings()->visible();
 
         return RatingResource::collection((clone $visible)->latest('id')->paginate(20))->additional([
             'meta' => [

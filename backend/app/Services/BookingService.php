@@ -8,11 +8,12 @@ use App\Enums\BookingStatus;
 use App\Exceptions\BusinessRuleException;
 use App\Models\AdminUser;
 use App\Models\Booking;
+use App\Models\BookingAssignment;
 use App\Models\Customer;
 use App\Models\Payment;
 use App\Models\ServicePrice;
+use App\Models\Team;
 use App\Models\Worker;
-use App\Models\WorkerAssignment;
 use App\StateMachines\BookingStateMachine;
 use App\Support\AuditLogger;
 use App\Support\Settings;
@@ -126,24 +127,25 @@ class BookingService
         return $booking;
     }
 
-    public function assign(Booking $booking, Worker $worker, AdminUser $admin): WorkerAssignment
+    /** CR-3: الزيارة تُسند لفريق كامل، وقائده يقبل أو يرفض. */
+    public function assign(Booking $booking, Team $team, AdminUser $admin): BookingAssignment
     {
-        return DB::transaction(function () use ($booking, $worker, $admin) {
-            // قفل صف العاملة يمنع إسنادين متزامنين لنفس الوقت
-            $worker = Worker::lockForUpdate()->findOrFail($worker->id);
-            $this->availability->ensureWorkerCanTakeBooking($worker, $booking);
+        return DB::transaction(function () use ($booking, $team, $admin) {
+            // قفل صف الفريق يمنع إسنادين متزامنين لنفس الوقت
+            $team = Team::lockForUpdate()->findOrFail($team->id);
+            $this->availability->ensureTeamCanTakeBooking($team, $booking);
 
             $this->machine->transition($booking, BookingStatus::Assigned, ActorType::Admin, $admin->id);
 
             $autoAccept = ! Settings::get('booking.worker_can_reject_assignment');
             $assignment = $booking->assignments()->create([
-                'worker_id' => $worker->id,
+                'team_id' => $team->id,
                 'assigned_by' => $admin->id,
                 'status' => $autoAccept ? AssignmentStatus::Accepted : AssignmentStatus::Pending,
                 'responded_at' => $autoAccept ? now() : null,
             ]);
 
-            AuditLogger::log($admin, 'booking.assigned', $booking, new: ['worker_id' => $worker->id]);
+            AuditLogger::log($admin, 'booking.assigned', $booking, new: ['team_id' => $team->id]);
 
             return $assignment;
         });
@@ -176,65 +178,58 @@ class BookingService
         return $booking;
     }
 
-    // ============================================================== worker
+    // ================================================== team leader (CR-3)
 
-    public function accept(Booking $booking, Worker $worker): WorkerAssignment
+    public function accept(Booking $booking, Worker $leader): BookingAssignment
     {
-        $assignment = $this->assignmentOf($booking, $worker);
+        $assignment = $this->leaderAssignment($booking, $leader);
         if ($assignment->status !== AssignmentStatus::Pending) {
             throw BusinessRuleException::make('ASSIGNMENT_ALREADY_ANSWERED');
         }
 
-        $assignment->update(['status' => AssignmentStatus::Accepted, 'responded_at' => now()]);
+        $assignment->update(['status' => AssignmentStatus::Accepted, 'responded_at' => now(), 'responded_by' => $leader->id]);
 
         return $assignment;
     }
 
-    public function rejectAssignment(Booking $booking, Worker $worker, string $reason): Booking
+    public function rejectAssignment(Booking $booking, Worker $leader, string $reason): Booking
     {
         if (! Settings::get('booking.worker_can_reject_assignment')) {
             throw BusinessRuleException::make('ASSIGNMENT_REJECT_NOT_ALLOWED', status: 403);
         }
 
-        $assignment = $this->assignmentOf($booking, $worker);
+        $assignment = $this->leaderAssignment($booking, $leader);
         if ($assignment->status !== AssignmentStatus::Pending) {
             throw BusinessRuleException::make('ASSIGNMENT_ALREADY_ANSWERED');
         }
 
-        return DB::transaction(function () use ($booking, $worker, $assignment, $reason) {
-            $assignment->update(['status' => AssignmentStatus::Rejected, 'responded_at' => now(), 'rejection_reason' => $reason]);
-            $this->machine->transition($booking, BookingStatus::Confirmed, ActorType::Worker, $worker->user_id, $reason);
+        return DB::transaction(function () use ($booking, $leader, $assignment, $reason) {
+            $assignment->update([
+                'status' => AssignmentStatus::Rejected,
+                'responded_at' => now(),
+                'responded_by' => $leader->id,
+                'rejection_reason' => $reason,
+            ]);
+            $this->machine->transition($booking, BookingStatus::Confirmed, ActorType::Worker, $leader->user_id, $reason);
 
             return $booking;
         });
     }
 
-    /** العاملة تتقدم خطوة: on_the_way ← in_progress ← completed. */
-    public function advance(Booking $booking, Worker $worker, BookingStatus $to): Booking
+    /** قائد الفريق يتقدم خطوة: on_the_way ← in_progress ← completed (بعد القبول الصريح فقط). */
+    public function advance(Booking $booking, Worker $leader, BookingStatus $to): Booking
     {
-        $assignment = $this->assignmentOf($booking, $worker);
+        $assignment = $this->leaderAssignment($booking, $leader);
 
-        return DB::transaction(function () use ($booking, $worker, $to, $assignment) {
-            // "بدء التوجه" يعني قبول الإسناد ضمنياً إن لم تقبله بعد
-            if ($to === BookingStatus::OnTheWay && $assignment->status === AssignmentStatus::Pending) {
-                $assignment->update(['status' => AssignmentStatus::Accepted, 'responded_at' => now()]);
-            }
-            if ($assignment->fresh()->status !== AssignmentStatus::Accepted) {
-                throw BusinessRuleException::make('ASSIGNMENT_NOT_ACCEPTED');
-            }
+        if ($assignment->status !== AssignmentStatus::Accepted) {
+            throw BusinessRuleException::make('ASSIGNMENT_NOT_ACCEPTED');
+        }
 
-            if ($to === BookingStatus::Completed) {
-                return $this->complete($booking, ActorType::Worker, $worker->user_id);
-            }
+        if ($to === BookingStatus::Completed) {
+            return $this->complete($booking, ActorType::Worker, $leader->user_id);
+        }
 
-            return $this->machine->transition($booking, $to, ActorType::Worker, $worker->user_id);
-        });
-    }
-
-    /** الانتقالات المتاحة للعاملة الآن (لإظهار الزر الصحيح في التطبيق). */
-    public function nextForWorker(Booking $booking): array
-    {
-        return $this->machine->nextFor($booking, ActorType::Worker);
+        return $this->machine->transition($booking, $to, ActorType::Worker, $leader->user_id);
     }
 
     // ============================================================= private
@@ -269,19 +264,26 @@ class BookingService
         });
     }
 
-    private function activeAssignment(Booking $booking): ?WorkerAssignment
+    private function activeAssignment(Booking $booking): ?BookingAssignment
     {
         return $booking->assignments()
             ->whereIn('status', [AssignmentStatus::Pending, AssignmentStatus::Accepted])
             ->latest('id')->first();
     }
 
-    private function assignmentOf(Booking $booking, Worker $worker): WorkerAssignment
+    /**
+     * الإسناد الفعّال بشرط أن يكون $worker قائد الفريق المسند.
+     * ليس في الفريق → 404 · عضو غير قائد → 403 TEAM_LEADER_ONLY.
+     */
+    private function leaderAssignment(Booking $booking, Worker $worker): BookingAssignment
     {
-        $assignment = $this->activeAssignment($booking);
+        $assignment = $this->activeAssignment($booking)?->load('team');
 
-        if (! $assignment || $assignment->worker_id !== $worker->id) {
+        if (! $assignment || ! $assignment->team->members()->whereKey($worker->id)->exists()) {
             throw BusinessRuleException::make('NOT_FOUND', status: 404);
+        }
+        if (! $assignment->team->isLeader($worker)) {
+            throw BusinessRuleException::make('TEAM_LEADER_ONLY', status: 403);
         }
 
         return $assignment;

@@ -39,8 +39,9 @@ class BookingResource extends JsonResource
             'payment_method' => 'cash',
             'payment' => $this->whenLoaded('payment', fn () => $this->payment ? new PaymentResource($this->payment) : null),
             'customer_notes' => $this->customer_notes,
-            'worker' => $this->whenLoaded('activeAssignment', fn () => $this->activeAssignment?->relationLoaded('worker')
-                ? ['name' => $this->firstName($this->activeAssignment->worker->user->name)]
+            // CR-3: الزيارة ينفذها فريق
+            'team' => $this->whenLoaded('activeAssignment', fn () => $this->activeAssignment?->relationLoaded('team')
+                ? ['name' => $this->activeAssignment->team->name]
                 : null),
             'timeline' => $this->whenLoaded('statusLogs', fn () => $this->timeline($this->statusLogs, BookingStatus::class)),
             'rating' => $this->whenLoaded('rating', fn () => $this->rating ? new RatingResource($this->rating) : null),

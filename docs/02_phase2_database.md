@@ -7,15 +7,15 @@
 
 | الملف | المحتوى |
 |---|---|
-| `backend/database/migrations/` | 5 ملفات Migration للمشروع + جداول Laravel/Sanctum/Notifications |
+| `backend/database/migrations/` | 6 ملفات Migration للمشروع (السادس: فرق الزيارات — CR-3) + جداول Laravel/Sanctum/Notifications |
 | `backend/app/Enums/` | 16 Enum — المصدر الوحيد لكل الحالات، بنصوص عربية/إنجليزية في `lang/*/enums.php` |
 | `backend/app/Models/` | 24 Model بالعلاقات والـ casts والـ scopes |
 | `backend/app/Models/Concerns/` | `HasDocumentNumber` · `HasStatusLogs` · `BelongsToBookingOrContract` |
 | `backend/app/Support/Settings.php` | قراءة الإعدادات: جدول `settings` أولاً ثم `config/agency.php` |
 | `backend/database/seeders/` | `CatalogSeeder` (خدمات، أسعار، باقات) · `AdminUserSeeder` · `DemoSeeder` (local فقط) |
-| `backend/tests/Feature/` | 20 اختباراً (165 تحققاً) |
+| `backend/tests/Feature/` | 20 اختباراً عند نهاية Phase 2 (المجموع الحالي في docs/03) |
 
-## الجداول (24 جدول مشروع + جداول Laravel: notifications, personal_access_tokens, sessions, jobs, cache)
+## الجداول (26 جدول مشروع بعد CR-3 + جداول Laravel: notifications, personal_access_tokens, sessions, jobs, cache)
 
 ```mermaid
 erDiagram
@@ -30,9 +30,12 @@ erDiagram
     addresses ||--o{ bookings : ""
     bookings ||--|{ booking_items : ""
     service_prices ||--o{ booking_items : ""
-    bookings ||--o{ worker_assignments : ""
-    workers ||--o{ worker_assignments : ""
-    admin_users ||--o{ worker_assignments : "assigned_by"
+    bookings ||--o{ booking_assignments : "CR-3"
+    teams ||--o{ booking_assignments : ""
+    teams ||--|{ team_members : ""
+    workers ||--o| team_members : "cleaner"
+    teams |o--o| workers : "leader"
+    admin_users ||--o{ booking_assignments : "assigned_by"
 
     contract_plans ||--o{ contracts : ""
     customers ||--o{ contracts : ""
@@ -47,7 +50,8 @@ erDiagram
     contracts ||--o{ payments : "monthly due"
     bookings ||--o| ratings : ""
     contracts ||--o{ ratings : "per worker"
-    workers ||--o{ ratings : ""
+    workers ||--o{ ratings : "contracts"
+    teams ||--o{ ratings : "visits"
     bookings ||--o{ complaints : ""
     contracts ||--o{ complaints : ""
     complaints ||--o{ complaint_messages : "timeline"
@@ -72,7 +76,7 @@ erDiagram
 | رقم الهوية للعاملة مشفّر ومخفي من JSON | `encrypted` cast + `$hidden` |
 | كلمات المرور مشفّرة | `hashed` cast |
 | الملاحظات الداخلية في الشكاوى لا تظهر للعميل | `ComplaintMessage::visibleToCustomer()` |
-| العاملة ترى فقط ما هو مسند إليها فعلاً (الإسناد المرفوض لا يُحتسب) | `Booking::assignedTo()` · `Contract::currentlyAssignedTo()` |
+| عضو الفريق يرى زيارات فريقه فقط، والخادمة عقودها فقط (الإسناد المرفوض لا يُحتسب) | `Booking::assignedTo()` · `Contract::currentlyAssignedTo()` |
 | أرقام مقروءة فريدة دون تعارض | `HasDocumentNumber`: `BK-` `CT-` `RQ-` `CM-` + السنة + الـ id |
 | أسماء ثابتة في أعمدة morph | `Relation::enforceMorphMap` في `AppServiceProvider` |
 

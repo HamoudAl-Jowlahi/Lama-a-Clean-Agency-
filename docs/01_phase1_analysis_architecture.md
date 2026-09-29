@@ -9,6 +9,7 @@
 |---|---|---|
 | CR-1 | **لا دفع داخل التطبيق.** الدفع نقداً عند إتمام الخدمة. | حذف بوابة الدفع وشاشة الدفع والـ Webhooks. جدول `payments` يبقى لتسجيل **التحصيل النقدي** فقط. |
 | CR-2 | **استئجار عاملة بعقد** (مثلاً دوام كامل لمدة شهر) بجانب الزيارة الواحدة، مع إمكانية **طلب استبدال العاملة أو إنهاء العقد** من التطبيق عند وجود مشكلة. | نوع طلب جديد (عقد)، جداول جديدة، شاشات جديدة للعميل والعاملة والإدارة. |
+| CR-3 | **الزيارات تنفذها فرق ثابتة** (الفريق يروح ينظف ويرجع)، و**الخادمات للعقود فقط** — لا "في الطريق" للخادمة. **قائد الفريق وحده** يقبل الزيارة ويحدّث حالتها ويستلم المبلغ. **القبول خطوة صريحة** قبل "في الطريق". | نوعا موظفين (`cleaner` / `housekeeper`)، جداول `teams` و `team_members`، الإسناد لفريق (`booking_assignments`)، تقييم الزيارة للفريق. التفاصيل في القسم 4ب. |
 
 ---
 
@@ -18,7 +19,7 @@
 
 | | زيارة (Visit) | عقد استئجار (Contract) |
 |---|---|---|
-| الفكرة | عاملة تأتي مرة واحدة لتنفيذ خدمة تنظيف | عاملة تعمل لدى العميل لفترة (شهر أو أكثر) حسب باقة |
+| الفكرة | **فريق** يأتي مرة واحدة لتنظيف مكان معين ثم يعود (CR-3) | **خادمة** تعمل لدى العميل لفترة (شهر أو أكثر) حسب باقة |
 | المدة | ساعات | شهر / عدة أشهر |
 | التسعير | حسب الخدمة (`service_prices`) | سعر شهري حسب الباقة (`contract_plans`) |
 | الدفع | نقداً عند إتمام الزيارة | نقداً عند نهاية كل شهر من العقد (افتراضي — انظر 11) |
@@ -49,8 +50,10 @@
 | إلغاء زيارة / عقد لم يبدأ | وفق السياسة (إعداد) | — | ✓ |
 | تأكيد / رفض الطلب أو العقد | — | — | ✓ |
 | إسناد عاملة | — | — | ✓ |
-| قبول / رفض إسناد الزيارة | — | ✓ وفق السياسة (إعداد) | — |
-| تحديث حالة تنفيذ الزيارة | — | ✓ ضمن الانتقالات المسموحة | ✓ |
+| قبول / رفض إسناد الزيارة | — | **قائد الفريق فقط** وفق السياسة (إعداد) | — |
+| تحديث حالة تنفيذ الزيارة | — | **قائد الفريق فقط**، بعد القبول الصريح | ✓ |
+| رؤية تفاصيل الزيارة | — | كل أعضاء الفريق المسند (الهاتف والمبلغ للقائد فقط) | ✓ |
+| رؤية العقد | — | الخادمة المسندة فقط، خلال فترتها | ✓ |
 | **طلب استبدال العاملة / إنهاء العقد** | ✓ لعقوده النشطة | — | ✓ معالجة واعتماد |
 | **تسجيل التحصيل النقدي** | — | (انظر 11) | ✓ |
 | التقييم | ✓ بعد اكتمال الزيارة / نهاية العقد | عرض تقييماتها | إدارة / إخفاء |
@@ -146,6 +149,24 @@ cancelled ◄────┴─────────────┘   (الع
 
 ---
 
+## 4ب. فرق الزيارات والخادمات — CR-3
+
+| | فريق الزيارات (`cleaner`) | الخادمة (`housekeeper`) |
+|---|---|---|
+| يعمل في | الزيارات فقط | العقود فقط |
+| الإسناد | الزيارة تُسند **لفريق كامل** | العقد يُسند **لخادمة** |
+| الحالات في التطبيق | قبول ← في الطريق ← جارٍ التنفيذ ← مكتمل | لا حالات تنفيذ — تعرض بيانات العقد وفترتها |
+| من يحدّث | **قائد الفريق فقط** (ويستلم المبلغ نقداً) | — (التفعيل والانتهاء تلقائي) |
+| التقييم | للفريق | للخادمة |
+
+- الفريق ثابت تُنشئه الإدارة: اسم + أعضاء + قائد من الأعضاء. العضو في فريق واحد فقط (`TeamService` يفرض ذلك).
+- **الطاقة الاستيعابية** للزيارات في أي فترة = عدد الفرق المفعّلة التي لها قائد نشط.
+- الفريق لا يُسند لزيارتين متداخلتين في الوقت (`TEAM_BUSY`).
+- عضو الفريق غير القائد يرى تفاصيل الزيارة (العنوان والخدمة والملاحظات) لكن بدون هاتف العميل أو المبلغ، ولا ينفذ أي إجراء (`TEAM_LEADER_ONLY`).
+- `GET /auth/me` يرجع `worker.type` و `worker.team.is_leader` — التطبيق يعرض الواجهة المناسبة.
+
+---
+
 ## 5. دورة حياة العقد (Contract) — CR-2
 
 ```
@@ -202,7 +223,9 @@ open ──► under_review ──► resolved ──► closed
 ### الحسابات
 - **users:** `id, name, phone unique, email unique nullable, password, role enum(customer, worker), status, locale, phone_verified_at, timestamps, deleted_at`
 - **customers:** `id, user_id FK unique, default_address_id FK nullable`
-- **workers:** `id, user_id FK unique, national_id_encrypted, status enum(active, inactive, on_leave), notes` — Index `status`
+- **workers:** `id, user_id FK unique, type enum(cleaner, housekeeper) (CR-3), national_id_encrypted, status enum(active, inactive, on_leave), notes` — Index `status`, `type`
+- **✚ teams (CR-3):** `id, name unique, leader_id FK→workers nullable, is_active, notes`
+- **✚ team_members (CR-3):** `id, team_id FK, worker_id FK unique` — العضو في فريق واحد فقط
 - **admin_users:** `id, name, email unique, password, role enum(super_admin, operations, support), is_active, last_login_at` (Guard منفصل)
 - **addresses:** `id, customer_id FK, label, city, district, street, building, floor, details, latitude, longitude, deleted_at`
 
@@ -211,7 +234,7 @@ open ──► under_review ──► resolved ──► closed
 - **service_prices:** `id, service_id FK, label_ar, unit, amount decimal(10,2), currency, is_active, effective_from, effective_to`
 - **bookings:** `id, booking_number unique, customer_id FK, address_id FK, address_snapshot JSON, status, scheduled_date, scheduled_time, subtotal, discount, total, currency, customer_notes, cancel_reason, cancelled_by_type, cancelled_at, confirmed_at, completed_at` — Index `(status, scheduled_date)`, `customer_id`
 - **booking_items:** `id, booking_id FK, service_id FK, service_price_id FK, service_name_snapshot, quantity, unit_price, line_total`
-- **worker_assignments:** `id, booking_id FK, worker_id FK, assigned_by FK→admin_users, status enum(pending, accepted, rejected, withdrawn), responded_at, rejection_reason` — Index `(worker_id, status)`
+- **booking_assignments** (يحل محل worker_assignments — CR-3): `id, booking_id FK, team_id FK, assigned_by FK→admin_users, status enum(pending, accepted, rejected, withdrawn), responded_by FK→workers (القائد), responded_at, rejection_reason` — Index `(team_id, status)`
 
 ### ✚ العقود (CR-2)
 - **contract_plans:** `id, name_ar, name_en, description_ar, work_days_per_week, hours_per_day, monthly_price decimal(10,2), currency, min_months, max_months, is_active, sort_order`
@@ -232,7 +255,7 @@ open ──► under_review ──► resolved ──► closed
   قيد: `booking_id` أو `contract_id` (واحد بالضبط). Index `(status, due_date)`
 
 ### التقييمات والشكاوى
-- **ratings:** `id, booking_id FK nullable unique, contract_id FK nullable, customer_id FK, worker_id FK, service_score, worker_score, comment, is_hidden` — قيد: زيارة أو عقد. للعقد: تقييم لكل عاملة عملت فيه (فريد على `contract_id + worker_id`).
+- **ratings:** `id, booking_id FK nullable unique, contract_id FK nullable, customer_id FK, worker_id FK nullable (للعقد), team_id FK nullable (للزيارة — CR-3), service_score, worker_score, comment, is_hidden` — قيد: زيارة أو عقد. للعقد: تقييم لكل خادمة عملت فيه (فريد على `contract_id + worker_id`).
 - **complaints:** `id, complaint_number unique, customer_id FK, booking_id FK nullable, contract_id FK nullable, type, description, status, assigned_admin_id nullable, resolved_at, closed_at` — قيد: واحد بالضبط.
 - **complaint_messages:** `id, complaint_id FK, sender_type, sender_id, kind enum(message, status_change, internal_note), body, meta JSON, created_at`
 - **✚ complaint_attachments:** `id, complaint_id FK, complaint_message_id FK nullable, path, mime, size` (تخزين خاص + روابط موقّعة)
@@ -288,10 +311,10 @@ open ──► under_review ──► resolved ──► closed
 ### العاملة
 | Method | Path | الوصف |
 |---|---|---|
-| GET | /worker/bookings?status= · /worker/bookings/{id} | الزيارات المسندة |
-| POST | /worker/bookings/{id}/accept · /reject | |
-| POST | /worker/bookings/{id}/status | on_the_way → in_progress → completed |
-| GET | /worker/contracts · /worker/contracts/{id} | عقودها الحالية والسابقة (فترة إسنادها فقط) |
+| GET | /worker/bookings?scope= · /worker/bookings/{id} | زيارات فريقه (`cleaner` فقط) |
+| POST | /worker/bookings/{id}/accept · /reject | قائد الفريق فقط |
+| POST | /worker/bookings/{id}/status | on_the_way → in_progress → completed — قائد الفريق فقط، بعد القبول |
+| GET | /worker/contracts · /worker/contracts/{id} | عقود الخادمة (`housekeeper` فقط) — بيانات العميل خلال فترتها فقط |
 | GET | /worker/ratings | |
 
 > **حُذف (CR-1):** `POST /bookings/{id}/payments` و `POST /payments/webhook/{provider}`.

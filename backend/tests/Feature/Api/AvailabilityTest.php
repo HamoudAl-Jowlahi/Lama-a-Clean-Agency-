@@ -6,12 +6,13 @@ use App\Enums\BookingStatus;
 use App\Exceptions\BusinessRuleException;
 use App\Models\Booking;
 use App\Models\Contract;
-use App\Services\AvailabilityService;
 use App\Services\BookingService;
 use App\Services\ContractService;
-use Carbon\CarbonImmutable;
 
-/** العاملة لا تُسند لعملين متعارضين (زيارة/عقد) في نفس الفترة. */
+/**
+ * التوفر: الخادمة لا تُسند لعقدين متداخلين، والفريق غير المتاح لا يُسند.
+ * (قواعد الفرق نفسها في TeamRulesTest)
+ */
 class AvailabilityTest extends ApiTestCase
 {
     private function expectCode(string $code, callable $fn): void
@@ -24,62 +25,40 @@ class AvailabilityTest extends ApiTestCase
         }
     }
 
-    public function test_worker_on_contract_cannot_take_visits_in_that_period(): void
+    public function test_housekeeper_cannot_take_overlapping_contracts(): void
     {
         [, $customer] = $this->customer();
-        $worker = $this->worker();
-        $contract = Contract::factory()->for($customer)->create(['start_date' => $this->day(1), 'end_date' => $this->day(30)]);
+        $housekeeper = $this->worker();
         $contracts = app(ContractService::class);
-        $contracts->confirm($contract, $this->admin);
-        $contracts->assign($contract, $worker, $this->admin);
 
-        $inside = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create(['scheduled_date' => $this->day(5)]);
-        $after = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create(['scheduled_date' => $this->day(31)]);
+        $first = Contract::factory()->for($customer)->create(['start_date' => $this->day(1), 'end_date' => $this->day(30)]);
+        $contracts->confirm($first, $this->admin);
+        $contracts->assign($first, $housekeeper, $this->admin);
 
-        $this->expectCode('WORKER_BUSY_CONTRACT', fn () => app(BookingService::class)->assign($inside, $worker, $this->admin));
-        app(BookingService::class)->assign($after, $worker, $this->admin); // بعد انتهاء العقد: مسموح
-        $this->assertSame(BookingStatus::Assigned, $after->fresh()->status);
+        $overlapping = Contract::factory()->for($customer)->create(['start_date' => $this->day(20), 'end_date' => $this->day(50)]);
+        $after = Contract::factory()->for($customer)->create(['start_date' => $this->day(31), 'end_date' => $this->day(60)]);
+        $contracts->confirm($overlapping, $this->admin);
+        $contracts->confirm($after, $this->admin);
 
-        // ولا تُحتسب في الطاقة الاستيعابية لأيام العقد
-        $slots = app(AvailabilityService::class)->slotsFor(CarbonImmutable::parse($this->day(5)));
-        $this->assertFalse(collect($slots)->contains('available', true));
+        $this->expectCode('WORKER_BUSY_CONTRACT', fn () => $contracts->assign($overlapping, $housekeeper, $this->admin));
+        $contracts->assign($after, $housekeeper, $this->admin); // يبدأ بعد انتهاء الأول: مسموح
+        $this->assertSame(2, $housekeeper->contractAssignments()->count());
     }
 
-    public function test_worker_with_visit_in_period_cannot_take_contract(): void
+    public function test_inactive_staff_or_team_cannot_be_assigned(): void
     {
         [, $customer] = $this->customer();
-        $worker = $this->worker();
-        $visit = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create(['scheduled_date' => $this->day(3)]);
-        app(BookingService::class)->assign($visit, $worker, $this->admin);
 
-        $contract = Contract::factory()->for($customer)->create(['start_date' => $this->day(1), 'end_date' => $this->day(30)]);
+        $housekeeper = $this->worker();
+        $housekeeper->update(['status' => 'on_leave']);
+        $contract = Contract::factory()->for($customer)->create(['start_date' => $this->day(2), 'end_date' => $this->day(30)]);
         app(ContractService::class)->confirm($contract, $this->admin);
+        $this->expectCode('WORKER_INACTIVE', fn () => app(ContractService::class)->assign($contract, $housekeeper, $this->admin));
 
-        $this->expectCode('WORKER_BUSY_BOOKING', fn () => app(ContractService::class)->assign($contract, $worker, $this->admin));
-    }
-
-    public function test_overlapping_visits_for_same_worker(): void
-    {
-        [, $customer] = $this->customer();
-        $worker = $this->worker();
-        $service = app(BookingService::class);
-        $make = fn (string $time) => Booking::factory()->for($customer)->status(BookingStatus::Confirmed)
-            ->create(['scheduled_date' => $this->day(2), 'scheduled_time' => $time]);
-
-        $service->assign($make('10:00'), $worker, $this->admin);
-        $this->expectCode('WORKER_BUSY_BOOKING', fn () => $service->assign($make('11:00'), $worker, $this->admin));
-        $service->assign($make('12:00'), $worker, $this->admin); // بعد فترة كاملة (120 دقيقة)
-        $this->assertSame(2, $worker->bookingAssignments()->count());
-    }
-
-    public function test_inactive_worker_cannot_be_assigned(): void
-    {
-        [, $customer] = $this->customer();
-        $worker = $this->worker();
-        $worker->update(['status' => 'on_leave']);
+        $team = $this->team();
+        $team->update(['is_active' => false]);
         $booking = Booking::factory()->for($customer)->status(BookingStatus::Confirmed)->create();
-
-        $this->expectCode('WORKER_INACTIVE', fn () => app(BookingService::class)->assign($booking, $worker, $this->admin));
+        $this->expectCode('TEAM_UNAVAILABLE', fn () => app(BookingService::class)->assign($booking, $team, $this->admin));
     }
 
     public function test_state_machine_blocks_illegal_admin_shortcuts(): void
@@ -88,7 +67,7 @@ class AvailabilityTest extends ApiTestCase
         $booking = Booking::factory()->for($customer)->create(); // pending
 
         // لا إسناد قبل التأكيد
-        $this->expectCode('INVALID_TRANSITION', fn () => app(BookingService::class)->assign($booking, $this->worker(), $this->admin));
+        $this->expectCode('INVALID_TRANSITION', fn () => app(BookingService::class)->assign($booking, $this->team(), $this->admin));
         // ولا إكمال لطلب لم يبدأ
         $this->expectCode('INVALID_TRANSITION', fn () => app(BookingService::class)->completeByAdmin($booking, $this->admin));
         $this->assertSame(0, $booking->assignments()->count()); // لم يُنشأ إسناد (الـ transaction تراجعت)

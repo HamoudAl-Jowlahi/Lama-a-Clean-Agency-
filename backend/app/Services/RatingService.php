@@ -12,7 +12,7 @@ use App\Models\Customer;
 use App\Models\Rating;
 
 /**
- * التقييم: الزيارة بعد "مكتمل" مرة واحدة؛ العقد بعد انتهائه — تقييم لكل عاملة عملت فيه.
+ * التقييم: الزيارة بعد "مكتمل" مرة واحدة (للفريق)؛ العقد بعد انتهائه — تقييم لكل خادمة عملت فيه.
  */
 class RatingService
 {
@@ -26,14 +26,15 @@ class RatingService
             throw BusinessRuleException::make('ALREADY_RATED');
         }
 
-        $workerId = $booking->assignments()->where('status', AssignmentStatus::Accepted)->latest('id')->value('worker_id');
+        // CR-3: تقييم الزيارة للفريق الذي نفّذها (worker_score = تقييم الفريق)
+        $teamId = $booking->assignments()->where('status', AssignmentStatus::Accepted)->latest('id')->value('team_id');
 
         return Rating::create([
             'booking_id' => $booking->id,
             'customer_id' => $customer->id,
-            'worker_id' => $workerId,
+            'team_id' => $teamId,
             'service_score' => $data['service_score'],
-            'worker_score' => $workerId ? ($data['worker_score'] ?? null) : null,
+            'worker_score' => $teamId ? ($data['worker_score'] ?? null) : null,
             'comment' => $data['comment'] ?? null,
         ]);
     }

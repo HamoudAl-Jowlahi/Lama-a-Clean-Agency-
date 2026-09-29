@@ -1,6 +1,6 @@
 # لمعة — Phase 3: الـ API
 
-> الحالة: **مكتمل ومُتحقق منه** — 48 اختباراً (389 تحققاً) تنجح على SQLite و MariaDB 10.4.
+> الحالة: **مكتمل ومُتحقق منه** — 53 اختباراً (440 تحققاً) تنجح على SQLite و MariaDB 10.4.
 > لوحة الإدارة (Phase 4) تستخدم نفس الـ Services مباشرة، لذلك لا يوجد API منفصل للإدارة.
 
 ## الأساسيات
@@ -55,7 +55,7 @@
 | POST | `/auth/register` | تسجيل **عميل** `{name, phone, password, email?, device_name?}` → `{token, user}` |
 | POST | `/auth/login` | `{phone, password}` → `{token, user}` — الدور (`user.role`) يحدد واجهة التطبيق |
 | POST | `/auth/logout` | إلغاء الـ token الحالي |
-| GET | `/auth/me` | بيانات المستخدم + `default_address_id` |
+| GET | `/auth/me` | بيانات المستخدم + `default_address_id` (للعميل) + `worker {type, team {name, is_leader}}` (للموظف) |
 | PATCH | `/auth/me` | `{name?, email?, locale?}` |
 | POST | `/auth/password` | `{current_password, password}` — ينهي الجلسات على الأجهزة الأخرى |
 | GET | `/notifications` | الإشعارات + `meta.unread` |
@@ -84,7 +84,7 @@
 | POST | `/bookings/quote` | `{service_price_id, quantity?}` → السعر والضريبة والإجمالي |
 | POST | `/bookings` | `{service_price_id, quantity?, address_id, scheduled_date, scheduled_time, customer_notes?}` |
 | GET | `/bookings?status=` | قائمة الزيارات |
-| GET | `/bookings/{id}` | التفاصيل + `timeline[]` + `worker.name` + `payment` + `can_rate` |
+| GET | `/bookings/{id}` | التفاصيل + `timeline[]` + `team.name` (الفريق المنفذ) + `payment` + `can_rate` |
 | POST | `/bookings/{id}/cancel` | `{reason?}` — حتى حالة `assigned` وقبل الموعد بـ 6 ساعات (إعدادات) |
 | POST | `/bookings/{id}/rating` | `{service_score 1-5, worker_score?, comment?}` — بعد `completed`، مرة واحدة |
 
@@ -110,17 +110,36 @@
 
 `type`: `late` · `quality` · `behavior` · `payment` · `other`
 
-## 4. العاملة (`role: worker`)
+## 4. الموظفون (`role: worker`) — CR-3
 
+نوعان منفصلان، والتطبيق يقرأ النوع من `GET /auth/me` → `data.worker.type.value` ويعرض الواجهة المناسبة:
+
+| | `cleaner` — فريق الزيارات | `housekeeper` — خادمة |
+|---|---|---|
+| يرى | زيارات **فريقه** | **عقوده** |
+| يتصرف | **القائد فقط** (`data.worker.team.is_leader`) | لا حالات تنفيذ |
+| مسارات الآخر | `403 FORBIDDEN` | `403 FORBIDDEN` |
+
+### فريق الزيارات (`cleaner`)
 | Method | Path | الوصف |
 |---|---|---|
-| GET | `/worker/bookings?scope=new\|today\|upcoming\|done` | المسندة إليها فقط |
-| GET | `/worker/bookings/{id}` | `customer.name` (الاسم الأول)، `customer.phone` (يظهر فقط أثناء `on_the_way`/`in_progress`)، `address`، `amount_to_collect`، `next_statuses[]` |
-| POST | `/worker/bookings/{id}/accept` | قبول الإسناد |
-| POST | `/worker/bookings/{id}/reject` | `{reason}` — يعود الطلب للإدارة (`confirmed`) |
-| POST | `/worker/bookings/{id}/status` | `{status: on_the_way \| in_progress \| completed}` — خطوة واحدة في كل مرة؛ "في الطريق" تعني القبول ضمنياً |
+| GET | `/worker/bookings?scope=new\|today\|upcoming\|done` | زيارات الفريق فقط — كل الأعضاء يرونها |
+| GET | `/worker/bookings/{id}` | `team`، `is_leader`، `customer.name` (الاسم الأول)، `address`، `customer_notes`. **للقائد فقط:** `customer.phone` (أثناء `on_the_way`/`in_progress`)، `amount_to_collect`، `next_statuses[]` |
+| POST | `/worker/bookings/{id}/accept` | **القائد:** قبول الإسناد (خطوة صريحة ومستقلة) |
+| POST | `/worker/bookings/{id}/reject` | **القائد:** `{reason}` — يعود الطلب للإدارة (`confirmed`) |
+| POST | `/worker/bookings/{id}/status` | **القائد:** `{status: on_the_way \| in_progress \| completed}` — خطوة واحدة في كل مرة، وبعد القبول فقط (`ASSIGNMENT_NOT_ACCEPTED` قبله) |
+
+العضو غير القائد → `403 TEAM_LEADER_ONLY` على الإجراءات. فريق آخر → `404`.
+
+### الخادمة (`housekeeper`)
+| Method | Path | الوصف |
+|---|---|---|
 | GET | `/worker/contracts` · `/worker/contracts/{id}` | `is_current` — العنوان والهاتف والملاحظات تظهر **فقط** خلال فترة عملها الحالية |
-| GET | `/worker/ratings` | تقييماتها (بدون اسم العميل) + `meta.average` |
+
+### مشترك
+| Method | Path | الوصف |
+|---|---|---|
+| GET | `/worker/ratings` | الخادمة: تقييماتها · عضو الفريق: تقييمات فريقه — بدون اسم العميل، + `meta.average` |
 
 ---
 
@@ -162,7 +181,8 @@ Authorization: Bearer 1|Xy...
 | العقود: الطلب، التأكيد، الإسناد، التفعيل والانتهاء التلقائي، الإنهاء المبكر | `app/Services/ContractService.php` |
 | استبدال العاملة وطلبات الإنهاء | `app/Services/ContractChangeService.php` |
 | الاستحقاقات الشهرية، خصم أيام انتظار البديلة، احتساب الإنهاء المبكر | `app/Services/ContractBillingService.php` |
-| توفر العاملات والأوقات المتاحة | `app/Services/AvailabilityService.php` |
+| توفر الفرق والخادمات، والأوقات المتاحة | `app/Services/AvailabilityService.php` |
+| فرق الزيارات: الأعضاء والقائد (CR-3) | `app/Services/TeamService.php` |
 | التحصيل النقدي، الشكاوى، التقييم | `CollectionService` · `ComplaintService` · `RatingService` |
 
 ### المهمة اليومية
@@ -172,5 +192,6 @@ Authorization: Bearer 1|Xy...
 ### أمثلة على قواعد مُختبرة
 - عقد شهر (31 يوماً) استُبدلت عاملته مع يوم انتظار واحد → المستحق `1800 × 30/31 = 1741.94`.
 - إنهاء مبكر بعد 21 يوماً → `1800 × 21/31 = 1219.35`، ويُنشأ الاستحقاق بعد آخر يوم عمل.
-- عاملة في عقد لا يمكن إسنادها لزيارة داخل فترته، ولا تُحتسب في الأوقات المتاحة للحجز.
+- الطاقة الاستيعابية للزيارات = عدد الفرق المفعّلة؛ الفريق لا يأخذ زيارتين متداخلتين (`TEAM_BUSY`).
+- الخادمة لا تُسند لعقدين متداخلين (`WORKER_BUSY_CONTRACT`)، وعضو فريق الزيارات لا يُسند لعقد (`WORKER_TYPE_MISMATCH`).
 - العميل لا يستطيع تحديد السعر أو الحالة — أي `total` أو `status` مرسل يُتجاهل.

@@ -77,13 +77,21 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // -------------------------------------------------------------- worker
     Route::middleware('role:worker')->prefix('worker')->name('worker.')->group(function () {
-        Route::get('bookings', [WorkerController::class, 'bookings'])->name('bookings.index');
-        Route::get('bookings/{id}', [WorkerController::class, 'booking'])->whereNumber('id')->name('bookings.show');
-        Route::post('bookings/{id}/accept', [WorkerController::class, 'accept'])->whereNumber('id')->name('bookings.accept');
-        Route::post('bookings/{id}/reject', [WorkerController::class, 'reject'])->whereNumber('id')->name('bookings.reject');
-        Route::post('bookings/{id}/status', [WorkerController::class, 'updateStatus'])->whereNumber('id')->name('bookings.status');
-        Route::get('contracts', [WorkerController::class, 'contracts'])->name('contracts.index');
-        Route::get('contracts/{id}', [WorkerController::class, 'contract'])->whereNumber('id')->name('contracts.show');
         Route::get('ratings', [WorkerController::class, 'ratings'])->name('ratings.index');
+
+        // CR-3: فرق الزيارات — الإجراءات لقائد الفريق فقط (يُفرض في BookingService)
+        Route::middleware('worker.type:cleaner')->group(function () {
+            Route::get('bookings', [WorkerController::class, 'bookings'])->name('bookings.index');
+            Route::get('bookings/{id}', [WorkerController::class, 'booking'])->whereNumber('id')->name('bookings.show');
+            Route::post('bookings/{id}/accept', [WorkerController::class, 'accept'])->whereNumber('id')->name('bookings.accept');
+            Route::post('bookings/{id}/reject', [WorkerController::class, 'reject'])->whereNumber('id')->name('bookings.reject');
+            Route::post('bookings/{id}/status', [WorkerController::class, 'updateStatus'])->whereNumber('id')->name('bookings.status');
+        });
+
+        // الخادمات — العقود فقط
+        Route::middleware('worker.type:housekeeper')->group(function () {
+            Route::get('contracts', [WorkerController::class, 'contracts'])->name('contracts.index');
+            Route::get('contracts/{id}', [WorkerController::class, 'contract'])->whereNumber('id')->name('contracts.show');
+        });
     });
 });
