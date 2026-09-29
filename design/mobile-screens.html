@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>شاشات الجوال — لمعة</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/doc.css">
+<style>
+  .page { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  .page-head { margin-bottom: 8px; }
+  .page-head p { max-width: 75ch; margin-top: 6px; }
+  .group-title { margin: 36px 0 16px; display: flex; align-items: baseline; gap: 12px; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 32px 24px; justify-items: center; }
+  figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  figcaption { font-size: var(--fs-sm); color: var(--n-600); text-align: center; }
+  figcaption b { color: var(--n-900); display: inline-block; direction: ltr; unicode-bidi: isolate; }
+
+  /* ---- Phone frame ---- */
+  .phone { width: 300px; height: 620px; border-radius: 34px; border: 8px solid var(--n-900); background: var(--color-bg);
+           overflow: hidden; display: flex; flex-direction: column; position: relative; font-size: 14px; line-height: 21px; }
+  .sb { height: 28px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 18px;
+        font-size: 11px; font-weight: 600; direction: ltr; }
+  .sb.on-white { background: var(--n-0); }
+  .ph-bar { height: 52px; flex: none; display: flex; align-items: center; gap: 4px; padding: 0 6px; background: var(--n-0);
+            border-bottom: 1px solid var(--n-100); }
+  .ph-bar h1 { font-size: 16px; font-weight: 600; flex: 1; padding-inline-start: 6px; }
+  .ph-bar .btn-icon { width: 40px; height: 40px; }
+  .ph-body { flex: 1; overflow: hidden; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .ph-body.white { background: var(--n-0); }
+  .ph-foot { flex: none; padding: 12px 16px 16px; background: var(--n-0); border-top: 1px solid var(--n-100); }
+  .ph-nav { flex: none; height: 62px; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--n-0);
+            border-top: 1px solid var(--n-100); padding-bottom: 6px; }
+  .ph-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; color: var(--n-500); }
+  .ph-nav a.on { color: var(--color-primary); font-weight: 600; }
+  .phone .card { padding: 14px; border-radius: 12px; }
+  .phone .btn { height: 46px; font-size: 14px; }
+  .phone .btn-sm { height: 34px; font-size: 12.5px; }
+  .phone .input { height: 44px; font-size: 14px; }
+  .phone .field > label { font-size: 12.5px; }
+  .kv { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 5px 0; }
+  .kv span:first-child { color: var(--n-500); }
+  .kv.total { font-weight: 700; font-size: 15px; border-top: 1px solid var(--n-100); padding-top: 10px; margin-top: 4px; }
+  .sec-t { font-size: 13px; font-weight: 600; color: var(--n-700); }
+  .svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .svc { background: var(--n-0); border: 1px solid var(--color-border); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .svc b { font-size: 13px; line-height: 18px; }
+  .dates { display: flex; gap: 8px; overflow: hidden; }
+  .date { flex: none; width: 52px; padding: 8px 0; border-radius: 10px; border: 1px solid var(--color-border-strong); background: var(--n-0);
+          display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--n-500); }
+  .date b { font-size: 16px; color: var(--n-900); }
+  .date.on { background: var(--color-primary); border-color: var(--color-primary); color: #dbe7ff; }
+  .date.on b { color: #fff; }
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .slots .chip { justify-content: center; padding: 0; font-size: 12.5px; }
+  .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--n-300); flex: none; }
+  .radio.on { border: 6px solid var(--color-primary); }
+  .check-li { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .check-li .i { color: var(--color-primary); width: 16px; height: 16px; }
+  .toggle { width: 40px; height: 24px; border-radius: 12px; background: var(--n-300); position: relative; flex: none; }
+  .toggle::after { content: ""; position: absolute; top: 3px; inset-inline-end: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+  .toggle.on { background: var(--color-primary); }
+  .toggle.on::after { inset-inline-end: auto; inset-inline-start: 3px; }
+  .menu-li { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--n-100); font-size: 14px; }
+  .menu-li:last-child { border-bottom: 0; }
+  .menu-li .grow { flex: 1; }
+  .menu-li > .i:first-child { color: var(--n-600); }
+  .notif { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--n-100); }
+  .notif .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary); margin-top: 7px; flex: none; }
+  .notif .dot.read { background: transparent; }
+  .msg { border-radius: 12px; padding: 10px 12px; font-size: 13px; max-width: 88%; }
+  .msg.me { background: var(--blue-50); align-self: flex-start; }
+  .msg.them { background: var(--n-0); border: 1px solid var(--color-border); align-self: flex-end; }
+  .msg small { display: block; color: var(--n-500); font-size: 11px; margin-top: 2px; }
+  .sys { align-self: center; font-size: 11.5px; color: var(--n-500); display: flex; gap: 6px; align-items: center; }
+  .seg { display: flex; background: var(--n-100); border-radius: 10px; padding: 3px; gap: 2px; }
+  .seg span { flex: 1; text-align: center; font-size: 12px; padding: 6px 0; border-radius: 8px; color: var(--n-600); }
+  .seg span.on { background: var(--n-0); color: var(--n-900); font-weight: 600; box-shadow: var(--shadow-1); }
+  .hero-status { background: var(--n-0); border-bottom: 1px solid var(--n-100); padding: 18px 16px; display: flex; gap: 12px; align-items: center; }
+  .big-stars { display: flex; gap: 6px; justify-content: center; color: var(--color-primary); }
+  .big-stars .i { width: 32px; height: 32px; }
+  .big-stars .on { fill: currentColor; }
+  .big-stars .off { color: var(--n-300); }
+  .dots { display: flex; gap: 6px; justify-content: center; }
+  .dots span { width: 6px; height: 6px; border-radius: 3px; background: var(--n-300); }
+  .dots span.on { width: 20px; background: var(--color-primary); }
+  .stat { background: var(--n-0); border: 1px solid var(--color-border); border-radius: 12px; padding: 12px; }
+  .stat b { font-size: 22px; line-height: 28px; display: block; }
+  .scrim-abs { position: absolute; inset: 0; background: rgba(20,25,34,.45); display: flex; align-items: flex-end; }
+  .scrim-abs .sheet { width: 100%; }
+  .progress { height: 6px; border-radius: 3px; background: var(--n-100); overflow: hidden; }
+  .progress span { display: block; height: 100%; background: var(--color-primary); border-radius: 3px; }
+  .plan-feats { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--n-600); margin-top: 6px; }
+  .plan-feats span { display: inline-flex; align-items: center; gap: 4px; }
+  .plan-feats .i { width: 14px; height: 14px; }
+  @media (max-width: 560px) { .page { padding: 16px; } }
+</style>
+</head>
+<body>
+<header class="doc-top">
+  <div class="doc-brand"><span class="logo"><svg class="brand-mark"><use href="#brand-mark"/></svg></span> لمعة — Design</div>
+  <nav class="doc-nav">
+    <a href="design-system.html">Design System</a>
+    <a href="mobile-screens.html" class="is-active">شاشات الجوال</a>
+    <a href="admin-dashboard.html">لوحة الإدارة</a>
+  </nav>
+</header>
+
+<div class="page">
+  <div class="page-head">
+    <h1 class="t-display">شاشات تطبيق الجوال</h1>
+    <p class="muted">تطبيق واحد بصلاحيتين: العميل والعاملة — الدور يحدده الخادم بعد تسجيل الدخول. الأسماء والأسعار والعملة <b>أمثلة توضيحية</b>؛ القيم الفعلية من الإعدادات.
+    نوعان من الخدمة: <b>زيارة واحدة</b> (4 خطوات: الخدمة ← العنوان ← الموعد ← المراجعة) و<b>عاملة بعقد</b> لمدة شهر أو أكثر، مع طلب استبدال العاملة أو إنهاء العقد من التطبيق.
+    <b>لا دفع داخل التطبيق</b> — الدفع نقداً عند إتمام الخدمة.</p>
+  </div>
+
+  <!-- ================= CUSTOMER ================= -->
+  <h2 class="t-h1 group-title">تطبيق العميل <span class="t-sm muted">20 شاشة + نموذج الشكوى</span></h2>
+  <div class="gallery">
+
+    <!-- 1 Splash -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-body" style="justify-content:center;align-items:center;gap:14px">
+        <svg class="brand-mark" style="width:104px;height:104px"><use href="#brand-mark"/></svg>
+        <div style="font-size:40px;line-height:44px;font-weight:700;color:var(--blue-700)">لمعة</div>
+        <div style="font-size:15px;letter-spacing:.35em;color:var(--blue-700);direction:ltr;margin-top:-6px">Lam’a</div>
+        <div class="row t-sm" style="gap:10px;color:var(--blue-700)"><span style="width:18px;height:1px;background:currentColor"></span>خدمات التنظيف<span style="width:18px;height:1px;background:currentColor"></span></div>
+      </div>
+      <div style="padding:32px;display:flex;justify-content:center"><span class="spinner" style="width:22px;height:22px"></span></div>
+    </div><figcaption><b>1. Splash</b><br>شعار + تحميل الجلسة فقط</figcaption></figure>
+
+    <!-- 2 Onboarding -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div style="display:flex;justify-content:flex-end;padding:4px 16px"><a class="t-sm" href="#">تخطي</a></div>
+      <div class="ph-body" style="justify-content:center;align-items:center;text-align:center;gap:16px">
+        <div style="width:180px;height:180px;border-radius:50%;background:var(--blue-50);display:grid;place-items:center;color:var(--color-primary)">
+          <svg class="i" style="width:72px;height:72px;stroke-width:1.2"><use href="#i-calendar"/></svg></div>
+        <div class="t-h1">احجز في دقائق</div>
+        <p class="muted t-sm">اختر الخدمة والعنوان والموعد، وتابع حالة طلبك خطوة بخطوة.</p>
+        <div class="dots"><span></span><span class="on"></span><span></span></div>
+      </div>
+      <div class="ph-foot" style="border:0"><button class="btn btn-primary btn-block">التالي</button></div>
+    </div><figcaption><b>2. Onboarding</b> (اختياري)<br>3 شرائح بحد أقصى</figcaption></figure>
+
+    <!-- 3 Login -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-body white" style="gap:18px;padding-top:36px">
+        <span class="logo" style="width:48px;height:48px;border-radius:14px"><svg class="brand-mark"><use href="#brand-mark"/></svg></span>
+        <div><div class="t-h1">تسجيل الدخول</div><p class="t-sm muted">أهلاً بعودتك</p></div>
+        <div class="field"><label>رقم الجوال</label><div class="input"><svg class="i"><use href="#i-phone"/></svg><input placeholder="05xxxxxxxx" dir="ltr"></div></div>
+        <div class="field"><label>كلمة المرور</label><div class="input"><svg class="i"><use href="#i-lock"/></svg><input type="password" value="12345678"><svg class="i"><use href="#i-eye"/></svg></div>
+          <a class="t-sm" href="#" style="align-self:flex-start">نسيت كلمة المرور؟</a></div>
+        <button class="btn btn-primary btn-block">دخول</button>
+        <p class="t-sm muted" style="text-align:center;margin-top:auto">ليس لديك حساب؟ <a href="#">إنشاء حساب</a></p>
+      </div>
+    </div><figcaption><b>3. Login</b><br>طريقة الدخول (كلمة مرور / OTP) بانتظار القرار</figcaption></figure>
+
+    <!-- 4 Register -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar" style="border:0"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1></h1></div>
+      <div class="ph-body white" style="gap:14px;padding-top:0">
+        <div><div class="t-h1">إنشاء حساب</div><p class="t-sm muted">للحجز ومتابعة طلباتك</p></div>
+        <div class="field"><label>الاسم</label><div class="input"><input value="سارة أحمد"></div></div>
+        <div class="field"><label>رقم الجوال</label><div class="input"><input placeholder="05xxxxxxxx" dir="ltr"></div></div>
+        <div class="field"><label>كلمة المرور</label><div class="input is-error"><input type="password" value="123"></div><span class="hint error">8 أحرف على الأقل</span></div>
+        <label class="row t-sm" style="gap:8px"><span class="radio on" style="border-radius:5px;border-width:0;background:var(--color-primary);display:grid;place-items:center;color:#fff"><svg class="i" style="width:14px;height:14px;stroke-width:3"><use href="#i-check"/></svg></span>أوافق على <a href="#">الشروط والخصوصية</a></label>
+      </div>
+      <div class="ph-foot" style="border:0"><button class="btn btn-primary btn-block">إنشاء الحساب</button></div>
+    </div><figcaption><b>4. Register</b><br>أقل عدد من الحقول</figcaption></figure>
+
+    <!-- 5 Home -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar" style="border:0;padding:0 16px"><div class="stack" style="flex:1"><span class="t-xs muted">مرحباً</span><b>سارة</b></div><button class="btn-icon"><svg class="i"><use href="#i-bell"/></svg></button></div>
+      <div class="ph-body">
+        <div class="card" style="border-color:var(--blue-200)">
+          <div class="row-between"><span class="t-xs muted">طلبك الحالي</span><span class="badge badge-on_the_way">في الطريق</span></div>
+          <b style="display:block;margin-top:6px">تنظيف شامل للمنزل</b>
+          <div class="t-sm muted">اليوم · 10:00 ص</div>
+          <a class="t-sm row" style="gap:4px;margin-top:8px;font-weight:600" href="#">تتبع الطلب <svg class="i i-sm"><use href="#i-chev-left"/></svg></a>
+        </div>
+        <span class="t-h3">ماذا تحتاج؟</span>
+        <div class="card row card-interactive"><span class="icon-tile"><svg class="i"><use href="#i-home2"/></svg></span><div class="stack" style="flex:1"><b class="t-sm">زيارة تنظيف</b><span class="t-xs muted">عاملة تأتي مرة واحدة لخدمة محددة</span></div><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+        <div class="card row card-interactive"><span class="icon-tile" style="background:var(--blue-600);color:#fff"><svg class="i"><use href="#i-contract"/></svg></span><div class="stack" style="flex:1"><b class="t-sm">عاملة بعقد شهري</b><span class="t-xs muted">دوام لديك لمدة شهر أو أكثر</span></div><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+      </div>
+      <div class="ph-nav"><a class="on"><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-calendar"/></svg>طلباتي</a><a><svg class="i"><use href="#i-message"/></svg>الشكاوى</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>5. Home</b><br>الطلب النشط أولاً، ثم اختيار نوع الخدمة</figcaption></figure>
+
+    <!-- 6 Services -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>الخدمات</h1></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="input"><svg class="i"><use href="#i-search"/></svg><input placeholder="ابحث عن خدمة"></div>
+        <div class="card row"><span class="icon-tile"><svg class="i"><use href="#i-home2"/></svg></span><div class="stack" style="flex:1"><b>تنظيف شامل للمنزل</b><span class="t-xs muted">غرف، مطبخ، دورات مياه</span></div><div class="stack" style="align-items:flex-end"><span class="t-xs faint">يبدأ من</span><b class="t-sm num">250 ر.س</b></div></div>
+        <div class="card row"><span class="icon-tile"><svg class="i"><use href="#i-sofa"/></svg></span><div class="stack" style="flex:1"><b>الكنب والسجاد</b><span class="t-xs muted">تنظيف بالبخار</span></div><div class="stack" style="align-items:flex-end"><span class="t-xs faint">يبدأ من</span><b class="t-sm num">150 ر.س</b></div></div>
+        <div class="card row"><span class="icon-tile"><svg class="i"><use href="#i-window"/></svg></span><div class="stack" style="flex:1"><b>النوافذ والواجهات</b><span class="t-xs muted">داخلي وخارجي</span></div><div class="stack" style="align-items:flex-end"><span class="t-xs faint">يبدأ من</span><b class="t-sm num">120 ر.س</b></div></div>
+        <div class="card row"><span class="icon-tile"><svg class="i"><use href="#i-building"/></svg></span><div class="stack" style="flex:1"><b>تنظيف المكاتب</b><span class="t-xs muted">حسب المساحة</span></div><div class="stack" style="align-items:flex-end"><span class="t-xs faint">يبدأ من</span><b class="t-sm num">300 ر.س</b></div></div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-calendar"/></svg>طلباتي</a><a><svg class="i"><use href="#i-message"/></svg>الشكاوى</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>6. Services</b><br>قائمة بسيطة + بحث</figcaption></figure>
+
+    <!-- 7 Service details -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>تفاصيل الخدمة</h1></div>
+      <div class="ph-body">
+        <div class="row"><span class="icon-tile" style="width:56px;height:56px"><svg class="i i-lg"><use href="#i-home2"/></svg></span><div class="stack"><b class="t-h3">تنظيف شامل للمنزل</b><span class="t-sm muted">المدة التقريبية 4 ساعات</span></div></div>
+        <p class="t-sm muted">تنظيف كامل للغرف والمطبخ ودورات المياه، يشمل الأرضيات والأسطح.</p>
+        <div class="card stack" style="gap:8px"><span class="sec-t">يشمل</span>
+          <div class="check-li"><svg class="i"><use href="#i-check"/></svg>كنس ومسح الأرضيات</div>
+          <div class="check-li"><svg class="i"><use href="#i-check"/></svg>تنظيف المطبخ والأجهزة من الخارج</div>
+          <div class="check-li"><svg class="i"><use href="#i-check"/></svg>تعقيم دورات المياه</div>
+          <div class="check-li"><svg class="i"><use href="#i-check"/></svg>إزالة الغبار عن الأثاث</div>
+        </div>
+        <div class="card"><span class="sec-t">الأسعار</span>
+          <div class="kv"><span>شقة حتى 3 غرف</span><b class="num">250 ر.س</b></div>
+          <div class="kv"><span>فيلا / أكثر من 3 غرف</span><b class="num">400 ر.س</b></div></div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">احجز الآن</button></div>
+    </div><figcaption><b>7. Service Details</b><br>ما تشمله الخدمة + الأسعار</figcaption></figure>
+
+    <!-- 8 Create booking -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>طلب جديد</h1><span class="t-xs muted" style="padding:0 10px">1 من 4</span></div>
+      <div class="ph-body">
+        <div class="stepper"><span class="done"></span><span></span><span></span><span></span></div>
+        <div class="t-h3">اختر نوع الخدمة</div>
+        <div class="card row card-selected"><span class="radio on"></span><div class="stack" style="flex:1"><b class="t-sm">شقة حتى 3 غرف</b><span class="t-xs muted">حوالي 4 ساعات</span></div><b class="t-sm num">250 ر.س</b></div>
+        <div class="card row"><span class="radio"></span><div class="stack" style="flex:1"><b class="t-sm">فيلا / أكثر من 3 غرف</b><span class="t-xs muted">حوالي 6 ساعات</span></div><b class="t-sm num">400 ر.س</b></div>
+        <div class="field"><label>ملاحظات للعاملة <span class="faint">(اختياري)</span></label><textarea class="input" style="min-height:80px" placeholder="مثال: يوجد حيوان أليف"></textarea></div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">التالي: العنوان</button></div>
+    </div><figcaption><b>8. Create Booking</b><br>الخطوة 1 — الخدمة</figcaption></figure>
+
+    <!-- 9 Address -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>طلب جديد</h1><span class="t-xs muted" style="padding:0 10px">2 من 4</span></div>
+      <div class="ph-body">
+        <div class="stepper"><span class="done"></span><span class="done"></span><span></span><span></span></div>
+        <div class="t-h3">أين تريد الخدمة؟</div>
+        <div class="card row card-selected"><span class="radio on"></span><div class="stack" style="flex:1"><b class="t-sm">المنزل</b><span class="t-xs muted">حي النرجس، شارع 12، مبنى 8</span></div></div>
+        <div class="card row"><span class="radio"></span><div class="stack" style="flex:1"><b class="t-sm">بيت الأهل</b><span class="t-xs muted">حي الملقا، شارع 4</span></div></div>
+        <button class="btn btn-secondary btn-block"><svg class="i"><use href="#i-plus"/></svg> إضافة عنوان جديد</button>
+        <p class="t-xs faint">عند الإضافة: تحديد الموقع على الخريطة + تفاصيل المبنى والدور.</p>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">التالي: الموعد</button></div>
+    </div><figcaption><b>9. Address Selection</b><br>الخطوة 2 — العنوان</figcaption></figure>
+
+    <!-- 10 Date time -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>طلب جديد</h1><span class="t-xs muted" style="padding:0 10px">3 من 4</span></div>
+      <div class="ph-body">
+        <div class="stepper"><span class="done"></span><span class="done"></span><span class="done"></span><span></span></div>
+        <div class="t-h3">اختر اليوم</div>
+        <div class="dates">
+          <div class="date">سبت<b>3</b></div><div class="date on">أحد<b>4</b></div><div class="date">اثنين<b>5</b></div><div class="date">ثلاثاء<b>6</b></div><div class="date">أربعاء<b>7</b></div>
+        </div>
+        <div class="t-h3" style="margin-top:4px">اختر الوقت</div>
+        <div class="slots">
+          <span class="chip is-disabled">8:00 ص</span><span class="chip is-active">10:00 ص</span><span class="chip">12:00 م</span>
+          <span class="chip">2:00 م</span><span class="chip is-disabled">4:00 م</span><span class="chip">6:00 م</span>
+        </div>
+        <p class="t-xs faint">الأوقات المتاحة من الخادم حسب ساعات العمل والطاقة الاستيعابية.</p>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">التالي: المراجعة</button></div>
+    </div><figcaption><b>10. Date & Time</b><br>الخطوة 3 — الموعد</figcaption></figure>
+
+    <!-- 11 Summary -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>مراجعة الطلب</h1><span class="t-xs muted" style="padding:0 10px">4 من 4</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="stepper"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span></div>
+        <div class="card stack" style="gap:10px">
+          <div class="row-between"><div class="row"><svg class="i faint"><use href="#i-home2"/></svg><span class="t-sm">تنظيف شامل · شقة</span></div><a class="t-xs" href="#">تعديل</a></div>
+          <div class="row-between"><div class="row"><svg class="i faint"><use href="#i-pin"/></svg><span class="t-sm">المنزل — حي النرجس</span></div><a class="t-xs" href="#">تعديل</a></div>
+          <div class="row-between"><div class="row"><svg class="i faint"><use href="#i-clock"/></svg><span class="t-sm">الأحد 4 أكتوبر · 10:00 ص</span></div><a class="t-xs" href="#">تعديل</a></div>
+        </div>
+        <div class="card">
+          <div class="kv"><span>السعر</span><span class="num">250.00 ر.س</span></div>
+          <div class="kv"><span>الضريبة (حسب الإعداد)</span><span class="num">37.50 ر.س</span></div>
+          <div class="kv total"><span style="color:var(--n-900)">الإجمالي</span><span class="num">287.50 ر.س</span></div>
+        </div>
+        <div class="alert alert-info"><svg class="i"><use href="#i-cash"/></svg>الدفع نقداً عند إتمام الخدمة. لا يلزم أي دفع الآن.</div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">إرسال الطلب</button></div>
+    </div><figcaption><b>11. Booking Summary</b><br>السعر محسوب من الخادم</figcaption></figure>
+
+    <!-- 12 Submitted (replaces in-app payment) -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-body white" style="justify-content:center;align-items:center;text-align:center;gap:12px">
+        <div class="state-icon success" style="width:72px;height:72px"><svg class="i" style="width:34px;height:34px"><use href="#i-check"/></svg></div>
+        <div class="t-h1">تم إرسال طلبك</div>
+        <p class="t-sm muted">رقم الطلب <b class="num">BK-2026-000123</b><br>سنراجع الطلب ونرسل لك إشعاراً عند تأكيده.</p>
+        <div class="card" style="width:100%;text-align:start">
+          <div class="row"><span class="icon-tile"><svg class="i"><use href="#i-cash"/></svg></span><div class="stack"><b class="t-sm">الدفع نقداً عند الإتمام</b><span class="t-xs muted">المبلغ المستحق <span class="num">287.50 ر.س</span></span></div></div>
+        </div>
+      </div>
+      <div class="ph-foot" style="border:0"><button class="btn btn-primary btn-block">متابعة الطلب</button><button class="btn btn-ghost btn-block" style="margin-top:6px">العودة للرئيسية</button></div>
+    </div><figcaption><b>12. Payment → Submitted</b><br>لا دفع في التطبيق: تأكيد الإرسال + تذكير بالدفع النقدي</figcaption></figure>
+
+    <!-- 13 Tracking -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>تتبع الطلب</h1></div>
+      <div class="hero-status"><span class="icon-tile" style="background:var(--blue-600);color:#fff"><svg class="i"><use href="#i-nav"/></svg></span><div class="stack"><b class="t-h3">العاملة في الطريق إليك</b><span class="t-sm muted">الموعد 10:00 ص</span></div></div>
+      <div class="ph-body">
+        <div class="card"><ul class="timeline t-sm">
+          <li class="done"><b>تم استلام الطلب</b><div class="t-xs muted">السبت 8:12 م</div></li>
+          <li class="done"><b>تم تأكيد الطلب</b><div class="t-xs muted">السبت 9:03 م</div></li>
+          <li class="done"><b>تم إسناد عاملة</b><div class="t-xs muted">الأحد 7:40 ص</div></li>
+          <li class="done current"><b>في الطريق</b><div class="t-xs muted">الأحد 9:35 ص</div></li>
+          <li class="todo">جارٍ التنفيذ</li>
+          <li class="todo" style="padding-bottom:0">مكتمل</li>
+        </ul></div>
+        <div class="card row"><span class="avatar">ف</span><div class="stack" style="flex:1"><b class="t-sm">فاطمة</b><span class="t-xs muted">العاملة المسندة</span></div></div>
+      </div>
+    </div><figcaption><b>13. Booking Tracking</b><br>سجل زمني واضح لكل حالة</figcaption></figure>
+
+    <!-- 14 Booking details -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>تفاصيل الطلب</h1></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="row-between"><b class="num">BK-2026-000123</b><span class="badge badge-completed">مكتمل</span></div>
+        <div class="card">
+          <div class="kv"><span>الخدمة</span><span>تنظيف شامل · شقة</span></div>
+          <div class="kv"><span>الموعد</span><span>الأحد 4 أكتوبر · 10:00 ص</span></div>
+          <div class="kv"><span>العنوان</span><span>حي النرجس، شارع 12</span></div>
+          <div class="kv"><span>العاملة</span><span>فاطمة</span></div>
+        </div>
+        <div class="card">
+          <div class="kv"><span>الإجمالي</span><b class="num">287.50 ر.س</b></div>
+          <div class="kv"><span>الدفع (نقداً)</span><span class="badge badge-collected">تم التحصيل</span></div>
+        </div>
+        <button class="btn btn-primary btn-block"><svg class="i"><use href="#i-star"/></svg> قيّم الخدمة</button>
+        <button class="btn btn-ghost btn-block">لديك مشكلة؟ افتح شكوى</button>
+      </div>
+    </div><figcaption><b>14. Booking Details</b><br>الإجراءات تتغير حسب الحالة</figcaption></figure>
+
+    <!-- 15 Notifications -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>الإشعارات</h1><a class="t-xs" style="padding:0 10px" href="#">تحديد الكل كمقروء</a></div>
+      <div class="ph-body white" style="gap:0;padding-top:8px">
+        <span class="t-xs faint" style="padding:6px 0">اليوم</span>
+        <div class="notif"><span class="dot"></span><div class="stack"><b class="t-sm">العاملة في الطريق</b><span class="t-xs muted">فاطمة في طريقها لتنفيذ طلبك BK-000123</span><span class="t-xs faint">9:35 ص</span></div></div>
+        <div class="notif"><span class="dot"></span><div class="stack"><b class="t-sm">تم إسناد طلبك</b><span class="t-xs muted">تم إسناد طلبك إلى عاملة</span><span class="t-xs faint">7:40 ص</span></div></div>
+        <span class="t-xs faint" style="padding:10px 0 6px">سابقاً</span>
+        <div class="notif"><span class="dot read"></span><div class="stack"><span class="t-sm">تم تأكيد طلبك</span><span class="t-xs muted">موعدك الأحد 10:00 ص</span><span class="t-xs faint">السبت</span></div></div>
+        <div class="notif"><span class="dot read"></span><div class="stack"><span class="t-sm">رد جديد على شكواك</span><span class="t-xs muted">CM-000045</span><span class="t-xs faint">الخميس</span></div></div>
+      </div>
+    </div><figcaption><b>15. Notifications</b><br>غير المقروء بنقطة زرقاء وخط أثقل</figcaption></figure>
+
+    <!-- 16 Rating -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>تقييم الخدمة</h1></div>
+      <div class="ph-body white" style="gap:18px">
+        <div style="text-align:center"><b>كيف كانت الخدمة؟</b><div class="t-xs muted">تنظيف شامل · الأحد 4 أكتوبر</div></div>
+        <div class="big-stars"><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i off"><use href="#i-star"/></svg></div>
+        <hr class="divider" style="margin:0">
+        <div style="text-align:center"><b>تقييم العاملة (فاطمة)</b></div>
+        <div class="big-stars"><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg></div>
+        <div class="field"><label>تعليق <span class="faint">(اختياري)</span></label><textarea class="input" style="min-height:72px">عمل ممتاز والتزام بالموعد.</textarea></div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">إرسال التقييم</button></div>
+    </div><figcaption><b>16. Ratings</b><br>بعد "مكتمل" فقط، مرة واحدة</figcaption></figure>
+
+    <!-- 17 Complaints list -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>الشكاوى</h1><button class="btn btn-secondary btn-sm" style="margin-inline-end:8px"><svg class="i i-sm"><use href="#i-plus"/></svg> شكوى جديدة</button></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card"><div class="row-between"><b class="t-sm num">CM-000045</b><span class="badge badge-under_review">قيد المراجعة</span></div>
+          <div class="t-sm" style="margin-top:6px">تأخر عن الموعد</div><div class="t-xs muted">الطلب BK-000118 · منذ يومين</div></div>
+        <div class="card"><div class="row-between"><b class="t-sm num">CM-000031</b><span class="badge badge-resolved">تم الحل</span></div>
+          <div class="t-sm" style="margin-top:6px">جودة الخدمة</div><div class="t-xs muted">الطلب BK-000097 · 12 سبتمبر</div></div>
+        <div class="card"><div class="row-between"><b class="t-sm num">CM-000020</b><span class="badge badge-closed">مغلقة</span></div>
+          <div class="t-sm" style="margin-top:6px">مشكلة في الدفع</div><div class="t-xs muted">الطلب BK-000064 · 2 أغسطس</div></div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-calendar"/></svg>طلباتي</a><a class="on"><svg class="i"><use href="#i-message"/></svg>الشكاوى</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>17. Complaints</b><br>كل شكوى مرتبطة بطلب</figcaption></figure>
+
+    <!-- 17b New complaint -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>شكوى جديدة</h1></div>
+      <div class="ph-body white" style="gap:14px">
+        <div class="field"><label>الطلب المرتبط</label><div class="input"><select><option>BK-000123 · تنظيف شامل · 4 أكتوبر</option></select><svg class="i"><use href="#i-chev-down"/></svg></div></div>
+        <div class="field"><label>نوع الشكوى</label><div class="input"><select><option>جودة الخدمة</option></select><svg class="i"><use href="#i-chev-down"/></svg></div></div>
+        <div class="field"><label>الوصف</label><textarea class="input" placeholder="اشرح المشكلة بإيجاز"></textarea></div>
+        <button class="btn btn-secondary btn-sm" style="align-self:flex-start"><svg class="i i-sm"><use href="#i-clip"/></svg> إرفاق صور <span class="faint">(اختياري)</span></button>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">إرسال الشكوى</button></div>
+    </div><figcaption><b>17b. شكوى جديدة</b><br>مطلوبة لمعيار القبول في SRS</figcaption></figure>
+
+    <!-- 18 Complaint details -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1 class="num">CM-000045</h1><span class="badge badge-under_review" style="margin-inline-end:8px">قيد المراجعة</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card t-sm" style="padding:10px 14px"><span class="muted">تأخر عن الموعد · الطلب </span><a href="#">BK-000118</a></div>
+        <div class="msg me">تأخرت العاملة ساعة كاملة عن الموعد بدون إبلاغ.<small>أنت · الخميس 11:20 ص</small></div>
+        <div class="sys"><svg class="i i-sm"><use href="#i-refresh"/></svg>تغيرت الحالة إلى "قيد المراجعة" · 12:05 م</div>
+        <div class="msg them">نعتذر عن ذلك. نراجع الأمر مع فريق العمليات وسنعود إليك خلال 24 ساعة.<small>خدمة العملاء · 12:06 م</small></div>
+      </div>
+      <div class="ph-foot row" style="gap:8px"><button class="btn-icon"><svg class="i"><use href="#i-clip"/></svg></button><div class="input" style="flex:1"><input placeholder="اكتب رداً"></div><button class="btn btn-primary" style="width:46px;padding:0"><svg class="i i-flip"><use href="#i-nav"/></svg></button></div>
+    </div><figcaption><b>18. Complaint Details</b><br>سجل زمني: رسائل + تغييرات الحالة</figcaption></figure>
+
+    <!-- 19 Profile -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>حسابي</h1></div>
+      <div class="ph-body" style="gap:12px">
+        <div class="card row"><span class="avatar" style="width:52px;height:52px;font-size:18px">س</span><div class="stack" style="flex:1"><b>سارة أحمد</b><span class="t-sm muted" dir="ltr" style="text-align:right">05x xxx 1234</span></div><button class="btn-icon"><svg class="i"><use href="#i-edit"/></svg></button></div>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><svg class="i"><use href="#i-pin"/></svg><span class="grow">عناويني</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-calendar"/></svg><span class="grow">طلباتي</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-contract"/></svg><span class="grow">عقودي</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-star"/></svg><span class="grow">تقييماتي</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-settings"/></svg><span class="grow">الإعدادات</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+        </div>
+        <div class="card" style="padding:0 14px"><div class="menu-li" style="color:var(--danger-600)"><svg class="i" style="color:inherit"><use href="#i-logout"/></svg><span class="grow">تسجيل الخروج</span></div></div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-calendar"/></svg>طلباتي</a><a><svg class="i"><use href="#i-message"/></svg>الشكاوى</a><a class="on"><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>19. Profile</b></figcaption></figure>
+
+    <!-- 20 Settings -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>الإعدادات</h1></div>
+      <div class="ph-body" style="gap:12px">
+        <span class="sec-t">عام</span>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><svg class="i"><use href="#i-globe"/></svg><span class="grow">اللغة</span><span class="t-sm muted">العربية</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+        </div>
+        <span class="sec-t">الإشعارات</span>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><span class="grow">تحديثات الطلبات</span><span class="toggle on"></span></div>
+          <div class="menu-li"><span class="grow">ردود الشكاوى</span><span class="toggle on"></span></div>
+        </div>
+        <span class="sec-t">الحساب</span>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><svg class="i"><use href="#i-lock"/></svg><span class="grow">تغيير كلمة المرور</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-shield"/></svg><span class="grow">الخصوصية والشروط</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+        </div>
+      </div>
+    </div><figcaption><b>20. Settings</b><br>الإنجليزية تُفعّل لاحقاً</figcaption></figure>
+  </div>
+
+  <!-- ================= CONTRACTS ================= -->
+  <h2 class="t-h1 group-title">عقود استئجار العاملات <span class="t-sm muted">7 شاشات — طلب العقد، متابعته، الاستبدال والإنهاء</span></h2>
+  <div class="gallery">
+
+    <!-- C1 Plans -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>عقد جديد</h1><span class="t-xs muted" style="padding:0 10px">1 من 3</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="stepper"><span class="done"></span><span></span><span></span></div>
+        <div class="t-h3">اختر الباقة</div>
+        <div class="card card-selected"><div class="row-between"><div class="row"><span class="radio on"></span><b class="t-sm">دوام كامل</b></div><b class="t-sm num">1,800 ر.س<span class="t-xs muted"> / شهر</span></b></div>
+          <div class="plan-feats"><span><svg class="i"><use href="#i-calendar"/></svg>6 أيام أسبوعياً</span><span><svg class="i"><use href="#i-clock"/></svg>8 ساعات يومياً</span></div></div>
+        <div class="card"><div class="row-between"><div class="row"><span class="radio"></span><b class="t-sm">دوام جزئي</b></div><b class="t-sm num">1,000 ر.س<span class="t-xs muted"> / شهر</span></b></div>
+          <div class="plan-feats"><span><svg class="i"><use href="#i-calendar"/></svg>3 أيام أسبوعياً</span><span><svg class="i"><use href="#i-clock"/></svg>6 ساعات يومياً</span></div></div>
+        <div class="card"><div class="row-between"><div class="row"><span class="radio"></span><b class="t-sm">نصف يوم</b></div><b class="t-sm num">1,200 ر.س<span class="t-xs muted"> / شهر</span></b></div>
+          <div class="plan-feats"><span><svg class="i"><use href="#i-calendar"/></svg>6 أيام أسبوعياً</span><span><svg class="i"><use href="#i-clock"/></svg>4 ساعات يومياً</span></div></div>
+        <p class="t-xs faint">الباقات وأسعارها تُدار من لوحة الإدارة.</p>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">التالي: المدة والعنوان</button></div>
+    </div><figcaption><b>C1. Contract Plans</b><br>الخطوة 1 — الباقة</figcaption></figure>
+
+    <!-- C2 Period -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>عقد جديد</h1><span class="t-xs muted" style="padding:0 10px">2 من 3</span></div>
+      <div class="ph-body">
+        <div class="stepper"><span class="done"></span><span class="done"></span><span></span></div>
+        <div class="field"><label>مدة العقد</label>
+          <div class="slots"><span class="chip is-active">شهر</span><span class="chip">3 أشهر</span><span class="chip">6 أشهر</span></div></div>
+        <div class="field"><label>تاريخ البدء</label><div class="input"><svg class="i"><use href="#i-calendar"/></svg><input value="السبت 10 أكتوبر 2026"></div>
+          <span class="hint">ينتهي العقد الأحد 8 نوفمبر 2026</span></div>
+        <div class="field"><label>العنوان</label>
+          <div class="card row" style="padding:10px 12px"><svg class="i" style="color:var(--color-primary)"><use href="#i-pin"/></svg><div class="stack" style="flex:1"><b class="t-sm">المنزل</b><span class="t-xs muted">حي النرجس، شارع 12</span></div><a class="t-xs" href="#">تغيير</a></div></div>
+        <div class="field"><label>ملاحظات <span class="faint">(اختياري)</span></label><textarea class="input" style="min-height:60px" placeholder="مثال: رعاية المنزل مع وجود أطفال"></textarea></div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">التالي: المراجعة</button></div>
+    </div><figcaption><b>C2. Period & Address</b><br>الخطوة 2 — المدة والبدء والعنوان</figcaption></figure>
+
+    <!-- C3 Review -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>مراجعة العقد</h1><span class="t-xs muted" style="padding:0 10px">3 من 3</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="stepper"><span class="done"></span><span class="done"></span><span class="done"></span></div>
+        <div class="card">
+          <div class="kv"><span>الباقة</span><span>دوام كامل · 6 أيام × 8 ساعات</span></div>
+          <div class="kv"><span>المدة</span><span>10 أكتوبر – 8 نوفمبر</span></div>
+          <div class="kv"><span>العنوان</span><span>المنزل — حي النرجس</span></div>
+          <div class="kv total"><span style="color:var(--n-900)">الإجمالي</span><span class="num">1,800.00 ر.س</span></div>
+        </div>
+        <div class="alert alert-info"><svg class="i"><use href="#i-cash"/></svg>الدفع نقداً في نهاية كل شهر من العقد. يمكنك طلب استبدال العاملة أو إنهاء العقد من التطبيق.</div>
+        <label class="row t-sm" style="gap:8px;align-items:flex-start"><span class="radio on" style="border-radius:5px;border-width:0;background:var(--color-primary);display:grid;place-items:center;color:#fff;margin-top:2px"><svg class="i" style="width:14px;height:14px;stroke-width:3"><use href="#i-check"/></svg></span><span>قرأت وأوافق على <a href="#">شروط عقد الاستئجار</a></span></label>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">إرسال طلب العقد</button></div>
+    </div><figcaption><b>C3. Contract Review</b><br>الخطوة 3 — المراجعة وقبول الشروط</figcaption></figure>
+
+    <!-- C4 My contract -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1 class="num">CT-2026-000014</h1><span class="badge badge-active" style="margin-inline-end:8px">ساري</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card">
+          <div class="row-between t-sm"><b>دوام كامل</b><span class="muted">اليوم 12 من 30</span></div>
+          <div class="progress" style="margin:8px 0 4px"><span style="width:40%"></span></div>
+          <div class="row-between t-xs muted"><span>10 أكتوبر</span><span>8 نوفمبر</span></div>
+        </div>
+        <div class="card row"><span class="avatar" style="width:44px;height:44px">ع</span><div class="stack" style="flex:1"><b class="t-sm">عائشة</b><span class="t-xs muted">العاملة الحالية · منذ 14 أكتوبر</span></div><span class="t-xs row" style="gap:3px"><svg class="i i-sm" style="color:var(--color-primary);fill:currentColor"><use href="#i-star"/></svg>4.9</span></div>
+        <div class="card row" style="padding:10px 14px"><svg class="i faint"><use href="#i-cash"/></svg><span class="t-sm" style="flex:1">الدفعة القادمة نقداً · 8 نوفمبر</span><b class="t-sm num">1,800 ر.س</b></div>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><svg class="i"><use href="#i-swap"/></svg><span class="grow">طلب استبدال العاملة</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li"><svg class="i"><use href="#i-message"/></svg><span class="grow">تقديم شكوى</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li" style="color:var(--danger-600)"><svg class="i" style="color:inherit"><use href="#i-x"/></svg><span class="grow">طلب إنهاء العقد</span></div>
+        </div>
+      </div>
+    </div><figcaption><b>C4. My Contract</b><br>التقدم، العاملة الحالية، الدفعة القادمة، والإجراءات</figcaption></figure>
+
+    <!-- C5 Replace -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>طلب استبدال العاملة</h1></div>
+      <div class="ph-body white" style="gap:14px">
+        <div class="field"><label>سبب الطلب</label>
+          <div class="demo-flex" style="display:flex;flex-wrap:wrap;gap:8px"><span class="chip">تأخر متكرر</span><span class="chip is-active">جودة العمل</span><span class="chip">غياب</span><span class="chip">سلوك</span><span class="chip">سبب آخر</span></div></div>
+        <div class="field"><label>التفاصيل</label><textarea class="input" style="min-height:80px">المطبخ لا يُنظف بشكل جيد رغم التنبيه أكثر من مرة.</textarea></div>
+        <button class="btn btn-secondary btn-sm" style="align-self:flex-start"><svg class="i i-sm"><use href="#i-clip"/></svg> إرفاق صور <span class="faint">(اختياري)</span></button>
+        <div class="alert alert-info"><svg class="i"><use href="#i-alert"/></svg>عقدك يبقى سارياً. ستراجع الإدارة الطلب وتبلغك بموعد وصول العاملة البديلة.</div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block">إرسال الطلب</button></div>
+    </div><figcaption><b>C5. Replace Worker</b><br>"إخراج" العاملة — العقد لا يتوقف</figcaption></figure>
+
+    <!-- C6 Terminate -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-x"/></svg></button><h1>طلب إنهاء العقد</h1></div>
+      <div class="ph-body white" style="gap:14px">
+        <div class="field"><label>تاريخ الإنهاء المطلوب</label><div class="input"><svg class="i"><use href="#i-calendar"/></svg><input value="الخميس 22 أكتوبر 2026"></div></div>
+        <div class="field"><label>السبب</label><div class="input"><select><option>لم أعد بحاجة للخدمة</option><option>عدم الرضا عن الخدمة</option><option>سبب آخر</option></select><svg class="i"><use href="#i-chev-down"/></svg></div></div>
+        <div class="card card-flat">
+          <div class="kv"><span>أيام العمل حتى الإنهاء</span><span class="num">13 يوماً</span></div>
+          <div class="kv total"><span style="color:var(--n-900)">المستحق التقديري نقداً</span><span class="num">780.00 ر.س</span></div>
+          <span class="t-xs faint">المبلغ النهائي تحدده الإدارة حسب سياسة الإنهاء.</span>
+        </div>
+      </div>
+      <div class="ph-foot"><button class="btn btn-danger btn-block">إرسال طلب الإنهاء</button></div>
+    </div><figcaption><b>C6. Terminate Contract</b><br>طلب تعتمده الإدارة، مع تقدير المستحق</figcaption></figure>
+
+    <!-- C7 History -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>سجل العقد</h1></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card"><div class="row-between"><b class="t-sm num">RQ-000031 · استبدال</b><span class="badge badge-approved">معتمد</span></div>
+          <p class="t-sm muted" style="margin-top:4px">تم تعيين عائشة بدلاً من فاطمة ابتداءً من 14 أكتوبر.</p></div>
+        <div class="card"><ul class="timeline t-sm">
+          <li class="done"><b>تم تفعيل العقد</b><div class="t-xs muted">10 أكتوبر · فاطمة</div></li>
+          <li class="done"><b>طلب استبدال</b><div class="t-xs muted">12 أكتوبر · جودة العمل</div></li>
+          <li class="done"><b>انتهى عمل فاطمة</b><div class="t-xs muted">12 أكتوبر · استُبدلت</div></li>
+          <li class="done current"><b>بدأت عائشة</b><div class="t-xs muted">14 أكتوبر</div></li>
+          <li class="todo" style="padding-bottom:0">نهاية العقد · 8 نوفمبر</li>
+        </ul></div>
+      </div>
+    </div><figcaption><b>C7. Contract History</b><br>كل العاملات والطلبات محفوظة</figcaption></figure>
+  </div>
+
+  <!-- ================= WORKER ================= -->
+  <h2 class="t-h1 group-title">شاشات العاملة <span class="t-sm muted">9 شاشات — نفس التطبيق، صلاحيات مختلفة</span></h2>
+  <div class="gallery">
+
+    <!-- W1 Login -->
+    <figure><div class="phone" style="background:var(--n-0)">
+      <div class="sb"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-body white" style="gap:18px;padding-top:36px">
+        <span class="logo" style="width:48px;height:48px;border-radius:14px"><svg class="brand-mark"><use href="#brand-mark"/></svg></span>
+        <div><div class="t-h1">تسجيل الدخول</div><p class="t-sm muted">حسابات العاملات تُنشأ من الإدارة</p></div>
+        <div class="field"><label>رقم الجوال</label><div class="input"><svg class="i"><use href="#i-phone"/></svg><input placeholder="05xxxxxxxx" dir="ltr"></div></div>
+        <div class="field"><label>كلمة المرور</label><div class="input"><svg class="i"><use href="#i-lock"/></svg><input type="password" value="12345678"></div></div>
+        <div class="alert alert-error"><svg class="i"><use href="#i-alert"/></svg>رقم الجوال أو كلمة المرور غير صحيحة.</div>
+        <button class="btn btn-primary btn-block">دخول</button>
+      </div>
+    </div><figcaption><b>W1. Login</b><br>نفس شاشة الدخول؛ لا يوجد تسجيل ذاتي للعاملة</figcaption></figure>
+
+    <!-- W2 Dashboard -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar" style="border:0;padding:0 16px"><div class="stack" style="flex:1"><span class="t-xs muted">صباح الخير</span><b>فاطمة</b></div><button class="btn-icon"><svg class="i"><use href="#i-bell"/></svg></button></div>
+      <div class="ph-body">
+        <div class="svc-grid">
+          <div class="stat"><span class="t-xs muted">طلبات اليوم</span><b class="num">3</b></div>
+          <div class="stat"><span class="t-xs muted">مكتملة اليوم</span><b class="num">1</b></div>
+        </div>
+        <div class="sec-t">الطلب التالي</div>
+        <div class="card" style="border-color:var(--blue-200)">
+          <div class="row-between"><b class="t-sm">10:00 ص</b><span class="badge badge-assigned">مسند</span></div>
+          <div class="t-sm" style="margin-top:6px">تنظيف شامل · شقة</div>
+          <div class="row t-xs muted" style="gap:4px;margin-top:2px"><svg class="i i-sm"><use href="#i-pin"/></svg>حي النرجس</div>
+          <button class="btn btn-primary btn-block btn-sm" style="margin-top:12px"><svg class="i i-sm"><use href="#i-nav"/></svg> بدء التوجه</button>
+        </div>
+        <div class="alert alert-info"><svg class="i"><use href="#i-bell"/></svg>لديك طلب جديد بانتظار قبولك.</div>
+      </div>
+      <div class="ph-nav"><a class="on"><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-briefcase"/></svg>الطلبات</a><a><svg class="i"><use href="#i-bell"/></svg>الإشعارات</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>W2. Dashboard</b><br>الطلب التالي + إجراؤه المباشر</figcaption></figure>
+
+    <!-- W3 Assigned -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>طلباتي</h1></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="seg"><span>جديدة</span><span class="on">اليوم</span><span>القادمة</span><span>المنتهية</span></div>
+        <div class="card"><div class="row-between"><b class="t-sm num">10:00 ص</b><span class="badge badge-on_the_way">في الطريق</span></div><div class="t-sm" style="margin-top:4px">تنظيف شامل · شقة</div><div class="t-xs muted">حي النرجس</div></div>
+        <div class="card"><div class="row-between"><b class="t-sm num">2:00 م</b><span class="badge badge-assigned">مسند</span></div><div class="t-sm" style="margin-top:4px">الكنب والسجاد</div><div class="t-xs muted">حي الياسمين</div></div>
+        <div class="card"><div class="row-between"><b class="t-sm num">7:30 ص</b><span class="badge badge-completed">مكتمل</span></div><div class="t-sm" style="margin-top:4px">تنظيف النوافذ</div><div class="t-xs muted">حي الملقا</div></div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a class="on"><svg class="i"><use href="#i-briefcase"/></svg>الطلبات</a><a><svg class="i"><use href="#i-bell"/></svg>الإشعارات</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>W3. Assigned Bookings</b><br>المسندة إليها فقط</figcaption></figure>
+
+    <!-- W3b Contract -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>عقدي الحالي</h1><span class="badge badge-active" style="margin-inline-end:8px">ساري</span></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card">
+          <div class="kv"><span>العميلة</span><span>سارة</span></div>
+          <div class="kv"><span>الدوام</span><span>6 أيام · 8:00 ص – 4:00 م</span></div>
+          <div class="kv"><span>أيام الراحة</span><span>الجمعة</span></div>
+          <div class="kv"><span>فترتي</span><span>14 أكتوبر – 8 نوفمبر</span></div>
+        </div>
+        <div class="card"><div class="row" style="align-items:flex-start"><svg class="i" style="color:var(--color-primary)"><use href="#i-pin"/></svg><div class="stack" style="flex:1"><b class="t-sm">حي النرجس، شارع 12</b><span class="t-xs muted">مبنى 8، الدور 3</span></div></div>
+          <div class="row" style="gap:8px;margin-top:10px"><button class="btn btn-secondary btn-sm" style="flex:1">الخرائط</button><button class="btn btn-secondary btn-sm" style="flex:1"><svg class="i i-sm"><use href="#i-phone"/></svg> اتصال</button></div></div>
+        <div class="card"><span class="sec-t">ملاحظات العميلة</span><p class="t-sm muted">رعاية المنزل مع وجود أطفال.</p></div>
+        <p class="t-xs faint">بعد انتهاء فترتها في العقد لا تظهر بيانات العميل للعاملة.</p>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a class="on"><svg class="i"><use href="#i-briefcase"/></svg>الطلبات</a><a><svg class="i"><use href="#i-bell"/></svg>الإشعارات</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>W3b. Worker Contract</b><br>بيانات العمل خلال فترة إسنادها فقط</figcaption></figure>
+
+    <!-- W4 Booking details -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>طلب جديد</h1></div>
+      <div class="ph-body" style="gap:10px">
+        <div class="card">
+          <div class="kv"><span>الخدمة</span><span>تنظيف شامل · شقة</span></div>
+          <div class="kv"><span>الموعد</span><span>الأحد 4 أكتوبر · 2:00 م</span></div>
+          <div class="kv"><span>المدة التقريبية</span><span>4 ساعات</span></div>
+          <div class="kv"><span>العميلة</span><span>سارة</span></div>
+        </div>
+        <div class="card"><div class="row" style="align-items:flex-start"><svg class="i" style="color:var(--color-primary)"><use href="#i-pin"/></svg><div class="stack" style="flex:1"><b class="t-sm">حي الياسمين، شارع 20</b><span class="t-xs muted">مبنى 5، الدور 2، شقة 7</span></div></div>
+          <button class="btn btn-secondary btn-sm btn-block" style="margin-top:10px">فتح في الخرائط</button></div>
+        <div class="card"><span class="sec-t">ملاحظات العميلة</span><p class="t-sm muted">يوجد حيوان أليف في المنزل.</p></div>
+        <p class="t-xs faint">رقم الهاتف يظهر من حالة "في الطريق" حتى الإنهاء (قيد القرار).</p>
+      </div>
+      <div class="ph-foot row" style="gap:8px"><button class="btn btn-danger" style="flex:1">رفض</button><button class="btn btn-primary" style="flex:2">قبول الطلب</button></div>
+    </div><figcaption><b>W4. Booking Details</b><br>البيانات اللازمة للتنفيذ فقط</figcaption></figure>
+
+    <!-- W5 Status update -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>تحديث الحالة</h1></div>
+      <div class="ph-body">
+        <div class="card" style="text-align:center"><span class="t-xs muted">الحالة الحالية</span><div style="margin:6px 0"><span class="badge badge-on_the_way">في الطريق</span></div><span class="t-xs muted">تنظيف شامل · حي النرجس · 10:00 ص</span></div>
+        <div class="card"><ul class="timeline t-sm">
+          <li class="done"><b>مسند</b></li>
+          <li class="done current"><b>في الطريق</b><div class="t-xs muted">9:35 ص</div></li>
+          <li class="todo">جارٍ التنفيذ</li>
+          <li class="todo" style="padding-bottom:0">مكتمل</li>
+        </ul></div>
+        <button class="btn btn-secondary btn-block btn-sm"><svg class="i i-sm"><use href="#i-phone"/></svg> الاتصال بالعميلة</button>
+      </div>
+      <div class="ph-foot"><button class="btn btn-primary btn-block"><svg class="i"><use href="#i-play"/></svg> وصلت — بدء العمل</button></div>
+    </div><figcaption><b>W5. Status Update</b><br>زر واحد = الخطوة التالية المسموحة فقط</figcaption></figure>
+
+    <!-- W5b confirm sheet -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><button class="btn-icon"><svg class="i"><use href="#i-chev-right"/></svg></button><h1>تحديث الحالة</h1></div>
+      <div class="ph-body"><div class="card" style="text-align:center"><span class="badge badge-in_progress">جارٍ التنفيذ</span></div></div>
+      <div class="scrim-abs"><div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="state-icon success" style="margin:0 auto 10px"><svg class="i"><use href="#i-check"/></svg></div>
+        <h3 class="t-h2" style="text-align:center">إنهاء الخدمة؟</h3>
+        <p class="t-sm muted" style="text-align:center;margin:6px 0 12px">سيصل للعميلة إشعار بالإكمال وطلب التقييم.</p>
+        <div class="alert alert-info" style="margin-bottom:12px"><svg class="i"><use href="#i-cash"/></svg>المبلغ المستحق نقداً: <b class="num">287.50 ر.س</b></div>
+        <button class="btn btn-primary btn-block">تأكيد الإنهاء</button>
+        <button class="btn btn-ghost btn-block" style="margin-top:6px">تراجع</button>
+      </div></div>
+    </div><figcaption><b>W5b. تأكيد الإنهاء</b><br>Bottom Sheet للإجراء غير القابل للتراجع</figcaption></figure>
+
+    <!-- W6 Notifications -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>الإشعارات</h1></div>
+      <div class="ph-body white" style="gap:0;padding-top:8px">
+        <div class="notif"><span class="dot"></span><div class="stack"><b class="t-sm">طلب جديد مسند إليك</b><span class="t-xs muted">الكنب والسجاد · الأحد 2:00 م</span><span class="t-xs faint">8:10 ص</span></div></div>
+        <div class="notif"><span class="dot read"></span><div class="stack"><span class="t-sm">تم إلغاء طلب</span><span class="t-xs muted">BK-000119 ألغي من الإدارة</span><span class="t-xs faint">أمس</span></div></div>
+        <div class="notif"><span class="dot read"></span><div class="stack"><span class="t-sm">تقييم جديد</span><span class="t-xs muted">حصلت على 5 نجوم</span><span class="t-xs faint">الخميس</span></div></div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-briefcase"/></svg>الطلبات</a><a class="on"><svg class="i"><use href="#i-bell"/></svg>الإشعارات</a><a><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>W6. Notifications</b></figcaption></figure>
+
+    <!-- W7 Profile -->
+    <figure><div class="phone">
+      <div class="sb on-white"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="ph-bar"><h1>حسابي</h1></div>
+      <div class="ph-body" style="gap:12px">
+        <div class="card row"><span class="avatar" style="width:52px;height:52px;font-size:18px">ف</span><div class="stack" style="flex:1"><b>فاطمة</b><span class="row t-sm muted" style="gap:4px"><svg class="i i-sm" style="color:var(--color-primary);fill:currentColor"><use href="#i-star"/></svg><span class="num">4.8</span> · 126 تقييماً</span></div></div>
+        <div class="sec-t">آخر التقييمات</div>
+        <div class="card"><div class="stars"><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg><svg class="i on"><use href="#i-star"/></svg></div><p class="t-sm" style="margin-top:4px">عمل ممتاز والتزام بالموعد.</p><span class="t-xs faint">تنظيف شامل · 4 أكتوبر</span></div>
+        <div class="card" style="padding:0 14px">
+          <div class="menu-li"><svg class="i"><use href="#i-settings"/></svg><span class="grow">الإعدادات</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg></div>
+          <div class="menu-li" style="color:var(--danger-600)"><svg class="i" style="color:inherit"><use href="#i-logout"/></svg><span class="grow">تسجيل الخروج</span></div>
+        </div>
+      </div>
+      <div class="ph-nav"><a><svg class="i"><use href="#i-home"/></svg>الرئيسية</a><a><svg class="i"><use href="#i-briefcase"/></svg>الطلبات</a><a><svg class="i"><use href="#i-bell"/></svg>الإشعارات</a><a class="on"><svg class="i"><use href="#i-user"/></svg>حسابي</a></div>
+    </div><figcaption><b>W7. Profile</b><br>التقييمات بدون اسم العميل</figcaption></figure>
+  </div>
+</div>
+<script src="assets/icons.js"></script>
+</body>
+</html>

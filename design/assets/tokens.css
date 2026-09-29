@@ -1,0 +1,278 @@
+/* =========================================================
+   لمعة (Lam'a) — Design Tokens + Base Components
+   المصدر الوحيد للقيم البصرية. أي قيمة في Flutter أو اللوحة
+   يجب أن تُطابق ما هنا.
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap");
+
+:root {
+  /* ---------- Color: Primary (Blue) ---------- */
+  --blue-50:  #EEF4FE;
+  --blue-100: #DAE6FC;
+  --blue-200: #B8CFF8;
+  --blue-300: #88AEF1;
+  --blue-400: #5A8BE7;
+  --blue-500: #3570DA;
+  --blue-600: #1F5AC4;   /* Primary */
+  --blue-700: #1A499F;   /* Primary pressed / text on light blue */
+  --blue-800: #173C80;
+  --blue-900: #132F62;
+
+  /* ---------- Color: Neutral ---------- */
+  --n-0:   #FFFFFF;
+  --n-25:  #FAFBFC;
+  --n-50:  #F4F6F9;
+  --n-100: #ECEFF3;
+  --n-200: #DCE1E8;
+  --n-300: #C3CAD4;
+  --n-400: #97A1AF;
+  --n-500: #6A7483;
+  --n-600: #4D5666;
+  --n-700: #363E4D;
+  --n-800: #222935;
+  --n-900: #141922;
+
+  /* ---------- Color: Feedback (للحالات فقط — لا تُستخدم للزخرفة) ---------- */
+  --success-600: #1C7A4E;  --success-50: #EAF6EF;
+  --warning-600: #8F6200;  --warning-50: #FBF4E2;
+  --danger-600:  #B42318;  --danger-50:  #FDEEEC;
+
+  /* ---------- Semantic ---------- */
+  --color-primary: var(--blue-600);
+  --color-primary-hover: var(--blue-700);
+  --color-primary-subtle: var(--blue-50);
+  --color-bg: var(--n-50);
+  --color-surface: var(--n-0);
+  --color-border: var(--n-200);
+  --color-border-strong: var(--n-300);
+  --color-text: var(--n-900);
+  --color-text-2: var(--n-600);
+  --color-text-3: var(--n-500);
+  --color-focus: rgba(31, 90, 196, .28);
+
+  /* ---------- Typography ---------- */
+  --font: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --fs-display: 28px; --lh-display: 36px;
+  --fs-h1: 22px;      --lh-h1: 30px;
+  --fs-h2: 18px;      --lh-h2: 26px;
+  --fs-h3: 16px;      --lh-h3: 24px;
+  --fs-body: 15px;    --lh-body: 24px;
+  --fs-sm: 13px;      --lh-sm: 20px;
+  --fs-xs: 12px;      --lh-xs: 16px;
+
+  /* ---------- Spacing (4pt) ---------- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* ---------- Radius ---------- */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-pill: 999px;
+
+  /* ---------- Elevation (اثنان فقط) ---------- */
+  --shadow-1: 0 1px 2px rgba(20, 25, 34, .06);
+  --shadow-overlay: 0 10px 30px rgba(20, 25, 34, .14);
+
+  /* ---------- Sizes ---------- */
+  --control-h: 48px;     /* أزرار وحقول الجوال */
+  --control-h-sm: 36px;  /* اللوحة والأزرار الثانوية */
+  --touch-min: 44px;
+}
+
+/* =================== Base =================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+h1, h2, h3, h4, p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--color-primary); text-decoration: none; }
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+.t-display { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: 700; }
+.t-h1 { font-size: var(--fs-h1); line-height: var(--lh-h1); font-weight: 700; }
+.t-h2 { font-size: var(--fs-h2); line-height: var(--lh-h2); font-weight: 600; }
+.t-h3 { font-size: var(--fs-h3); line-height: var(--lh-h3); font-weight: 600; }
+.t-body { font-size: var(--fs-body); line-height: var(--lh-body); }
+.t-sm { font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.t-xs { font-size: var(--fs-xs); line-height: var(--lh-xs); }
+.muted { color: var(--color-text-2); }
+.faint { color: var(--color-text-3); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* =================== Brand =================== */
+/* لون الشعار = blue-700. داخل .logo (مربع أزرق) يظهر أبيض مثل أيقونة التطبيق. */
+.brand-mark { width: 72%; height: 72%; color: var(--blue-700); display: block; }
+.logo .brand-mark { color: #fff; }
+.logo { background: var(--blue-700) !important; }
+
+/* =================== Icon =================== */
+.i { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none;
+     stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.i-sm { width: 16px; height: 16px; }
+.i-lg { width: 24px; height: 24px; }
+[dir="rtl"] .i-flip { transform: scaleX(-1); }
+
+/* =================== Button =================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  height: var(--control-h); padding: 0 var(--s-5);
+  border-radius: var(--r-md); border: 1px solid transparent;
+  font-weight: 600; font-size: var(--fs-body); cursor: pointer; white-space: nowrap;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-secondary { background: var(--color-surface); color: var(--color-primary); border-color: var(--blue-200); }
+.btn-secondary:hover { background: var(--blue-50); }
+.btn-ghost { background: transparent; color: var(--color-primary); }
+.btn-ghost:hover { background: var(--blue-50); }
+.btn-danger { background: var(--color-surface); color: var(--danger-600); border-color: #F1C4BF; }
+.btn[disabled], .btn.is-disabled { background: var(--n-100); color: var(--n-400); border-color: transparent; cursor: not-allowed; }
+.btn-sm { height: var(--control-h-sm); padding: 0 var(--s-3); font-size: var(--fs-sm); border-radius: var(--r-sm); }
+.btn-block { width: 100%; }
+.btn-icon { width: var(--touch-min); height: var(--touch-min); padding: 0; border-radius: var(--r-md);
+            background: transparent; color: var(--color-text); border: 0; }
+.btn-icon:hover { background: var(--n-100); }
+.btn .spinner { width: 18px; height: 18px; border-width: 2px; border-color: rgba(255,255,255,.35); border-top-color: #fff; }
+
+/* =================== Input =================== */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-size: var(--fs-sm); font-weight: 500; color: var(--n-700); }
+.input {
+  display: flex; align-items: center; gap: var(--s-2);
+  height: var(--control-h); padding: 0 var(--s-3);
+  background: var(--color-surface); border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-md); color: var(--color-text);
+}
+.input input, .input select { border: 0; outline: 0; background: transparent; width: 100%; height: 100%; }
+.input .i { color: var(--n-500); }
+.input.is-focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-focus); }
+.input.is-error { border-color: var(--danger-600); }
+.input.is-disabled { background: var(--n-50); color: var(--n-400); }
+textarea.input { height: auto; min-height: 96px; padding: var(--s-3); resize: vertical; width: 100%; }
+.hint { font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--color-text-3); }
+.hint.error { color: var(--danger-600); }
+.input-sm { height: var(--control-h-sm); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+
+/* =================== Card =================== */
+.card { background: var(--color-surface); border: 1px solid var(--color-border);
+        border-radius: var(--r-lg); padding: var(--s-4); }
+.card-flat { border-color: transparent; background: var(--n-50); }
+.card-interactive { cursor: pointer; transition: border-color .15s; }
+.card-interactive:hover { border-color: var(--blue-300); }
+.card-selected { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+.divider { height: 1px; background: var(--color-border); border: 0; margin: var(--s-3) 0; }
+
+/* =================== Status Badge =================== */
+/* حالة الطلب = لون + أيقونة/نقطة + نص. لا نعتمد على اللون وحده. */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 10px; border-radius: var(--r-pill);
+  font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; border: 1px solid transparent;
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge-pending     { background: var(--n-0);      color: var(--n-600);   border-color: var(--n-300); }
+.badge-confirmed   { background: var(--blue-50);  color: var(--blue-700); border-color: var(--blue-100); }
+.badge-assigned    { background: var(--blue-100); color: var(--blue-800); }
+.badge-on_the_way  { background: var(--blue-500); color: #fff; }
+.badge-in_progress { background: var(--blue-700); color: #fff; }
+.badge-completed   { background: var(--success-50); color: var(--success-600); }
+.badge-cancelled   { background: var(--n-100);    color: var(--n-500); }
+.badge-rejected    { background: var(--danger-50); color: var(--danger-600); }
+/* الشكاوى */
+.badge-open         { background: var(--blue-50);  color: var(--blue-700); border-color: var(--blue-100); }
+.badge-under_review { background: var(--warning-50); color: var(--warning-600); }
+.badge-resolved     { background: var(--success-50); color: var(--success-600); }
+.badge-closed       { background: var(--n-100);    color: var(--n-500); }
+/* العقود (pending / confirmed / assigned / completed / cancelled / rejected مشتركة مع الزيارة) */
+.badge-active     { background: var(--blue-700); color: #fff; }
+.badge-terminated { background: var(--n-0); color: var(--n-600); border-color: var(--n-300); }
+/* طلبات الاستبدال والإنهاء (open / under_review مشتركة مع الشكاوى) */
+.badge-approved   { background: var(--success-50); color: var(--success-600); }
+/* التحصيل النقدي */
+.badge-due       { background: var(--n-0); color: var(--n-600); border-color: var(--n-300); }
+.badge-collected { background: var(--success-50); color: var(--success-600); }
+.badge-waived    { background: var(--n-100); color: var(--n-500); }
+
+/* =================== Chip / Segmented =================== */
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px;
+        border-radius: var(--r-pill); border: 1px solid var(--color-border-strong);
+        background: var(--color-surface); font-size: var(--fs-sm); font-weight: 500; color: var(--n-700); cursor: pointer; }
+.chip.is-active { background: var(--blue-50); border-color: var(--color-primary); color: var(--blue-700); }
+.chip.is-disabled { color: var(--n-400); background: var(--n-50); border-style: dashed; cursor: not-allowed; }
+
+/* =================== Feedback states =================== */
+.state { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-3);
+         padding: var(--s-8) var(--s-4); }
+.state-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+              background: var(--blue-50); color: var(--color-primary); }
+.state-icon .i { width: 26px; height: 26px; }
+.state-icon.success { background: var(--success-50); color: var(--success-600); }
+.state-icon.error { background: var(--danger-50); color: var(--danger-600); }
+
+.alert { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3) var(--s-4);
+         border-radius: var(--r-md); font-size: var(--fs-sm); line-height: var(--lh-sm); }
+.alert-info    { background: var(--blue-50);    color: var(--blue-800); }
+.alert-success { background: var(--success-50); color: var(--success-600); }
+.alert-error   { background: var(--danger-50);  color: var(--danger-600); }
+.alert-warning { background: var(--warning-50); color: var(--warning-600); }
+
+.toast { display: inline-flex; align-items: center; gap: var(--s-2); padding: 10px var(--s-4);
+         border-radius: var(--r-md); background: var(--n-800); color: #fff; font-size: var(--fs-sm);
+         box-shadow: var(--shadow-overlay); }
+
+/* Loading */
+.spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--blue-100);
+           border-top-color: var(--color-primary); animation: spin .8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.skeleton { background: linear-gradient(90deg, var(--n-100) 0%, var(--n-50) 50%, var(--n-100) 100%);
+            background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: var(--r-sm); }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .spinner, .skeleton { animation: none; } }
+
+/* =================== Overlays =================== */
+.scrim { background: rgba(20, 25, 34, .45); }
+.dialog { background: var(--color-surface); border-radius: var(--r-xl); padding: var(--s-6);
+          box-shadow: var(--shadow-overlay); max-width: 360px; width: 100%; }
+.sheet { background: var(--color-surface); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: var(--s-3) var(--s-4) var(--s-6);
+         box-shadow: var(--shadow-overlay); }
+.sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--n-300); margin: 0 auto var(--s-4); }
+
+/* =================== Stepper =================== */
+.stepper { display: flex; gap: var(--s-1); }
+.stepper span { flex: 1; height: 4px; border-radius: 2px; background: var(--n-200); }
+.stepper span.done { background: var(--color-primary); }
+
+/* =================== Timeline =================== */
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li { position: relative; padding-inline-start: 28px; padding-bottom: var(--s-4); }
+.timeline li::before { content: ""; position: absolute; inset-inline-start: 5px; top: 6px; width: 12px; height: 12px;
+                       border-radius: 50%; background: var(--n-0); border: 2px solid var(--n-300); }
+.timeline li::after { content: ""; position: absolute; inset-inline-start: 10px; top: 20px; bottom: 0; width: 2px; background: var(--n-200); }
+.timeline li:last-child::after { display: none; }
+.timeline li.done::before { background: var(--color-primary); border-color: var(--color-primary); }
+.timeline li.done::after { background: var(--color-primary); }
+.timeline li.current::after { background: var(--n-200); }
+.timeline li.current::before { border-color: var(--color-primary); box-shadow: 0 0 0 4px var(--blue-100); }
+.timeline li.todo { color: var(--n-400); }
+
+/* =================== List row =================== */
+.row { display: flex; align-items: center; gap: var(--s-3); }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.stack { display: flex; flex-direction: column; }
+.list-item { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--n-100); }
+.list-item:last-child { border-bottom: 0; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--blue-100); color: var(--blue-700);
+          display: grid; place-items: center; font-weight: 600; font-size: var(--fs-sm); flex: none; }
+.icon-tile { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--blue-50); color: var(--color-primary);
+             display: grid; place-items: center; flex: none; }
+.stars { display: inline-flex; gap: 2px; color: var(--blue-600); }
+.stars .i { width: 18px; height: 18px; }
+.stars .i.on { fill: currentColor; }
+.stars .i.off { color: var(--n-300); }

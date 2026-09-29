@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design System — لمعة</title>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/doc.css">
+</head>
+<body>
+<header class="doc-top">
+  <div class="doc-brand"><span class="logo"><svg class="brand-mark"><use href="#brand-mark"/></svg></span> لمعة — Design</div>
+  <nav class="doc-nav">
+    <a href="design-system.html" class="is-active">Design System</a>
+    <a href="mobile-screens.html">شاشات الجوال</a>
+    <a href="admin-dashboard.html">لوحة الإدارة</a>
+  </nav>
+</header>
+
+<div class="doc-layout">
+  <aside class="doc-toc">
+    <a href="#brand">الشعار</a><a href="#colors">الألوان</a><a href="#type">الخطوط</a><a href="#spacing">المسافات</a>
+    <a href="#radius">الحواف والظلال</a><a href="#icons">الأيقونات</a><a href="#buttons">الأزرار</a>
+    <a href="#inputs">الحقول</a><a href="#cards">البطاقات</a><a href="#badges">شارات الحالة</a>
+    <a href="#dialogs">النوافذ</a><a href="#sheets">Bottom Sheets</a><a href="#states">الحالات</a>
+    <a href="#flutter">Flutter</a>
+  </aside>
+
+  <main class="doc-main">
+    <section class="doc-intro">
+      <h1 class="t-display">Design System</h1>
+      <p class="muted">هوية زرقاء واحدة، خلفيات محايدة فاتحة، ظل واحد خفيف، بلا Gradients أو زخارف.
+        القاعدة: <b>كل عنصر يخدم وظيفة</b>. ألوان النجاح/الخطأ تُستخدم للتغذية الراجعة فقط وليست جزءاً من الهوية.</p>
+    </section>
+
+    <!-- ===== Brand ===== -->
+    <section id="brand" class="doc-sec">
+      <h2 class="t-h1">الشعار</h2>
+      <p class="muted t-sm">الرمز: بيت + نجمة لمعان. لونه <code>blue-700 #1A499F</code>. الملف: <code>assets/brand/lamaa-mark.svg</code> (نسخة Vector تقريبية لحين استلام ملف SVG النهائي من المصمم).</p>
+      <div class="grid-4" style="margin-top:12px">
+        <div class="demo-box" style="align-items:center;justify-content:center;gap:10px;min-height:160px">
+          <div class="row" style="gap:10px"><span style="font-size:34px;font-weight:700;color:var(--blue-700)">لمعة</span><svg class="brand-mark" style="width:48px;height:48px"><use href="#brand-mark"/></svg></div>
+          <span class="t-xs faint">أفقي — الرمز يسار الاسم كما في الشعار</span></div>
+        <div class="demo-box" style="align-items:center;justify-content:center;gap:2px;min-height:160px">
+          <svg class="brand-mark" style="width:56px;height:56px"><use href="#brand-mark"/></svg>
+          <span style="font-size:28px;line-height:34px;font-weight:700;color:var(--blue-700)">لمعة</span>
+          <span style="font-size:11px;letter-spacing:.3em;color:var(--blue-700);direction:ltr">Lam’a</span></div>
+        <div class="demo-box" style="align-items:center;justify-content:center;gap:10px;min-height:160px">
+          <div class="row" style="gap:14px;align-items:flex-end"><svg class="brand-mark" style="width:64px;height:64px"><use href="#brand-mark"/></svg><svg class="brand-mark" style="width:32px;height:32px"><use href="#brand-mark"/></svg><svg class="brand-mark" style="width:16px;height:16px"><use href="#brand-mark"/></svg></div>
+          <span class="t-xs faint">الرمز — 64 / 32 / 16</span></div>
+        <div class="demo-box" style="align-items:center;justify-content:center;gap:10px;min-height:160px">
+          <span class="logo" style="width:84px;height:84px;border-radius:22px"><svg class="brand-mark"><use href="#brand-mark"/></svg></span>
+          <span class="t-xs faint">أيقونة التطبيق</span></div>
+      </div>
+      <ul class="rules">
+        <li>المساحة الآمنة حول الشعار = عرض النافذة الصغيرة × 2 على الأقل.</li>
+        <li>الشعار أزرق على أبيض، أو أبيض على <code>blue-700</code> فقط. لا تدرجات ولا ظلال ولا ألوان أخرى.</li>
+        <li>واجهات التطبيق تستخدم <code>blue-600</code> للأزرار؛ الشعار يبقى <code>blue-700</code>.</li>
+      </ul>
+    </section>
+
+    <!-- ===== Colors ===== -->
+    <section id="colors" class="doc-sec">
+      <h2 class="t-h1">Color Tokens</h2>
+      <h3 class="t-h3 sub">Primary — Blue</h3>
+      <div class="swatches" id="sw-blue"></div>
+      <h3 class="t-h3 sub">Neutral</h3>
+      <div class="swatches" id="sw-neutral"></div>
+      <h3 class="t-h3 sub">Feedback (للحالات فقط)</h3>
+      <div class="swatches" id="sw-feedback"></div>
+      <h3 class="t-h3 sub">الاستخدام الدلالي</h3>
+      <table class="doc-table">
+        <thead><tr><th>Token</th><th>القيمة</th><th>الاستخدام</th></tr></thead>
+        <tbody>
+          <tr><td><code>color.primary</code></td><td>blue-600</td><td>الأزرار الرئيسية، الروابط، العنصر النشط</td></tr>
+          <tr><td><code>color.primaryHover</code></td><td>blue-700</td><td>ضغط/مرور، نص فوق خلفية زرقاء فاتحة</td></tr>
+          <tr><td><code>color.primarySubtle</code></td><td>blue-50</td><td>خلفية العنصر المحدد، الأيقونات، التنبيه المعلوماتي</td></tr>
+          <tr><td><code>color.bg</code></td><td>n-50</td><td>خلفية الشاشة</td></tr>
+          <tr><td><code>color.surface</code></td><td>n-0</td><td>البطاقات، الحقول، الأشرطة</td></tr>
+          <tr><td><code>color.border</code></td><td>n-200</td><td>حدود البطاقات والفواصل</td></tr>
+          <tr><td><code>color.text / text2 / text3</code></td><td>n-900 / n-600 / n-500</td><td>عنوان ونص أساسي / ثانوي / مساعد</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ===== Typography ===== -->
+    <section id="type" class="doc-sec">
+      <h2 class="t-h1">Typography Scale</h2>
+      <p class="muted t-sm">الخط: <b>IBM Plex Sans Arabic</b> — يدعم العربية واللاتينية بنفس الطابع، متاح مجاناً (Google Fonts) ويعمل في Flutter والويب.</p>
+      <div class="card type-list">
+        <div class="type-row"><span class="t-display">احجز خدمة التنظيف</span><code>display 28/36 · 700</code></div>
+        <div class="type-row"><span class="t-h1">تفاصيل الطلب</span><code>h1 22/30 · 700</code></div>
+        <div class="type-row"><span class="t-h2">الخدمات المتاحة</span><code>h2 18/26 · 600</code></div>
+        <div class="type-row"><span class="t-h3">تنظيف شامل للمنزل</span><code>h3 16/24 · 600</code></div>
+        <div class="type-row"><span class="t-body">سيتم إرسال إشعار عند إسناد الطلب إلى عاملة.</span><code>body 15/24 · 400</code></div>
+        <div class="type-row"><span class="t-sm muted">آخر تحديث قبل ٥ دقائق</span><code>sm 13/20 · 400/500</code></div>
+        <div class="type-row"><span class="t-xs faint">رقم الطلب BK-2026-000123</span><code>xs 12/16 · 400/600</code></div>
+      </div>
+      <p class="t-sm muted">الأرقام: تُعرض بالأرقام العربية الغربية (0–9) مع <code>tabular-nums</code> في الجداول والأسعار — قابل للتغيير كإعداد لغة.</p>
+    </section>
+
+    <!-- ===== Spacing ===== -->
+    <section id="spacing" class="doc-sec">
+      <h2 class="t-h1">Spacing Scale <span class="t-sm muted">(شبكة 4)</span></h2>
+      <div class="card" id="spacing-list"></div>
+      <p class="t-sm muted">حواف الشاشة في الجوال: 16 · بين البطاقات: 12 · داخل البطاقة: 16 · بين الأقسام: 24–32.</p>
+    </section>
+
+    <!-- ===== Radius / Elevation ===== -->
+    <section id="radius" class="doc-sec">
+      <h2 class="t-h1">Border Radius & Elevation</h2>
+      <div class="grid-4">
+        <div class="demo-box" style="border-radius:var(--r-sm)"><b>sm · 6</b><span class="t-xs muted">Badges صغيرة، أزرار اللوحة</span></div>
+        <div class="demo-box" style="border-radius:var(--r-md)"><b>md · 10</b><span class="t-xs muted">أزرار وحقول</span></div>
+        <div class="demo-box" style="border-radius:var(--r-lg)"><b>lg · 14</b><span class="t-xs muted">البطاقات</span></div>
+        <div class="demo-box" style="border-radius:var(--r-xl)"><b>xl · 20</b><span class="t-xs muted">Dialogs و Sheets</span></div>
+      </div>
+      <div class="grid-4" style="margin-top:var(--s-4)">
+        <div class="demo-box" style="box-shadow:none"><b>0 — حدود فقط</b><span class="t-xs muted">الافتراضي لكل البطاقات</span></div>
+        <div class="demo-box" style="box-shadow:var(--shadow-1)"><b>shadow-1</b><span class="t-xs muted">الشريط السفلي، Header ثابت</span></div>
+        <div class="demo-box" style="box-shadow:var(--shadow-overlay);border-color:transparent"><b>overlay</b><span class="t-xs muted">Dialog، Sheet، Toast فقط</span></div>
+      </div>
+    </section>
+
+    <!-- ===== Icons ===== -->
+    <section id="icons" class="doc-sec">
+      <h2 class="t-h1">Icons</h2>
+      <p class="muted t-sm">نمط واحد: Outline، شبكة 24، سُمك 1.75، زوايا دائرية. الأحجام: 16 / 20 (افتراضي) / 24. الأسهم الاتجاهية تنعكس في RTL.</p>
+      <div class="icon-grid" id="icon-grid"></div>
+    </section>
+
+    <!-- ===== Buttons ===== -->
+    <section id="buttons" class="doc-sec">
+      <h2 class="t-h1">Button Styles</h2>
+      <div class="card demo-flex">
+        <button class="btn btn-primary">تأكيد الطلب</button>
+        <button class="btn btn-secondary">تعديل</button>
+        <button class="btn btn-ghost">إلغاء</button>
+        <button class="btn btn-danger">إلغاء الطلب</button>
+        <button class="btn btn-primary" disabled>غير متاح</button>
+        <button class="btn btn-primary"><span class="spinner"></span> جارٍ الإرسال</button>
+      </div>
+      <div class="card demo-flex" style="margin-top:var(--s-3)">
+        <button class="btn btn-primary btn-sm"><svg class="i i-sm"><use href="#i-plus"/></svg> إضافة خدمة</button>
+        <button class="btn btn-secondary btn-sm"><svg class="i i-sm"><use href="#i-filter"/></svg> تصفية</button>
+        <button class="btn-icon" aria-label="إشعارات"><svg class="i"><use href="#i-bell"/></svg></button>
+      </div>
+      <ul class="rules">
+        <li>زر رئيسي <b>واحد فقط</b> في كل شاشة، في أسفلها في الجوال (عرض كامل).</li>
+        <li>الارتفاع 48 في الجوال (منطقة لمس ≥ 44)، و 36 في لوحة الإدارة.</li>
+        <li>الإجراء الخطِر (إلغاء، رفض) لا يكون Primary، ويطلب تأكيداً في Dialog.</li>
+        <li>أثناء التحميل: يبقى النص، يظهر Spinner، ويُعطل الزر لمنع الإرسال المزدوج.</li>
+      </ul>
+    </section>
+
+    <!-- ===== Inputs ===== -->
+    <section id="inputs" class="doc-sec">
+      <h2 class="t-h1">Input Styles</h2>
+      <div class="grid-2">
+        <div class="field"><label>رقم الجوال</label>
+          <div class="input"><svg class="i"><use href="#i-phone"/></svg><input placeholder="05xxxxxxxx" dir="ltr"></div>
+          <span class="hint">سيصلك رمز التحقق على هذا الرقم</span></div>
+        <div class="field"><label>كلمة المرور</label>
+          <div class="input is-focus"><svg class="i"><use href="#i-lock"/></svg><input type="password" value="password"><svg class="i"><use href="#i-eye"/></svg></div>
+          <span class="hint">حالة التركيز Focus</span></div>
+        <div class="field"><label>البريد الإلكتروني</label>
+          <div class="input is-error"><svg class="i"><use href="#i-mail"/></svg><input value="name@" dir="ltr"></div>
+          <span class="hint error">صيغة البريد غير صحيحة</span></div>
+        <div class="field"><label>المدينة</label>
+          <div class="input is-disabled"><input value="غير قابل للتعديل" disabled></div></div>
+        <div class="field"><label>نوع الشكوى</label>
+          <div class="input"><select><option>تأخر عن الموعد</option><option>جودة الخدمة</option></select><svg class="i"><use href="#i-chev-down"/></svg></div></div>
+        <div class="field"><label>ملاحظات للعاملة <span class="faint">(اختياري)</span></label>
+          <textarea class="input" placeholder="مثال: يوجد حيوان أليف في المنزل"></textarea></div>
+      </div>
+      <ul class="rules">
+        <li>العنوان (Label) دائماً ظاهر فوق الحقل — لا نعتمد على Placeholder كعنوان.</li>
+        <li>رسالة الخطأ تحت الحقل مباشرة وبلغة واضحة تشرح ما يجب فعله.</li>
+        <li>الأرقام والبريد والجوال تُكتب LTR داخل واجهة RTL.</li>
+      </ul>
+    </section>
+
+    <!-- ===== Cards ===== -->
+    <section id="cards" class="doc-sec">
+      <h2 class="t-h1">Card Styles</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="row"><span class="icon-tile"><svg class="i"><use href="#i-home2"/></svg></span>
+            <div class="stack"><b>تنظيف شامل للمنزل</b><span class="t-sm muted">يبدأ من 250 ر.س</span></div></div>
+          <p class="t-xs faint" style="margin-top:8px">Service card</p>
+        </div>
+        <div class="card">
+          <div class="row-between"><b class="t-sm">BK-2026-000123</b><span class="badge badge-assigned">تم الإسناد</span></div>
+          <div class="t-sm muted" style="margin-top:6px">تنظيف شامل · الأحد 4 أكتوبر · 10:00 ص</div>
+          <p class="t-xs faint" style="margin-top:8px">Booking card</p>
+        </div>
+        <div class="card card-selected">
+          <div class="row"><svg class="i" style="color:var(--color-primary)"><use href="#i-pin"/></svg>
+            <div class="stack"><b>المنزل</b><span class="t-sm muted">حي النرجس، شارع 12</span></div></div>
+          <p class="t-xs faint" style="margin-top:8px">Selectable card — selected</p>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>البطاقة = حد 1px + خلفية بيضاء، بلا ظل. التحديد = حد أزرق.</li>
+        <li>بطاقة واحدة = فكرة واحدة. لا أكثر من 3 مستويات نصية داخلها.</li>
+      </ul>
+    </section>
+
+    <!-- ===== Badges ===== -->
+    <section id="badges" class="doc-sec">
+      <h2 class="t-h1">Status Badges</h2>
+      <p class="muted t-sm">الحالة تُقرأ من <b>النص</b> أولاً، واللون يساعد فقط. التدرج الأزرق يزداد عمقاً كلما تقدم الطلب.</p>
+      <h3 class="t-h3 sub">حالات الطلب</h3>
+      <div class="card">
+        <div class="badge-flow">
+          <span class="badge badge-pending">قيد المراجعة</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-confirmed">مؤكد</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-assigned">تم الإسناد</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-on_the_way">في الطريق</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-in_progress">جارٍ التنفيذ</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-completed">مكتمل</span>
+        </div>
+        <div class="badge-flow" style="margin-top:12px">
+          <span class="badge badge-cancelled">ملغي</span>
+          <span class="badge badge-rejected">مرفوض</span>
+        </div>
+      </div>
+      <table class="doc-table">
+        <thead><tr><th>API value</th><th>النص للعميل</th><th>النص للعاملة</th></tr></thead>
+        <tbody>
+          <tr><td><code>pending</code></td><td>قيد المراجعة</td><td>—</td></tr>
+          <tr><td><code>confirmed</code></td><td>مؤكد</td><td>—</td></tr>
+          <tr><td><code>assigned</code></td><td>تم الإسناد</td><td>طلب جديد</td></tr>
+          <tr><td><code>on_the_way</code></td><td>العاملة في الطريق</td><td>في الطريق</td></tr>
+          <tr><td><code>in_progress</code></td><td>جارٍ التنفيذ</td><td>جارٍ التنفيذ</td></tr>
+          <tr><td><code>completed</code></td><td>مكتمل</td><td>مكتمل</td></tr>
+          <tr><td><code>cancelled</code> / <code>rejected</code></td><td>ملغي / مرفوض</td><td>ملغي</td></tr>
+        </tbody>
+      </table>
+      <h3 class="t-h3 sub">حالات العقد</h3>
+      <div class="card">
+        <div class="badge-flow">
+          <span class="badge badge-pending">قيد المراجعة</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-confirmed">مؤكد</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-assigned">تم الإسناد</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-active">ساري</span><svg class="i i-sm faint"><use href="#i-chev-left"/></svg>
+          <span class="badge badge-completed">منتهٍ</span>
+        </div>
+        <div class="badge-flow" style="margin-top:12px">
+          <span class="badge badge-terminated">أُنهي مبكراً</span><span class="badge badge-cancelled">ملغي</span><span class="badge badge-rejected">مرفوض</span>
+        </div>
+      </div>
+      <h3 class="t-h3 sub">الشكاوى وطلبات الاستبدال والإنهاء</h3>
+      <div class="card demo-flex">
+        <span class="badge badge-open">مفتوحة</span><span class="badge badge-under_review">قيد المراجعة</span>
+        <span class="badge badge-resolved">تم الحل</span><span class="badge badge-closed">مغلقة</span>
+        <span class="sep"></span>
+        <span class="badge badge-approved">معتمد</span><span class="badge badge-rejected">مرفوض</span>
+      </div>
+      <h3 class="t-h3 sub">الدفع — نقداً عند الإتمام</h3>
+      <div class="card demo-flex">
+        <span class="badge badge-due">مستحق</span><span class="badge badge-collected">تم التحصيل</span><span class="badge badge-waived">معفى</span>
+      </div>
+    </section>
+
+    <!-- ===== Dialogs ===== -->
+    <section id="dialogs" class="doc-sec">
+      <h2 class="t-h1">Dialogs</h2>
+      <div class="grid-2">
+        <div class="overlay-demo scrim">
+          <div class="dialog">
+            <h3 class="t-h2">إلغاء الطلب؟</h3>
+            <p class="muted t-sm" style="margin:8px 0 20px">لن تتمكن من التراجع عن الإلغاء. يمكنك إنشاء طلب جديد في أي وقت.</p>
+            <div class="row"><button class="btn btn-ghost" style="flex:1">تراجع</button><button class="btn btn-danger" style="flex:1">إلغاء الطلب</button></div>
+          </div>
+        </div>
+        <div class="overlay-demo scrim">
+          <div class="dialog" style="text-align:center">
+            <div class="state-icon success" style="margin:0 auto 12px"><svg class="i"><use href="#i-check"/></svg></div>
+            <h3 class="t-h2">تم إرسال طلبك</h3>
+            <p class="muted t-sm" style="margin:8px 0 20px">سنراجع الطلب ونرسل لك إشعاراً عند تأكيده.</p>
+            <button class="btn btn-primary btn-block">متابعة الطلب</button>
+          </div>
+        </div>
+      </div>
+      <ul class="rules"><li>العنوان سؤال واضح، والزر يصف الفعل ("إلغاء الطلب" وليس "نعم").</li><li>الإجراء الآمن دائماً متاح ("تراجع").</li></ul>
+    </section>
+
+    <!-- ===== Sheets ===== -->
+    <section id="sheets" class="doc-sec">
+      <h2 class="t-h1">Bottom Sheets</h2>
+      <div class="grid-2">
+        <div class="overlay-demo scrim sheet-demo">
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <h3 class="t-h3" style="margin-bottom:8px">اختر العنوان</h3>
+            <div class="list-item"><svg class="i" style="color:var(--color-primary)"><use href="#i-pin"/></svg><div class="stack" style="flex:1"><b class="t-sm">المنزل</b><span class="t-xs muted">حي النرجس، شارع 12</span></div><svg class="i" style="color:var(--color-primary)"><use href="#i-check"/></svg></div>
+            <div class="list-item"><svg class="i faint"><use href="#i-building"/></svg><div class="stack" style="flex:1"><b class="t-sm">المكتب</b><span class="t-xs muted">طريق الملك فهد</span></div></div>
+            <button class="btn btn-ghost btn-block" style="margin-top:8px"><svg class="i"><use href="#i-plus"/></svg> إضافة عنوان جديد</button>
+          </div>
+        </div>
+        <div class="overlay-demo scrim sheet-demo">
+          <div class="sheet">
+            <div class="sheet-handle"></div>
+            <h3 class="t-h3">سبب رفض الطلب</h3>
+            <p class="t-sm muted" style="margin:4px 0 12px">سيعود الطلب للإدارة لإعادة الإسناد.</p>
+            <div class="demo-flex" style="gap:8px"><span class="chip is-active">تعارض في الموعد</span><span class="chip">بعد المسافة</span><span class="chip">سبب آخر</span></div>
+            <button class="btn btn-primary btn-block" style="margin-top:16px">إرسال الرفض</button>
+          </div>
+        </div>
+      </div>
+      <ul class="rules"><li>للاختيار من قائمة قصيرة أو إجراء سريع مرتبط بالشاشة الحالية. لا نماذج طويلة داخل Sheet.</li></ul>
+    </section>
+
+    <!-- ===== States ===== -->
+    <section id="states" class="doc-sec">
+      <h2 class="t-h1">Empty · Loading · Error · Success</h2>
+      <div class="grid-4">
+        <div class="card state">
+          <div class="state-icon"><svg class="i"><use href="#i-inbox"/></svg></div>
+          <b>لا توجد طلبات بعد</b><span class="t-sm muted">اطلب خدمتك الأولى وستظهر هنا.</span>
+          <button class="btn btn-secondary btn-sm">تصفح الخدمات</button>
+          <span class="t-xs faint">Empty</span>
+        </div>
+        <div class="card state">
+          <div style="width:100%" class="stack">
+            <div class="skeleton" style="height:14px;width:60%;margin-bottom:10px"></div>
+            <div class="skeleton" style="height:12px;width:90%;margin-bottom:8px"></div>
+            <div class="skeleton" style="height:12px;width:75%;margin-bottom:18px"></div>
+          </div>
+          <span class="spinner"></span>
+          <span class="t-xs faint">Loading — Skeleton للقوائم، Spinner للإجراءات</span>
+        </div>
+        <div class="card state">
+          <div class="state-icon error"><svg class="i"><use href="#i-alert"/></svg></div>
+          <b>تعذر تحميل الطلبات</b><span class="t-sm muted">تحقق من اتصالك بالإنترنت ثم حاول مجدداً.</span>
+          <button class="btn btn-secondary btn-sm"><svg class="i i-sm"><use href="#i-refresh"/></svg> إعادة المحاولة</button>
+          <span class="t-xs faint">Error</span>
+        </div>
+        <div class="card state">
+          <div class="state-icon success"><svg class="i"><use href="#i-check"/></svg></div>
+          <b>تم إرسال التقييم</b><span class="t-sm muted">شكراً لك، ملاحظاتك تساعدنا على التحسين.</span>
+          <span class="t-xs faint">Success</span>
+        </div>
+      </div>
+      <div class="stack" style="gap:8px;margin-top:16px">
+        <div class="alert alert-info"><svg class="i"><use href="#i-cash"/></svg>الدفع نقداً عند إتمام الخدمة. لا يلزم أي دفع الآن.</div>
+        <div class="alert alert-success"><svg class="i"><use href="#i-check"/></svg>تم حفظ العنوان.</div>
+        <div class="alert alert-warning"><svg class="i"><use href="#i-clock"/></svg>الموعد بعد أقل من ساعتين.</div>
+        <div class="alert alert-error"><svg class="i"><use href="#i-x"/></svg>تعذر إرسال الطلب. تحقق من اتصالك وحاول مجدداً.</div>
+        <div><span class="toast"><svg class="i i-sm"><use href="#i-check"/></svg> تم تحديث حالة الطلب</span></div>
+      </div>
+    </section>
+
+    <!-- ===== Flutter ===== -->
+    <section id="flutter" class="doc-sec">
+      <h2 class="t-h1">التحويل إلى Flutter</h2>
+      <p class="muted t-sm">ملف <code>lib/core/theme/app_tokens.dart</code> — نفس القيم أعلاه:</p>
+<pre class="code" dir="ltr">abstract class AppColors {
+  static const primary       = Color(0xFF1F5AC4); // blue-600
+  static const primaryHover  = Color(0xFF1A499F); // blue-700
+  static const primarySubtle = Color(0xFFEEF4FE); // blue-50
+  static const bg            = Color(0xFFF4F6F9); // n-50
+  static const surface       = Color(0xFFFFFFFF);
+  static const border        = Color(0xFFDCE1E8); // n-200
+  static const text          = Color(0xFF141922); // n-900
+  static const text2         = Color(0xFF4D5666); // n-600
+  static const success       = Color(0xFF1C7A4E);
+  static const danger        = Color(0xFFB42318);
+}
+abstract class AppSpace { static const x1=4.0, x2=8.0, x3=12.0, x4=16.0, x5=20.0, x6=24.0, x8=32.0; }
+abstract class AppRadius { static const sm=6.0, md=10.0, lg=14.0, xl=20.0; }
+
+ThemeData buildTheme() => ThemeData(
+  useMaterial3: true,
+  fontFamily: 'IBMPlexSansArabic',
+  scaffoldBackgroundColor: AppColors.bg,
+  colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary,
+      primary: AppColors.primary, surface: AppColors.surface, error: AppColors.danger),
+  filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(
+      minimumSize: const Size.fromHeight(48),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)))),
+  cardTheme: CardTheme(elevation: 0, color: AppColors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: const BorderSide(color: AppColors.border))),
+  inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: AppColors.surface,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md))),
+);
+
+// MaterialApp(locale: Locale('ar'), supportedLocales: [Locale('ar'), Locale('en')], ...)
+// الاتجاه RTL يأتي تلقائياً من locale العربية.</pre>
+    </section>
+  </main>
+</div>
+
+<script src="assets/icons.js"></script>
+<script>
+  const css = getComputedStyle(document.documentElement);
+  const sw = (el, names) => document.getElementById(el).innerHTML = names.map(n => {
+    const v = css.getPropertyValue('--' + n).trim();
+    return `<div class="swatch"><span style="background:${v}"></span><b>${n}</b><code>${v}</code></div>`;
+  }).join('');
+  sw('sw-blue', [50,100,200,300,400,500,600,700,800,900].map(n => 'blue-' + n));
+  sw('sw-neutral', [0,25,50,100,200,300,400,500,600,700,800,900].map(n => 'n-' + n));
+  sw('sw-feedback', ['success-600','success-50','warning-600','warning-50','danger-600','danger-50']);
+  document.getElementById('spacing-list').innerHTML = [1,2,3,4,5,6,8,10,12].map(n => {
+    const v = css.getPropertyValue('--s-' + n).trim();
+    return `<div class="space-row"><code>s-${n}</code><span class="bar" style="width:${v}"></span><span class="t-sm muted num">${v}</span></div>`;
+  }).join('');
+  document.getElementById('icon-grid').innerHTML = window.ICON_NAMES.map(n =>
+    `<div class="icon-cell"><svg class="i i-lg"><use href="#i-${n}"/></svg><span>${n}</span></div>`).join('');
+</script>
+</body>
+</html>
