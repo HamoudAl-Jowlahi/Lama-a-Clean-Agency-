@@ -16,6 +16,10 @@ php artisan test
 - في بيئة `local` يُنشأ حساب إدارة تجريبي وبيانات تجريبية (انظر `database/seeders`).
 - خارج `local`: عيّن `SEED_ADMIN_EMAIL` و `SEED_ADMIN_PASSWORD` قبل `db:seed`.
 
+## لوحة الإدارة
+
+`php artisan serve` ثم `http://127.0.0.1:8000/admin` — التفاصيل والأدوار في `../docs/04_phase4_admin.md`.
+
 ## أين تجد ماذا
 
 | المسار | المحتوى |

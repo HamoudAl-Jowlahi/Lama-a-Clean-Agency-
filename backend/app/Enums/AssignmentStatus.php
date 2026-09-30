@@ -2,7 +2,10 @@
 
 namespace App\Enums;
 
-enum AssignmentStatus: string
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
+enum AssignmentStatus: string implements HasColor, HasLabel
 {
     use EnumHelpers;
 
@@ -12,4 +15,15 @@ enum AssignmentStatus: string
     case Accepted = 'accepted';
     case Rejected = 'rejected';
     case Withdrawn = 'withdrawn';
+
+    /** لون الشارة في لوحة الإدارة (Filament). */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Pending => 'gray',
+            self::Accepted => 'success',
+            self::Rejected => 'danger',
+            self::Withdrawn => 'gray',
+        };
+    }
 }

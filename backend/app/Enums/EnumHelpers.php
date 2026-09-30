@@ -19,6 +19,12 @@ trait EnumHelpers
         return __('enums.'.self::LANG_KEY.'.'.$this->value);
     }
 
+    /** Filament\Support\Contracts\HasLabel — نفس النص في لوحة الإدارة. */
+    public function getLabel(): string
+    {
+        return $this->label();
+    }
+
     /** @return array<string, string> value => label (للقوائم في لوحة الإدارة) */
     public static function options(): array
     {

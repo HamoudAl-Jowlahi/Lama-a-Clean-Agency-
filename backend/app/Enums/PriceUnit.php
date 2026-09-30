@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum PriceUnit: string
+use Filament\Support\Contracts\HasLabel;
+
+enum PriceUnit: string implements HasLabel
 {
     use EnumHelpers;
 

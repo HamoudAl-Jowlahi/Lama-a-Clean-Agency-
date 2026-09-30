@@ -2,11 +2,14 @@
 
 namespace App\Enums;
 
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * حالات عقد الاستئجار (CR-2). استبدال العاملة لا يغير حالة العقد —
  * يتغير الإسناد فقط في contract_assignments.
  */
-enum ContractStatus: string
+enum ContractStatus: string implements HasColor, HasLabel
 {
     use EnumHelpers;
 
@@ -36,5 +39,20 @@ enum ContractStatus: string
     public static function occupyingWorker(): array
     {
         return [self::Assigned, self::Active];
+    }
+
+    /** لون الشارة في لوحة الإدارة (Filament). */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Pending => 'gray',
+            self::Confirmed => 'info',
+            self::Assigned => 'info',
+            self::Active => 'primary',
+            self::Completed => 'success',
+            self::Terminated => 'warning',
+            self::Cancelled => 'gray',
+            self::Rejected => 'danger',
+        };
     }
 }

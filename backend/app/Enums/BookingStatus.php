@@ -2,10 +2,13 @@
 
 namespace App\Enums;
 
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * حالات الزيارة. قواعد الانتقال بينها في BookingStateMachine (Phase 3).
  */
-enum BookingStatus: string
+enum BookingStatus: string implements HasColor, HasLabel
 {
     use EnumHelpers;
 
@@ -29,5 +32,20 @@ enum BookingStatus: string
     public static function occupyingWorker(): array
     {
         return [self::Assigned, self::OnTheWay, self::InProgress];
+    }
+
+    /** لون الشارة في لوحة الإدارة (Filament). */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Pending => 'gray',
+            self::Confirmed => 'info',
+            self::Assigned => 'info',
+            self::OnTheWay => 'primary',
+            self::InProgress => 'primary',
+            self::Completed => 'success',
+            self::Cancelled => 'gray',
+            self::Rejected => 'danger',
+        };
     }
 }

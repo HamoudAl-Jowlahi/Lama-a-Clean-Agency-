@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum ActorType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum ActorType: string implements HasLabel
 {
     use EnumHelpers;
 

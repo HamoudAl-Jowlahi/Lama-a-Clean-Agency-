@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum AssignmentEndReason: string
+use Filament\Support\Contracts\HasLabel;
+
+enum AssignmentEndReason: string implements HasLabel
 {
     use EnumHelpers;
 

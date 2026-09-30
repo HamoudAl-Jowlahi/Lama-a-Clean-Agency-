@@ -16,7 +16,10 @@ use App\Models\ServicePrice;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Worker;
+use App\Observers\CatalogAuditObserver;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
@@ -49,6 +52,18 @@ class AppServiceProvider extends ServiceProvider
             'service_price' => ServicePrice::class,
             'contract_plan' => ContractPlan::class,
         ]);
+
+        // آخر دخول لمستخدمي الإدارة (يظهر في قسم مستخدمي الإدارة)
+        Event::listen(Login::class, function (Login $event) {
+            if ($event->guard === 'admin' && $event->user instanceof AdminUser) {
+                $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
+            }
+        });
+
+        // تعديلات الكتالوج من لوحة الإدارة → Audit Log
+        foreach ([Service::class, ServicePrice::class, ContractPlan::class] as $model) {
+            $model::observe(CatalogAuditObserver::class);
+        }
 
         // في التطوير: خطأ عند lazy loading أو حقل غير موجود بدل التجاهل الصامت
         Model::shouldBeStrict(! $this->app->isProduction());

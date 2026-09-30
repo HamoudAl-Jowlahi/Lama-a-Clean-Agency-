@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum PaymentMethod: string
+use Filament\Support\Contracts\HasLabel;
+
+enum PaymentMethod: string implements HasLabel
 {
     use EnumHelpers;
 

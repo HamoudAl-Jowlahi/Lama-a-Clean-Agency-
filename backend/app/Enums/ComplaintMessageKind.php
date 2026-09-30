@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum ComplaintMessageKind: string
+use Filament\Support\Contracts\HasLabel;
+
+enum ComplaintMessageKind: string implements HasLabel
 {
     use EnumHelpers;
 

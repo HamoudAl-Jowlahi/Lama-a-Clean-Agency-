@@ -26,6 +26,7 @@ return [
         'TEAM_LEADER_ONLY' => 'Only the team leader can do this.',
         'TEAM_LEADER_NOT_MEMBER' => 'The team leader must be a team member.',
         'WORKER_IN_OTHER_TEAM' => 'A member already belongs to another team.',
+        'WORKER_IN_TEAM' => 'This worker is in a team. Remove them from the team first.',
         'WORKER_TYPE_MISMATCH' => 'This staff type cannot do this work (housekeepers: contracts, visit teams: visits).',
         'WORKER_BUSY_CONTRACT' => 'The worker is on a contract in the same period.',
         'ASSIGNMENT_ALREADY_ANSWERED' => 'This assignment was already answered.',

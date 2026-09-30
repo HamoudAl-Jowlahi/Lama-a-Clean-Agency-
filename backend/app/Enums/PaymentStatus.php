@@ -2,7 +2,10 @@
 
 namespace App\Enums;
 
-enum PaymentStatus: string
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasLabel;
+
+enum PaymentStatus: string implements HasColor, HasLabel
 {
     use EnumHelpers;
 
@@ -11,4 +14,14 @@ enum PaymentStatus: string
     case Due = 'due';
     case Collected = 'collected';
     case Waived = 'waived';
+
+    /** لون الشارة في لوحة الإدارة (Filament). */
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Due => 'warning',
+            self::Collected => 'success',
+            self::Waived => 'gray',
+        };
+    }
 }
