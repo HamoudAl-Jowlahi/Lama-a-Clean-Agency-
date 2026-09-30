@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActorType;
 use App\Enums\ComplaintMessageKind;
 use App\Enums\ComplaintStatus;
+use App\Events\DomainEvent;
 use App\Exceptions\BusinessRuleException;
 use App\Models\AdminUser;
 use App\Models\Complaint;
@@ -58,6 +59,7 @@ class ComplaintService
                 'body' => $data['description'],
             ]);
             $this->storeFiles($complaint, $message, $files);
+            DomainEvent::afterCommit('complaint.created', $complaint, ['actor' => ActorType::Customer]);
 
             return $complaint;
         });
@@ -78,6 +80,7 @@ class ComplaintService
                 'body' => $body,
             ]);
             $this->storeFiles($complaint, $message, $files);
+            DomainEvent::afterCommit('complaint.customer_message', $complaint, ['actor' => ActorType::Customer]);
 
             return $message;
         });
@@ -91,12 +94,18 @@ class ComplaintService
             throw BusinessRuleException::make('COMPLAINT_CLOSED');
         }
 
-        return $complaint->messages()->create([
+        $message = $complaint->messages()->create([
             'sender_type' => ActorType::Admin,
             'sender_id' => $admin->id,
             'kind' => $internal ? ComplaintMessageKind::InternalNote : ComplaintMessageKind::Message,
             'body' => $body,
         ]);
+
+        if (! $internal) { // الملاحظة الداخلية لا تُشعر العميل
+            DomainEvent::afterCommit('complaint.replied', $complaint, ['actor' => ActorType::Admin]);
+        }
+
+        return $message;
     }
 
     public function changeStatus(Complaint $complaint, AdminUser $admin, ComplaintStatus $to): Complaint
@@ -120,6 +129,7 @@ class ComplaintService
                 'meta' => ['from' => $from->value, 'to' => $to->value],
             ]);
             AuditLogger::log($admin, 'complaint.status_changed', $complaint, ['status' => $from->value], ['status' => $to->value]);
+            DomainEvent::afterCommit('complaint.status_changed', $complaint, ['actor' => ActorType::Admin]);
 
             return $complaint;
         });

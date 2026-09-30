@@ -66,7 +66,14 @@ class AuthController extends Controller
             'name' => ['sometimes', 'required', 'string', 'max:120'],
             'email' => ['sometimes', 'nullable', 'email', 'max:190', Rule::unique('users', 'email')->ignore($user->id)],
             'locale' => ['sometimes', 'required', Rule::in(['ar', 'en'])],
+            // تفضيلات Push من شاشة الإعدادات: {"orders": true, "complaints": false}
+            'notification_preferences' => ['sometimes', 'array:'.implode(',', User::PUSH_CATEGORIES)],
+            'notification_preferences.*' => ['boolean'],
         ]);
+
+        if (isset($data['notification_preferences'])) {
+            $data['notification_preferences'] = array_map('boolval', $data['notification_preferences'] + ($user->notification_preferences ?? []));
+        }
         $user->update($data);
 
         return new UserResource($user->load(['customer', 'worker.teams']));

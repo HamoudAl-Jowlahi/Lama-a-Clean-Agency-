@@ -20,6 +20,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'role' => $this->enum($this->role),
             'locale' => $this->locale,
+            'notification_preferences' => collect(\App\Models\User::PUSH_CATEGORIES)
+                ->mapWithKeys(fn (string $c) => [$c => $this->resource->wantsPush($c)]),
             'default_address_id' => $this->whenLoaded('customer', fn () => $this->customer?->default_address_id),
             // CR-3: نوع الموظف يحدد واجهة التطبيق (فريق زيارات أو خادمة بعقود)
             'worker' => $this->whenLoaded('worker', fn () => [

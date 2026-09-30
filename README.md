@@ -15,8 +15,8 @@
 | 2. قاعدة البيانات | ✅ [docs/02](docs/02_phase2_database.md) |
 | 3. Backend API وتسجيل الدخول | ✅ [docs/03](docs/03_phase3_api.md) |
 | 4. لوحة الإدارة | ✅ [docs/04](docs/04_phase4_admin.md) — `/admin` |
-| 5. تطبيق Flutter | ⏳ |
-| 6. الإشعارات | — |
+| 5. تطبيق Flutter | ⏳ بانتظار توصيل قرص Flutter |
+| 6. الإشعارات | ✅ [docs/05](docs/05_phase6_notifications.md) |
 | 7. الاختبارات والأمان | — |
 | 8. التوثيق والنشر | — |
 

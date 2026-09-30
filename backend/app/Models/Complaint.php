@@ -20,6 +20,9 @@ class Complaint extends Model
 
     protected $guarded = ['id'];
 
+    /** نفس القيمة الافتراضية في قاعدة البيانات، حتى يكون الكائن صحيحاً قبل إعادة تحميله. */
+    protected $attributes = ['status' => 'open'];
+
     protected function casts(): array
     {
         return [

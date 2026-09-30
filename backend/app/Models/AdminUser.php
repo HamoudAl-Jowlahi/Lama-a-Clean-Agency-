@@ -8,6 +8,7 @@ use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 /**
  * مستخدم لوحة الإدارة — Guard منفصل (admin) عن حسابات التطبيق.
@@ -15,7 +16,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class AdminUser extends Authenticatable implements FilamentUser, HasName
 {
-    use HasFactory;
+    use HasFactory, Notifiable; // إشعارات لوحة الإدارة (جرس الإشعارات)
 
     protected $fillable = ['name', 'email', 'password'];
 

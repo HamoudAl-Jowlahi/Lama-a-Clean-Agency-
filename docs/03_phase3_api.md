@@ -56,9 +56,9 @@
 | POST | `/auth/login` | `{phone, password}` → `{token, user}` — الدور (`user.role`) يحدد واجهة التطبيق |
 | POST | `/auth/logout` | إلغاء الـ token الحالي |
 | GET | `/auth/me` | بيانات المستخدم + `default_address_id` (للعميل) + `worker {type, team {name, is_leader}}` (للموظف) |
-| PATCH | `/auth/me` | `{name?, email?, locale?}` |
+| PATCH | `/auth/me` | `{name?, email?, locale?, notification_preferences?: {orders, complaints}}` |
 | POST | `/auth/password` | `{current_password, password}` — ينهي الجلسات على الأجهزة الأخرى |
-| GET | `/notifications` | الإشعارات + `meta.unread` |
+| GET | `/notifications` | الإشعارات `{event, title, body, subject, read}` + `meta.unread` — التفاصيل في [docs/05](05_phase6_notifications.md) |
 | POST | `/notifications/{id}/read` · `/notifications/read-all` | |
 | POST · DELETE | `/device-tokens` | `{token, platform: android\|ios}` لإشعارات FCM (Phase 6) |
 

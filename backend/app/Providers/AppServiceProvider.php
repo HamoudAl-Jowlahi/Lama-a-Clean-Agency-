@@ -2,7 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\PushSender;
+use App\Events\DomainEvent;
+use App\Events\StatusChanged;
 use App\Models\AdminUser;
+use App\Push\FcmPushSender;
+use App\Push\LogPushSender;
+use App\Push\NullPushSender;
+use App\Services\NotificationRouter;
 use App\Models\Booking;
 use App\Models\Complaint;
 use App\Models\Contract;
@@ -30,7 +37,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // مرسل Push حسب config/push.php — log في التطوير، fcm في الإنتاج
+        $this->app->singleton(PushSender::class, fn () => match (config('push.driver')) {
+            'fcm' => new FcmPushSender(config('push.fcm')),
+            'null' => new NullPushSender,
+            default => new LogPushSender,
+        });
     }
 
     public function boot(): void
@@ -59,6 +71,10 @@ class AppServiceProvider extends ServiceProvider
                 $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
             }
         });
+
+        // الأحداث → الإشعارات (Phase 6)
+        Event::listen(StatusChanged::class, [NotificationRouter::class, 'handleStatusChanged']);
+        Event::listen(DomainEvent::class, [NotificationRouter::class, 'handleDomainEvent']);
 
         // تعديلات الكتالوج من لوحة الإدارة → Audit Log
         foreach ([Service::class, ServicePrice::class, ContractPlan::class] as $model) {

@@ -20,6 +20,8 @@ class ContractChangeRequest extends Model
 
     protected $guarded = ['id'];
 
+    protected $attributes = ['status' => 'open'];
+
     protected function casts(): array
     {
         return [

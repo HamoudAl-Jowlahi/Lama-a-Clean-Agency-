@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActorType;
 use App\Enums\AssignmentStatus;
 use App\Enums\BookingStatus;
+use App\Events\DomainEvent;
 use App\Exceptions\BusinessRuleException;
 use App\Models\AdminUser;
 use App\Models\Booking;
@@ -84,6 +85,8 @@ class BookingService
                 'actor_type' => ActorType::Customer,
                 'actor_id' => $customer->user_id,
             ]);
+
+            DomainEvent::afterCommit('booking.created', $booking, ['actor' => ActorType::Customer]);
 
             return $booking;
         });

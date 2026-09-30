@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\ActorType;
 use App\Enums\AssignmentEndReason;
 use App\Enums\ChangeRequestStatus;
 use App\Enums\ChangeRequestType;
 use App\Enums\ContractStatus;
+use App\Events\DomainEvent;
 use App\Exceptions\BusinessRuleException;
 use App\Models\AdminUser;
 use App\Models\Contract;
@@ -86,6 +88,8 @@ class ContractChangeService
                 ]);
             }
 
+            DomainEvent::afterCommit('change_request.submitted', $request, ['actor' => ActorType::Customer]);
+
             return $request;
         });
     }
@@ -111,6 +115,7 @@ class ContractChangeService
             'handled_at' => now(),
         ]);
         AuditLogger::log($admin, 'change_request.rejected', $request, new: ['response' => $response]);
+        DomainEvent::afterCommit('change_request.rejected', $request, ['actor' => ActorType::Admin]);
 
         return $request;
     }
@@ -168,6 +173,13 @@ class ContractChangeService
                 'worker_id' => $newWorker->id,
                 'starts_on' => $startOn->toDateString(),
             ]);
+
+            // العميل والخادمة الجديدة يعلمان بالتعيين، والسابقة بانتهاء فترتها
+            $context = ['actor' => ActorType::Admin, 'start_on' => $startOn->toDateString()];
+            DomainEvent::afterCommit('contract.worker_changed', $contract, $context + ['worker' => $newWorker]);
+            if ($current) {
+                DomainEvent::afterCommit('contract.worker_released', $contract, $context + ['worker' => Worker::find($current->worker_id)]);
+            }
 
             return $assignment;
         });

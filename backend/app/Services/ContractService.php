@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ActorType;
 use App\Enums\AssignmentEndReason;
 use App\Enums\ContractStatus;
+use App\Events\DomainEvent;
 use App\Exceptions\BusinessRuleException;
 use App\Models\AdminUser;
 use App\Models\Contract;
@@ -16,6 +17,7 @@ use App\StateMachines\ContractStateMachine;
 use App\Support\AuditLogger;
 use App\Support\Settings;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -69,6 +71,8 @@ class ContractService
                 'actor_type' => ActorType::Customer,
                 'actor_id' => $customer->user_id,
             ]);
+
+            DomainEvent::afterCommit('contract.created', $contract, ['actor' => ActorType::Customer]);
 
             return $contract;
         });
@@ -225,7 +229,7 @@ class ContractService
      */
     public function runDaily(): array
     {
-        $stats = ['activated' => 0, 'completed' => 0, 'payments' => 0];
+        $stats = ['activated' => 0, 'completed' => 0, 'payments' => 0, 'reminders' => 0];
 
         Contract::where('status', ContractStatus::Assigned)->lazyById()->each(function (Contract $c) use (&$stats) {
             $stats['activated'] += (int) $this->activateIfDue($c);
@@ -239,6 +243,20 @@ class ContractService
             ->lazyById()->each(function (Contract $c) use (&$stats) {
                 $stats['payments'] += $this->billing->generateDuePayments($c);
             });
+
+        // تذكير قبل نهاية العقد بعدد الأيام المحدد — مرة واحدة لكل عقد حتى لو تكرر التشغيل
+        $days = (int) Settings::get('contracts.ending_reminder_days');
+        if ($days > 0) {
+            Contract::where('status', ContractStatus::Active)
+                ->whereDate('end_date', '<=', $this->today()->addDays($days)->toDateString())
+                ->whereDate('end_date', '>=', $this->today()->toDateString())
+                ->lazyById()->each(function (Contract $c) use (&$stats) {
+                    if (Cache::add("contract.ending_reminder.{$c->id}.{$c->end_date->toDateString()}", true, now()->addDays(40))) {
+                        DomainEvent::afterCommit('contract.ending_soon', $c, ['actor' => ActorType::System]);
+                        $stats['reminders']++;
+                    }
+                });
+        }
 
         return $stats;
     }

@@ -217,6 +217,21 @@ class AdminWorkflowsTest extends AdminTestCase
         $this->assertSame(2, $log->new_values['contracts.max_replacements']);
     }
 
+    public function test_settings_page_edits_the_notification_matrix(): void
+    {
+        $this->actingAsAdmin(AdminRole::SuperAdmin);
+
+        Livewire::test(ManageSettings::class)
+            ->assertSet('data.notify.booking_on_the_way', ['customer'])
+            ->fillForm(['notify.booking_on_the_way' => []]) // لا إشعار "في الطريق"
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $matrix = app(\App\Services\NotificationRouter::class)->matrix();
+        $this->assertFalse($matrix['booking.on_the_way']['customer']);
+        $this->assertTrue($matrix['booking.completed']['customer']); // البقية كما هي
+    }
+
     public function test_price_changes_are_audited(): void
     {
         $this->actingAsAdmin();

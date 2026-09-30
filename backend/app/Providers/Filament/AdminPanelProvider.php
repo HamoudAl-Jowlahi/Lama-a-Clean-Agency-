@@ -54,6 +54,8 @@ class AdminPanelProvider extends PanelProvider
             ->font('IBM Plex Sans Arabic')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->databaseNotifications()               // جرس إشعارات الإدارة (طلب جديد، استبدال، شكوى...)
+            ->databaseNotificationsPolling('30s')
             ->navigationGroups([
                 self::GROUP_OPERATIONS,
                 self::GROUP_PEOPLE,

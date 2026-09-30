@@ -6,7 +6,12 @@ use App\Http\Resources\Concerns\FormatsValues;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \Illuminate\Notifications\DatabaseNotification */
+/**
+ * عنصر في قائمة الإشعارات. subject يوجّه التطبيق للشاشة المناسبة:
+ * booking → تفاصيل الزيارة · contract → العقد · complaint → الشكوى.
+ *
+ * @mixin \Illuminate\Notifications\DatabaseNotification
+ */
 class NotificationResource extends JsonResource
 {
     use FormatsValues;
@@ -15,8 +20,10 @@ class NotificationResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'type' => class_basename($this->type),
-            'data' => $this->data,
+            'event' => $this->data['event'] ?? null,
+            'title' => $this->data['title'] ?? null,
+            'body' => $this->data['body'] ?? null,
+            'subject' => $this->data['subject'] ?? null,
             'read' => $this->read_at !== null,
             'created_at' => $this->datetime($this->created_at),
         ];

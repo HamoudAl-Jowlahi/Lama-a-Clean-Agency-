@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schedule;
 */
 Artisan::command('lamaa:contracts-daily', function (ContractService $contracts) {
     $stats = $contracts->runDaily();
-    $this->info("activated={$stats['activated']} completed={$stats['completed']} payments={$stats['payments']}");
+    $this->info("activated={$stats['activated']} completed={$stats['completed']} payments={$stats['payments']} reminders={$stats['reminders']}");
 })->purpose('Activate/complete contracts and create due cash payments');
 
 Schedule::command('lamaa:contracts-daily')

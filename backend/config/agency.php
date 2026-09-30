@@ -51,6 +51,41 @@ return [
         'overdue_after_days' => 3,
     ],
 
+    // ---- الإشعارات (Phase 6) ----
+    // من يستلم كل حدث: customer = العميل، staff = الفريق/الخادمة، admins = لوحة الإدارة.
+    // تعدّلها الإدارة من صفحة الإعدادات. النصوص في lang/{ar,en}/notifications.php
+    'notifications' => [
+        'booking.created' => ['customer' => false, 'staff' => false, 'admins' => true],
+        'booking.confirmed' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'booking.rejected' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'booking.assigned' => ['customer' => true, 'staff' => true, 'admins' => false],
+        'booking.unassigned' => ['customer' => false, 'staff' => true, 'admins' => false],
+        'booking.declined' => ['customer' => false, 'staff' => false, 'admins' => true],
+        'booking.on_the_way' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'booking.in_progress' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'booking.completed' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'booking.cancelled' => ['customer' => true, 'staff' => true, 'admins' => true],
+        'contract.created' => ['customer' => false, 'staff' => false, 'admins' => true],
+        'contract.confirmed' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'contract.rejected' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'contract.assigned' => ['customer' => true, 'staff' => true, 'admins' => false],
+        'contract.active' => ['customer' => true, 'staff' => true, 'admins' => false],
+        'contract.completed' => ['customer' => true, 'staff' => true, 'admins' => false],
+        'contract.terminated' => ['customer' => true, 'staff' => true, 'admins' => false],
+        'contract.cancelled' => ['customer' => true, 'staff' => true, 'admins' => true],
+        'contract.ending_soon' => ['customer' => true, 'staff' => false, 'admins' => true],
+        'contract.worker_changed' => ['customer' => true, 'staff' => true, 'admins' => false],   // staff = الخادمة الجديدة
+        'contract.worker_released' => ['customer' => false, 'staff' => true, 'admins' => false], // staff = الخادمة السابقة
+        'change_request.submitted' => ['customer' => false, 'staff' => false, 'admins' => true],
+        // الاعتماد يظهر عبر نتيجته (contract.worker_changed أو contract.terminated) — لا إشعار مكرر
+        'change_request.rejected' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'complaint.created' => ['customer' => false, 'staff' => false, 'admins' => true],
+        'complaint.replied' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'complaint.customer_message' => ['customer' => false, 'staff' => false, 'admins' => true],
+        'complaint.status_changed' => ['customer' => true, 'staff' => false, 'admins' => false],
+        'payment.due' => ['customer' => true, 'staff' => false, 'admins' => false],
+    ],
+
     // ---- الشكاوى ----
     'complaint_types' => ['late', 'quality', 'behavior', 'payment', 'other'],
     'change_request_reasons' => ['frequent_delay', 'quality', 'absence', 'behavior', 'no_longer_needed', 'other'],

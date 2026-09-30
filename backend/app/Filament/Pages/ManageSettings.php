@@ -4,6 +4,9 @@ namespace App\Filament\Pages;
 
 use App\Filament\Support\Admin;
 use App\Providers\Filament\AdminPanelProvider;
+use App\Services\NotificationRouter;
+use Filament\Forms\Components\CheckboxList;
+use Illuminate\Support\Facades\Lang;
 use App\Support\AuditLogger;
 use App\Support\Settings;
 use Filament\Actions\Action;
@@ -37,6 +40,23 @@ class ManageSettings extends Page
         'payments.overdue_after_days',
     ];
 
+    /** أسماء أحداث الإشعارات كما تظهر للإدارة. */
+    public const EVENT_LABELS = [
+        'booking.created' => 'زيارة جديدة', 'booking.confirmed' => 'تأكيد زيارة', 'booking.rejected' => 'رفض زيارة',
+        'booking.assigned' => 'إسناد زيارة لفريق', 'booking.unassigned' => 'سحب الإسناد', 'booking.declined' => 'رفض الفريق للزيارة',
+        'booking.on_the_way' => 'الفريق في الطريق', 'booking.in_progress' => 'بدء التنظيف', 'booking.completed' => 'اكتمال الزيارة',
+        'booking.cancelled' => 'إلغاء زيارة', 'contract.created' => 'طلب عقد جديد', 'contract.confirmed' => 'تأكيد عقد',
+        'contract.rejected' => 'رفض عقد', 'contract.assigned' => 'تعيين خادمة', 'contract.active' => 'بدء العقد',
+        'contract.completed' => 'انتهاء العقد', 'contract.terminated' => 'إنهاء مبكر', 'contract.cancelled' => 'إلغاء عقد',
+        'contract.ending_soon' => 'قرب نهاية العقد', 'contract.worker_changed' => 'تعيين خادمة بديلة',
+        'contract.worker_released' => 'انتهاء فترة الخادمة السابقة', 'change_request.submitted' => 'طلب استبدال/إنهاء جديد',
+        'change_request.rejected' => 'رفض طلب الاستبدال/الإنهاء', 'complaint.created' => 'شكوى جديدة',
+        'complaint.customer_message' => 'رد العميل على شكوى', 'complaint.replied' => 'رد الإدارة على شكوى',
+        'complaint.status_changed' => 'تغيير حالة شكوى', 'payment.due' => 'دفعة عقد مستحقة',
+    ];
+
+    private const AUDIENCES = ['customer' => 'العميل', 'staff' => 'الفريق / الخادمة', 'admins' => 'لوحة الإدارة'];
+
     protected static ?string $title = 'الإعدادات';
 
     protected static ?string $navigationLabel = 'الإعدادات';
@@ -65,12 +85,29 @@ class ManageSettings extends Page
         $values['working_hours_start'] = $values['working_hours']['start'] ?? null;
         $values['working_hours_end'] = $values['working_hours']['end'] ?? null;
 
+        foreach (app(NotificationRouter::class)->matrix() as $event => $audiences) {
+            $values['notify'][self::eventField($event)] = array_keys(array_filter($audiences));
+        }
+
         $this->form->fill($values);
     }
 
     private static function field(string $key): string
     {
         return str_replace('.', '__', $key);
+    }
+
+    private static function eventField(string $event): string
+    {
+        return str_replace('.', '_', $event);
+    }
+
+    /** مستلمو الحدث الممكنون = من لهم نص معرّف في lang/notifications. */
+    private static function audienceOptions(string $event): array
+    {
+        return collect(self::AUDIENCES)
+            ->filter(fn ($label, $audience) => Lang::has("notifications.{$event}.{$audience}.title"))
+            ->all();
     }
 
     public function form(Schema $schema): Schema
@@ -114,6 +151,13 @@ class ManageSettings extends Page
             Section::make('التحصيل')->columns(3)->schema([
                 TextInput::make('payments__overdue_after_days')->label('يعتبر متأخراً بعد (يوم)')->numeric()->minValue(0)->required(),
             ]),
+            Section::make('الإشعارات')
+                ->description('من يستلم إشعاراً عند كل حدث. العميل يستطيع أيضاً إيقاف إشعارات الجوال من إعدادات التطبيق.')
+                ->collapsible()->collapsed()
+                ->columns(3)
+                ->schema(collect(self::EVENT_LABELS)->map(fn (string $label, string $event) => CheckboxList::make('notify.'.self::eventField($event))
+                    ->label($label)
+                    ->options(self::audienceOptions($event)))->values()->all()),
         ]);
     }
 
@@ -146,6 +190,22 @@ class ManageSettings extends Page
                 $new[$key] = $value;
                 Settings::set($key, $value, Admin::user());
             }
+        }
+
+        // مصفوفة الإشعارات
+        $router = app(NotificationRouter::class);
+        $currentMatrix = $router->matrix();
+        $matrix = $currentMatrix;
+        foreach (self::EVENT_LABELS as $event => $label) {
+            $selected = (array) ($state['notify'][self::eventField($event)] ?? []);
+            foreach (array_keys(self::audienceOptions($event)) as $audience) {
+                $matrix[$event][$audience] = in_array($audience, $selected, true);
+            }
+        }
+        if ($matrix !== $currentMatrix) {
+            $old['notifications'] = $currentMatrix;
+            $new['notifications'] = $matrix;
+            Settings::set('notifications', $matrix, Admin::user());
         }
 
         if ($new) {

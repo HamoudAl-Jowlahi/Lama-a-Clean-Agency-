@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\ActorType;
 use App\Enums\ContractStatus;
+use App\Events\DomainEvent;
 use App\Models\Contract;
 use App\Models\Payment;
 use App\Support\Settings;
@@ -117,7 +119,7 @@ class ContractBillingService
             $amount = $this->amountFor($contract, $pStart, $pEnd, $endedOn);
             $dueDate = $endedOn ? $endedOn->min($pEnd) : $pEnd;
 
-            Payment::create([
+            $payment = Payment::create([
                 'contract_id' => $contract->id,
                 'period_start' => $pStart->toDateString(),
                 'period_end' => $dueDate->toDateString(),
@@ -125,6 +127,7 @@ class ContractBillingService
                 'currency' => $contract->currency,
                 'due_date' => $dueDate->toDateString(),
             ]);
+            DomainEvent::afterCommit('payment.due', $payment, ['actor' => ActorType::System]);
             $created++;
         }
 
