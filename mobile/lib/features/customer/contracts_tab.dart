@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'contract_detail.dart';
@@ -12,16 +13,17 @@ class ContractsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('عقودي')),
+      appBar: AppBar(title: Text(tr.tabContracts)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContractPlansScreen())),
         icon: const Icon(Icons.add),
-        label: const Text('عقد جديد'),
+        label: Text(tr.newContract),
       ),
       body: Loader<List>(
+        skeleton: true,
         load: () async => (await Api.I.get('/contracts'))['data'] as List,
         builder: (context, list, reload) => list.isEmpty
-            ? ListView(children: const [EmptyState('لا توجد عقود — استأجر عاملة منزلية بعقد شهري', icon: Icons.assignment_outlined)])
+            ? ListView(children: [EmptyState(tr.noContracts, icon: Icons.assignment_outlined)])
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
                 itemCount: list.length,
@@ -44,7 +46,7 @@ class ContractsTab extends StatelessWidget {
                             StatusChip(c['status']),
                           ]),
                           const SizedBox(height: 6),
-                          Text('${dayLabel(c['start_date'])} ← ${dayLabel(c['end_date'])}', style: const TextStyle(color: AppColors.gray500)),
+                          Text('${dayLabel(c['start_date'])} $arrow ${dayLabel(c['end_date'])}', style: const TextStyle(color: AppColors.gray500)),
                           if (progress != null) ...[
                             const SizedBox(height: 8),
                             LinearProgressIndicator(
@@ -53,7 +55,7 @@ class ContractsTab extends StatelessWidget {
                               minHeight: 6,
                             ),
                             const SizedBox(height: 4),
-                            Text('اليوم ${progress['day']} من ${progress['total_days']}', style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                            Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
                           ],
                         ]),
                       ),

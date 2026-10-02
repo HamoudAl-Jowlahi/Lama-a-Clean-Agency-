@@ -15,14 +15,18 @@ dependencies:
   dio: ^5.7.0
   flutter_secure_storage: ^9.2.2
   url_launcher: ^6.3.1
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
 
 flutter:
   uses-material-design: true
+  generate: true
 
   # الخط مضمّن في التطبيق (يعمل بدون إنترنت) — رخصة OFL في assets/fonts/OFL.txt
   fonts:
@@ -35,3 +39,19 @@ flutter:
           weight: 600
         - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
           weight: 700
+
+# أيقونة التطبيق وشاشة البداية — الصور تُولَّد من رمز لمعة بالكود: flutter test tool/render_icon_test.dart
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/brand/icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#1A499F"
+  adaptive_icon_foreground: assets/brand/icon_foreground.png
+
+flutter_native_splash:
+  color: "#1A499F"
+  image: assets/brand/splash.png
+  android_12:
+    color: "#1A499F"
+    image: assets/brand/splash_android12.png

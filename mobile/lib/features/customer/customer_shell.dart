@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -32,15 +33,15 @@ class _CustomerShellState extends State<CustomerShell> {
       const AccountTab(),
     ];
     return Scaffold(
-      body: pages[_tab],
+      body: AnimatedSwitcher(duration: const Duration(milliseconds: 220), child: KeyedSubtree(key: ValueKey(_tab), child: pages[_tab])),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: go,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'الرئيسية'),
-          NavigationDestination(icon: Icon(Icons.event_note_outlined), selectedIcon: Icon(Icons.event_note), label: 'زياراتي'),
-          NavigationDestination(icon: Icon(Icons.assignment_ind_outlined), selectedIcon: Icon(Icons.assignment_ind), label: 'عقودي'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'حسابي'),
+        destinations: [
+          NavigationDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home), label: tr.tabHome),
+          NavigationDestination(icon: const Icon(Icons.event_note_outlined), selectedIcon: const Icon(Icons.event_note), label: tr.tabVisits),
+          NavigationDestination(icon: const Icon(Icons.assignment_ind_outlined), selectedIcon: const Icon(Icons.assignment_ind), label: tr.tabContracts),
+          NavigationDestination(icon: const Icon(Icons.person_outline), selectedIcon: const Icon(Icons.person), label: tr.tabAccount),
         ],
       ),
     );
@@ -57,21 +58,22 @@ class HomeTab extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text('أهلاً ${Session.I.firstName} 👋'),
+        title: Text(tr.hello(Session.I.firstName)),
         actions: const [NotificationsButton()],
       ),
       body: Loader<List>(
+        skeleton: true,
+        header: true,
         load: () async => (await Api.I.get('/services'))['data'] as List,
         builder: (context, services, reload) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
             _ContractHero(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContractPlansScreen()))),
             const SizedBox(height: 20),
-            Text('زيارة تنظيف', style: t.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
-            const Text('فريق متخصص يأتي في الموعد، ينظّف ويغادر — والدفع نقداً بعد الإتمام.',
-                style: TextStyle(color: AppColors.gray500)),
+            Text(tr.visitTitle, style: t.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+            Text(tr.visitSubtitle, style: const TextStyle(color: AppColors.gray500)),
             const SizedBox(height: 12),
-            if (services.isEmpty) const EmptyState('لا توجد خدمات متاحة حالياً'),
+            if (services.isEmpty) EmptyState(tr.noServices),
             for (final s in services) ...[
               _ServiceCard(
                 service: s,
@@ -102,11 +104,11 @@ class _ContractHero extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(18),
           child: Row(children: [
-            const Expanded(
+            Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('عاملة منزلية بعقد شهري', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
-                SizedBox(height: 4),
-                Text('استبدال العاملة أو إنهاء العقد من التطبيق مباشرة.', style: TextStyle(color: AppColors.blue100)),
+                Text(tr.heroTitle, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(tr.heroSubtitle, style: const TextStyle(color: AppColors.blue100)),
               ]),
             ),
             Container(
@@ -152,7 +154,7 @@ class _ServiceCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              const Text('يبدأ من', style: TextStyle(color: AppColors.gray500, fontSize: 12)),
+              Text(tr.startsFrom, style: const TextStyle(color: AppColors.gray500, fontSize: 12)),
               Text(money(service['starting_price']), style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
             ]),
           ]),

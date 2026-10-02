@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
@@ -11,8 +12,9 @@ class RatingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('التقييمات')),
+      appBar: AppBar(title: Text(tr.myRatings)),
       body: Loader<Map<String, dynamic>>(
+        skeleton: true,
         load: () => Api.I.get('/worker/ratings'),
         builder: (context, res, reload) {
           final list = res['data'] as List;
@@ -25,12 +27,12 @@ class RatingsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   child: Column(children: [
                     Text('${meta['average'] ?? 0}', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: AppColors.blue700)),
-                    Text('متوسط ${meta['count'] ?? 0} تقييم', style: const TextStyle(color: AppColors.gray500)),
+                    Text(tr.averageOf(meta['count'] as int? ?? 0), style: const TextStyle(color: AppColors.gray500)),
                   ]),
                 ),
               ),
               const SizedBox(height: 12),
-              if (list.isEmpty) const EmptyState('لا توجد تقييمات بعد', icon: Icons.star_border),
+              if (list.isEmpty) EmptyState(tr.noRatings, icon: Icons.star_border),
               for (final r in list)
                 Card(
                   margin: const EdgeInsets.only(bottom: 10),

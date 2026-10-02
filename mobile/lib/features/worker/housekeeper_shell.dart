@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -16,34 +17,36 @@ class HousekeeperShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('أهلاً ${Session.I.firstName}'),
+        title: Text(tr.hello(Session.I.firstName)),
         actions: [
           const NotificationsButton(),
           IconButton(
+            tooltip: tr.tabAccount,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkerAccountScreen())),
             icon: const Icon(Icons.person_outline),
           ),
         ],
       ),
       body: Loader<List>(
+        skeleton: true,
         load: () async => (await Api.I.get('/worker/contracts'))['data'] as List,
         builder: (context, list, reload) {
           final current = list.where((c) => c['is_current'] == true).toList();
           final others = list.where((c) => c['is_current'] != true).toList();
           if (list.isEmpty) {
-            return ListView(children: const [EmptyState('لا توجد عقود مسندة إليك حالياً', icon: Icons.assignment_outlined)]);
+            return ListView(children: [EmptyState(tr.noAssignedContracts, icon: Icons.assignment_outlined)]);
           }
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               if (current.isNotEmpty) ...[
-                const Text('عقدي الحالي', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                Text(tr.currentContract, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 8),
                 for (final c in current) _ContractTile(c, highlight: true, onBack: reload),
                 const SizedBox(height: 16),
               ],
               if (others.isNotEmpty) ...[
-                const Text('العقود السابقة والقادمة', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                Text(tr.otherContracts, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 8),
                 for (final c in others) _ContractTile(c, onBack: reload),
               ],
@@ -72,7 +75,7 @@ class _ContractTile extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.all(12),
           title: Text(c['plan']?['name'] ?? c['number'], style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text('${c['customer']?['name'] ?? ''}\n${c['my_period']?['from'] ?? ''} ← ${c['my_period']?['to'] ?? ''}'),
+          subtitle: Text('${c['customer']?['name'] ?? ''}\n${c['my_period']?['from'] ?? ''} $arrow ${c['my_period']?['to'] ?? ''}'),
           isThreeLine: true,
           trailing: StatusChip(c['status']),
           onTap: () async {
@@ -93,7 +96,7 @@ class HousekeeperContractScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('العقد')),
+      appBar: AppBar(title: Text(tr.contract)),
       body: Loader<Map>(
         load: () async => (await Api.I.get('/worker/contracts/$id'))['data'] as Map,
         builder: (context, c, reload) {
@@ -102,26 +105,26 @@ class HousekeeperContractScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               SectionCard(title: c['number'], trailing: StatusChip(c['status']), children: [
-                KV('الباقة', c['plan']?['name'] ?? '—'),
-                KV('الدوام', '${c['plan']?['work_days_per_week']} أيام × ${c['plan']?['hours_per_day']} ساعات'),
-                KV('فترتي', '${dayLabel(c['my_period']?['from'])} ← ${dayLabel(c['my_period']?['to'])}'),
+                KV(tr.plan, c['plan']?['name'] ?? '—'),
+                KV(tr.schedule, tr.scheduleValue('${c['plan']?['work_days_per_week']}', '${c['plan']?['hours_per_day']}')),
+                KV(tr.myPeriod, '${dayLabel(c['my_period']?['from'])} $arrow ${dayLabel(c['my_period']?['to'])}'),
               ]),
               const SizedBox(height: 12),
-              SectionCard(title: 'العميل', children: [
-                KV('الاسم', c['customer']?['name'] ?? '—'),
+              SectionCard(title: tr.customer, children: [
+                KV(tr.name, c['customer']?['name'] ?? '—'),
                 if (c['is_current'] == true) ...[
-                  KV('العنوان', addressLine(c['address'])),
-                  if (c['customer_notes'] != null) KV('ملاحظات', c['customer_notes']),
+                  KV(tr.address, addressLine(c['address'])),
+                  if (c['customer_notes'] != null) KV(tr.customerNotes, c['customer_notes']),
                   if (phone != null) ...[
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
                       icon: const Icon(Icons.call),
-                      label: Text('اتصال  $phone'),
+                      label: Text(tr.callCustomer(phone)),
                     ),
                   ],
                 ] else
-                  const Text('تظهر بيانات التواصل والعنوان خلال فترة عملك فقط.', style: TextStyle(color: AppColors.gray500)),
+                  Text(tr.contactDuringPeriodOnly, style: const TextStyle(color: AppColors.gray500)),
               ]),
             ],
           );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
@@ -19,20 +20,21 @@ class _AddressesScreenState extends State<AddressesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('عناويني')),
+      appBar: AppBar(title: Text(tr.myAddresses)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final created = await Navigator.push<Map>(context, MaterialPageRoute(builder: (_) => const AddressFormScreen()));
           if (created != null) _refresh();
         },
         icon: const Icon(Icons.add),
-        label: const Text('عنوان جديد'),
+        label: Text(tr.newAddress),
       ),
       body: Loader<List>(
         key: _key,
+        skeleton: true,
         load: () async => (await Api.I.get('/addresses'))['data'] as List,
         builder: (context, list, reload) => list.isEmpty
-            ? ListView(children: const [EmptyState('لا توجد عناوين بعد', icon: Icons.location_off_outlined)])
+            ? ListView(children: [EmptyState(tr.noAddresses, icon: Icons.location_off_outlined)])
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: list.length,
@@ -47,9 +49,9 @@ class _AddressesScreenState extends State<AddressesScreen> {
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () async {
-                          if (!await confirm(context, 'حذف العنوان', 'هل تريد حذف "${a['label']}"؟', ok: 'حذف', danger: true)) return;
+                          if (!await confirm(context, tr.deleteAddress, tr.deleteAddressQ(a['label'] ?? ''), ok: tr.delete, danger: true)) return;
                           if (!context.mounted) return;
-                          if (await run(context, () => Api.I.delete('/addresses/${a['id']}'), success: 'تم الحذف')) reload();
+                          if (await run(context, () => Api.I.delete('/addresses/${a['id']}'), success: tr.deleted)) reload();
                         },
                       ),
                     ),
@@ -88,10 +90,10 @@ class AddressPicker extends StatelessWidget {
           if (created != null) onCreated(created['id'] as int);
         },
         icon: const Icon(Icons.add_location_alt_outlined),
-        label: const Text('عنوان جديد'),
+        label: Text(tr.newAddress),
       ),
       children: [
-        if (addresses.isEmpty) const Text('أضف عنواناً لإتمام الطلب.', style: TextStyle(color: AppColors.gray500)),
+        if (addresses.isEmpty) Text(tr.addAddressFirst, style: const TextStyle(color: AppColors.gray500)),
         RadioGroup<int>(
           groupValue: selected,
           onChanged: onSelected,
@@ -125,23 +127,24 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   bool _busy = false;
   ApiException? _error;
 
-  static const _labels = {
-    'label': 'اسم العنوان (مثال: المنزل)',
-    'city': 'المدينة',
-    'district': 'الحي',
-    'street': 'الشارع (اختياري)',
-    'building': 'رقم المبنى (اختياري)',
-    'floor': 'الدور (اختياري)',
-    'details': 'وصف إضافي (اختياري)',
-  };
+  Map<String, String> get _labels => {
+        'label': tr.addrLabel,
+        'city': tr.addrCity,
+        'district': tr.addrDistrict,
+        'street': tr.addrStreet,
+        'building': tr.addrBuilding,
+        'floor': tr.addrFloor,
+        'details': tr.addrDetails,
+      };
 
   @override
   void initState() {
     super.initState();
-    _c['city']!.text = 'الرياض';
+    _c['city']!.text = tr.defaultCity;
   }
 
   Future<void> _save() async {
+    FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _error = null;
@@ -164,7 +167,7 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('عنوان جديد')),
+      appBar: AppBar(title: Text(tr.newAddress)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -180,10 +183,10 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
             contentPadding: EdgeInsets.zero,
             value: _default,
             onChanged: (v) => setState(() => _default = v),
-            title: const Text('العنوان الافتراضي'),
+            title: Text(tr.defaultAddress),
           ),
           const SizedBox(height: 12),
-          FilledButton(onPressed: _busy ? null : _save, child: const Text('حفظ العنوان')),
+          BusyButton(label: tr.saveAddress, busy: _busy, onPressed: _save),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'addresses.dart';
@@ -13,8 +14,9 @@ class ContractPlansScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('استئجار عاملة بعقد')),
+      appBar: AppBar(title: Text(tr.hireTitle)),
       body: Loader<Map<String, dynamic>>(
+        skeleton: true,
         load: () => Api.I.get('/contract-plans'),
         builder: (context, res, reload) {
           final plans = res['data'] as List;
@@ -22,10 +24,9 @@ class ContractPlansScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Text('اختر الباقة المناسبة. يمكنك طلب استبدال العاملة أو إنهاء العقد من التطبيق في أي وقت.',
-                  style: TextStyle(color: AppColors.gray500)),
+              Text(tr.hireIntro, style: const TextStyle(color: AppColors.gray500)),
               const SizedBox(height: 12),
-              if (plans.isEmpty) const EmptyState('لا توجد باقات متاحة حالياً'),
+              if (plans.isEmpty) EmptyState(tr.noPlans),
               for (final p in plans) ...[
                 Card(
                   clipBehavior: Clip.antiAlias,
@@ -36,7 +37,7 @@ class ContractPlansScreen extends StatelessWidget {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
                           Expanded(child: Text(p['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17))),
-                          Text('${money(p['monthly_price'])} / شهر', style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
+                          Text(tr.perMonth(money(p['monthly_price'])), style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
                         ]),
                         if (p['description'] != null) ...[
                           const SizedBox(height: 4),
@@ -44,8 +45,8 @@ class ContractPlansScreen extends StatelessWidget {
                         ],
                         const SizedBox(height: 10),
                         Wrap(spacing: 8, children: [
-                          Chip(avatar: const Icon(Icons.calendar_month, size: 18), label: Text('${p['work_days_per_week']} أيام/أسبوع')),
-                          Chip(avatar: const Icon(Icons.schedule, size: 18), label: Text('${p['hours_per_day']} ساعات/يوم')),
+                          Chip(avatar: const Icon(Icons.calendar_month, size: 18), label: Text(tr.daysPerWeek(p['work_days_per_week'] as int))),
+                          Chip(avatar: const Icon(Icons.schedule, size: 18), label: Text(tr.hoursPerDay(p['hours_per_day'] as int))),
                         ]),
                       ]),
                     ),
@@ -141,15 +142,15 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
     final min = p['min_months'] as int? ?? 1;
     final max = p['max_months'] as int? ?? 12;
     return Scaffold(
-      appBar: AppBar(title: Text(p['name'] ?? 'طلب عقد')),
+      appBar: AppBar(title: Text(p['name'] ?? tr.contractRequest)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SectionCard(title: 'المدة والبداية', children: [
+          SectionCard(title: tr.durationAndStart, children: [
             DropdownButtonFormField<int>(
               initialValue: _months,
-              decoration: const InputDecoration(labelText: 'مدة العقد'),
-              items: [for (var m = min; m <= max; m++) DropdownMenuItem(value: m, child: Text(m == 1 ? 'شهر واحد' : '$m أشهر'))],
+              decoration: InputDecoration(labelText: tr.contractDuration),
+              items: [for (var m = min; m <= max; m++) DropdownMenuItem(value: m, child: Text(tr.months(m)))],
               onChanged: (v) {
                 setState(() => _months = v!);
                 _requote();
@@ -170,36 +171,36 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
                 }
               },
               icon: const Icon(Icons.event),
-              label: Text('تاريخ البدء: ${dayLabel(ymd(_start))}'),
+              label: Text(tr.startDate(dayLabel(ymd(_start)))),
             ),
           ]),
           const SizedBox(height: 12),
           AddressPicker(
-            title: 'عنوان العمل',
+            title: tr.workAddress,
             addresses: _addresses,
             selected: _addressId,
             onSelected: (v) => setState(() => _addressId = v),
             onCreated: (id) => _loadAddresses(select: id),
           ),
           const SizedBox(height: 12),
-          SectionCard(title: 'ملاحظات (اختياري)', children: [
-            TextField(controller: _notes, maxLines: 2, decoration: const InputDecoration(hintText: 'مثال: يفضّل من يتحدث العربية')),
+          SectionCard(title: tr.notesOptional, children: [
+            TextField(controller: _notes, maxLines: 2, decoration: InputDecoration(hintText: tr.contractNotesHint)),
           ]),
           const SizedBox(height: 12),
-          SectionCard(title: 'الملخص', children: [
+          SectionCard(title: tr.summary, children: [
             if (_quote != null) ...[
-              KV('من', dayLabel(_quote!['start_date'])),
-              KV('إلى', dayLabel(_quote!['end_date'])),
-              KV('الشهري', money(_quote!['monthly_price'])),
-              KV('الإجمالي', money(_quote!['total']), bold: true),
+              KV(tr.from, dayLabel(_quote!['start_date'])),
+              KV(tr.to, dayLabel(_quote!['end_date'])),
+              KV(tr.monthly, money(_quote!['monthly_price'])),
+              KV(tr.total, money(_quote!['total']), bold: true),
             ],
-            const KV('الدفع', 'نقداً — دفعة كل شهر'),
+            KV(tr.payment, tr.cashMonthly),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               value: _terms,
               onChanged: (v) => setState(() => _terms = v ?? false),
               controlAffinity: ListTileControlAffinity.leading,
-              title: Text('أوافق على شروط العقد (الإصدار ${widget.meta['terms_version'] ?? ''})'),
+              title: Text(tr.acceptTerms('${widget.meta['terms_version'] ?? ''}')),
             ),
           ]),
           const SizedBox(height: 90),
@@ -209,9 +210,10 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
         child: Container(
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: FilledButton(
-            onPressed: _terms && _addressId != null && _quote != null && !_busy ? _submit : null,
-            child: Text(_busy ? 'جارٍ الإرسال…' : 'إرسال طلب العقد'),
+          child: BusyButton(
+            label: tr.sendContractRequest,
+            busy: _busy,
+            onPressed: _terms && _addressId != null && _quote != null ? _submit : null,
           ),
         ),
       ),

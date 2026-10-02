@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'booking_detail.dart';
 import 'complaints.dart';
 
-const changeReasons = {
-  'frequent_delay': 'تأخر متكرر',
-  'quality': 'جودة العمل',
-  'absence': 'غياب',
-  'behavior': 'سلوك',
-  'no_longer_needed': 'لم أعد بحاجة للخدمة',
-  'other': 'سبب آخر',
-};
+Map<String, String> get changeReasons => {
+      'frequent_delay': tr.reasonDelay,
+      'quality': tr.reasonQuality,
+      'absence': tr.reasonAbsence,
+      'behavior': tr.reasonBehavior,
+      'no_longer_needed': tr.reasonNotNeeded,
+      'other': tr.reasonOther,
+    };
 
 class ContractDetailScreen extends StatelessWidget {
   const ContractDetailScreen({super.key, required this.id, this.justCreated = false});
@@ -24,7 +26,7 @@ class ContractDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل العقد')),
+      appBar: AppBar(title: Text(tr.contractDetails)),
       body: Loader<Map>(
         load: () async => (await Api.I.get('/contracts/$id'))['data'] as Map,
         builder: (context, c, reload) {
@@ -49,93 +51,87 @@ class ContractDetailScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (justCreated)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(12)),
-                  child: const Text('تم إرسال طلب العقد. ستراجعه الإدارة وتعيّن لك عاملة.', style: TextStyle(color: AppColors.success600)),
-                ),
+              if (justCreated) SuccessBanner(tr.contractReceived),
               SectionCard(title: c['number'], trailing: StatusChip(c['status']), children: [
-                KV('الباقة', c['plan']?['name'] ?? '—'),
-                KV('الدوام', '${c['plan']?['work_days_per_week']} أيام × ${c['plan']?['hours_per_day']} ساعات'),
-                KV('من', dayLabel(c['start_date'])),
-                KV('إلى', dayLabel(c['end_date'])),
-                KV('العنوان', addressLine(c['address'])),
-                if (c['terminated_at'] != null) KV('أُنهي في', dayLabel(c['terminated_at'])),
+                KV(tr.plan, c['plan']?['name'] ?? '—'),
+                KV(tr.schedule, tr.scheduleValue('${c['plan']?['work_days_per_week']}', '${c['plan']?['hours_per_day']}')),
+                KV(tr.from, dayLabel(c['start_date'])),
+                KV(tr.to, dayLabel(c['end_date'])),
+                KV(tr.address, addressLine(c['address'])),
+                if (c['terminated_at'] != null) KV(tr.terminatedOn, dayLabel(c['terminated_at'])),
                 if (progress != null) ...[
                   const SizedBox(height: 8),
                   LinearProgressIndicator(value: (progress['day'] as int) / (progress['total_days'] as int), minHeight: 8, borderRadius: BorderRadius.circular(4)),
                   const SizedBox(height: 4),
-                  Text('اليوم ${progress['day']} من ${progress['total_days']}', style: const TextStyle(color: AppColors.gray500, fontSize: 12.5)),
+                  Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: const TextStyle(color: AppColors.gray500, fontSize: 12.5)),
                 ],
               ]),
               const SizedBox(height: 12),
-              SectionCard(title: 'العاملة', children: [
-                if (worker == null) const Text('لم تُعيَّن عاملة بعد.', style: TextStyle(color: AppColors.gray500)),
+              SectionCard(title: tr.housekeeper, children: [
+                if (worker == null) Text(tr.noWorkerYet, style: const TextStyle(color: AppColors.gray500)),
                 if (worker != null)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const CircleAvatar(backgroundColor: AppColors.blue50, child: Icon(Icons.person, color: AppColors.blue600)),
                     title: Text(worker['name'] ?? ''),
-                    subtitle: Text('منذ ${dayLabel(worker['since'])}'),
+                    subtitle: Text(tr.since(dayLabel(worker['since']))),
                   ),
                 if (history.length > 1) ...[
                   const Divider(),
                   for (final h in history)
-                    KV(h['name'] ?? '', '${h['from']} ← ${h['to'] ?? 'الآن'}${h['end_reason'] != null ? ' (${label(h['end_reason'])})' : ''}'),
+                    KV(h['name'] ?? '', '${h['from']} $arrow ${h['to'] ?? tr.now}${h['end_reason'] != null ? ' (${label(h['end_reason'])})' : ''}'),
                 ],
               ]),
               const SizedBox(height: 12),
-              SectionCard(title: 'المبالغ (نقداً)', children: [
-                KV('الشهري', money(c['monthly_price'])),
-                KV('الإجمالي', money(c['total_amount']), bold: true),
+              SectionCard(title: tr.amountsCash, children: [
+                KV(tr.monthly, money(c['monthly_price'])),
+                KV(tr.total, money(c['total_amount']), bold: true),
                 for (final p in payments)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     dense: true,
                     title: Text(money(p['amount'])),
-                    subtitle: Text(p['period_start'] != null ? '${p['period_start']} ← ${p['period_end']}' : 'استحقاق ${p['due_date'] ?? ''}'),
+                    subtitle: Text(p['period_start'] != null ? '${p['period_start']} $arrow ${p['period_end']}' : tr.dueOn(p['due_date'] ?? '')),
                     trailing: StatusChip(p['status']),
                   ),
               ]),
               if (requests.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                SectionCard(title: 'طلبات الاستبدال والإنهاء', children: [
+                SectionCard(title: tr.changeRequests, children: [
                   for (final r in requests)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       title: Text('${label(r['type'])} — ${changeReasons[r['reason_type']] ?? ''}'),
-                      subtitle: Text([r['number'], if (r['admin_response'] != null) 'رد الإدارة: ${r['admin_response']}'].join('\n')),
+                      subtitle: Text([r['number'], if (r['admin_response'] != null) tr.adminReply(r['admin_response'])].join('\n')),
                       trailing: StatusChip(r['status']),
                     ),
                 ]),
               ],
               const SizedBox(height: 12),
-              SectionCard(title: 'التتبع', children: [Timeline(c['timeline'] as List? ?? [])]),
+              SectionCard(title: tr.tracking, children: [Timeline(c['timeline'] as List? ?? [])]),
               const SizedBox(height: 16),
               if (running && !openRequest) ...[
-                FilledButton.icon(onPressed: () => openForm('replace_worker'), icon: const Icon(Icons.swap_horiz), label: const Text('طلب استبدال العاملة')),
+                FilledButton.icon(onPressed: () => openForm('replace_worker'), icon: const Icon(Icons.swap_horiz), label: Text(tr.requestReplace)),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () => openForm('terminate'),
                   icon: const Icon(Icons.logout),
-                  label: const Text('طلب إنهاء العقد'),
+                  label: Text(tr.requestTerminate),
                 ),
               ],
               if (running && openRequest)
-                const Text('لديك طلب قيد المراجعة لدى الإدارة.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.warning600)),
+                Text(tr.requestPending, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.warning600)),
               if (['pending', 'confirmed', 'assigned'].contains(status)) ...[
                 const SizedBox(height: 10),
                 TextButton(
                   style: TextButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {
-                    if (!await confirm(context, 'إلغاء العقد', 'سيُلغى العقد قبل بدئه. هل أنت متأكد؟', ok: 'إلغاء العقد', danger: true)) return;
+                    if (!await confirm(context, tr.cancelContract, tr.cancelContractQ, ok: tr.cancelContract, danger: true)) return;
                     if (!context.mounted) return;
-                    if (await run(context, () => Api.I.post('/contracts/$id/cancel', {}), success: 'تم إلغاء العقد')) reload();
+                    if (await run(context, () => Api.I.post('/contracts/$id/cancel', {}), success: tr.contractCancelled)) reload();
                   },
-                  child: const Text('إلغاء العقد قبل البدء'),
+                  child: Text(tr.cancelBeforeStart),
                 ),
               ],
               if (ended)
@@ -143,9 +139,9 @@ class ContractDetailScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: OutlinedButton.icon(
-                      onPressed: () => showRatingSheet(context, path: '/contracts/$id/rating', workerLabel: 'تقييم ${h['name']}', extra: {'worker_id': h['worker_id']}),
+                      onPressed: () => showRatingSheet(context, path: '/contracts/$id/rating', workerLabel: tr.rateName(h['name'] ?? ''), extra: {'worker_id': h['worker_id']}),
                       icon: const Icon(Icons.star_outline),
-                      label: Text('قيّم ${h['name']}'),
+                      label: Text(tr.rateName(h['name'] ?? '')),
                     ),
                   ),
               TextButton.icon(
@@ -154,7 +150,7 @@ class ContractDetailScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => ComplaintFormScreen(subjectType: 'contract', subjectId: id, subjectNumber: c['number'])),
                 ),
                 icon: const Icon(Icons.report_outlined),
-                label: const Text('قدّم شكوى'),
+                label: Text(tr.fileComplaint),
               ),
             ],
           );
@@ -164,7 +160,7 @@ class ContractDetailScreen extends StatelessWidget {
   }
 }
 
-/// طلب استبدال العاملة أو إنهاء العقد (CR-2).
+/// طلب استبدال العاملة أو إنهاء العقد (CR-2) — مع صور اختيارية.
 class ChangeRequestScreen extends StatefulWidget {
   const ChangeRequestScreen({super.key, required this.contractId, required this.type});
 
@@ -179,6 +175,7 @@ class _ChangeRequestScreenState extends State<ChangeRequestScreen> {
   final _details = TextEditingController();
   String? _reason;
   DateTime _date = DateUtils.dateOnly(DateTime.now()).add(const Duration(days: 1));
+  List<XFile> _files = [];
   bool _busy = false;
 
   bool get _terminate => widget.type == 'terminate';
@@ -187,13 +184,13 @@ class _ChangeRequestScreenState extends State<ChangeRequestScreen> {
     setState(() => _busy = true);
     final ok = await run(
       context,
-      () => Api.I.post('/contracts/${widget.contractId}/change-requests', {
+      () => Api.I.postWithFiles('/contracts/${widget.contractId}/change-requests', {
         'type': widget.type,
         'reason_type': _reason,
         if (_details.text.trim().isNotEmpty) 'details': _details.text.trim(),
         if (_terminate) 'requested_date': ymd(_date),
-      }),
-      success: 'تم إرسال طلبك للإدارة',
+      }, _files),
+      success: tr.requestSent,
     );
     if (!mounted) return;
     setState(() => _busy = false);
@@ -203,25 +200,23 @@ class _ChangeRequestScreenState extends State<ChangeRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_terminate ? 'طلب إنهاء العقد' : 'طلب استبدال العاملة')),
+      appBar: AppBar(title: Text(_terminate ? tr.requestTerminate : tr.requestReplace)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            _terminate
-                ? 'تراجع الإدارة الطلب، ويُحتسب المبلغ حتى آخر يوم عمل فعلي.'
-                : 'تراجع الإدارة الطلب وتعيّن عاملة بديلة، ولا تُحتسب أيام الانتظار.',
-            style: const TextStyle(color: AppColors.gray500),
-          ),
+          Text(_terminate ? tr.terminateNote : tr.replaceNote, style: const TextStyle(color: AppColors.gray500)),
           const SizedBox(height: 16),
-          const Text('السبب', style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(tr.reason, style: const TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 8, children: [
             for (final e in changeReasons.entries)
               if (_terminate || e.key != 'no_longer_needed')
                 ChoiceChip(label: Text(e.value), selected: _reason == e.key, onSelected: (_) => setState(() => _reason = e.key)),
           ]),
           const SizedBox(height: 16),
-          TextField(controller: _details, maxLines: 4, decoration: const InputDecoration(labelText: 'التفاصيل (اختياري)')),
+          TextField(controller: _details, maxLines: 4, decoration: InputDecoration(labelText: tr.detailsOptional)),
+          const SizedBox(height: 16),
+          AttachmentsPicker(files: _files, onChanged: (f) => setState(() => _files = f)),
           if (_terminate) ...[
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -231,11 +226,11 @@ class _ChangeRequestScreenState extends State<ChangeRequestScreen> {
                 if (d != null) setState(() => _date = d);
               },
               icon: const Icon(Icons.event),
-              label: Text('تاريخ الإنهاء المطلوب: ${dayLabel(ymd(_date))}'),
+              label: Text(tr.requestedEndDate(dayLabel(ymd(_date)))),
             ),
           ],
           const SizedBox(height: 24),
-          FilledButton(onPressed: _reason != null && !_busy ? _submit : null, child: const Text('إرسال الطلب')),
+          BusyButton(label: tr.sendRequest, busy: _busy, onPressed: _reason != null ? _submit : null),
         ],
       ),
     );

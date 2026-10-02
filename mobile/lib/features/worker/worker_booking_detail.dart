@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
@@ -20,7 +21,7 @@ class WorkerBookingDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل الزيارة')),
+      appBar: AppBar(title: Text(tr.visitDetails)),
       body: Loader<Map>(
         load: () async => (await Api.I.get('/worker/bookings/$id'))['data'] as Map,
         builder: (context, b, reload) {
@@ -39,23 +40,23 @@ class WorkerBookingDetailScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               SectionCard(title: b['number'], trailing: StatusChip(b['status']), children: [
-                KV('الفريق', b['team']?['name'] ?? '—'),
-                KV('الإسناد', label(b['assignment_status'])),
-                KV('الموعد', '${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}'),
+                KV(tr.team, b['team']?['name'] ?? '—'),
+                KV(tr.assignment, label(b['assignment_status'])),
+                KV(tr.appointment, '${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}'),
                 for (final i in items) KV(i['service'] ?? '', '${i['option']} × ${i['quantity']}'),
               ]),
               const SizedBox(height: 12),
-              SectionCard(title: 'العميل والموقع', children: [
-                KV('العميل', b['customer']?['name'] ?? '—'),
-                KV('العنوان', addressLine(b['address'])),
-                if (b['address']?['details'] != null) KV('وصف', b['address']['details']),
-                if (b['customer_notes'] != null) KV('ملاحظات العميل', b['customer_notes']),
+              SectionCard(title: tr.customerAndLocation, children: [
+                KV(tr.customer, b['customer']?['name'] ?? '—'),
+                KV(tr.address, addressLine(b['address'])),
+                if (b['address']?['details'] != null) KV(tr.description, b['address']['details']),
+                if (b['customer_notes'] != null) KV(tr.customerNotes, b['customer_notes']),
                 if (phone != null) ...[
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
                     icon: const Icon(Icons.call),
-                    label: Text('اتصال بالعميل  $phone'),
+                    label: Text(tr.callCustomer(phone)),
                   ),
                 ],
               ]),
@@ -67,30 +68,29 @@ class WorkerBookingDetailScreen extends StatelessWidget {
                   child: Row(children: [
                     const Icon(Icons.payments_outlined, color: AppColors.success600, size: 30),
                     const SizedBox(width: 12),
-                    const Expanded(child: Text('المبلغ المطلوب تحصيله نقداً عند الإتمام', style: TextStyle(color: AppColors.success600))),
+                    Expanded(child: Text(tr.amountToCollect, style: const TextStyle(color: AppColors.success600))),
                     Text(money(collect), style: const TextStyle(color: AppColors.success600, fontWeight: FontWeight.w700, fontSize: 18)),
                   ]),
                 ),
               ],
               const SizedBox(height: 20),
-              if (!leader)
-                const Text('قائد الفريق هو من يقبل الزيارة ويحدّث حالتها.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.gray500)),
+              if (!leader) Text(tr.leaderOnlyNote, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gray500)),
               if (leader && pending) ...[
                 FilledButton.icon(
-                  onPressed: () => act(() => Api.I.post('/worker/bookings/$id/accept'), 'تم قبول الزيارة'),
+                  onPressed: () => act(() => Api.I.post('/worker/bookings/$id/accept'), tr.visitAccepted),
                   icon: const Icon(Icons.check),
-                  label: const Text('قبول الزيارة'),
+                  label: Text(tr.acceptVisit),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {
-                    final reason = await promptText(context, 'رفض الإسناد', hint: 'سبب الرفض', required: true);
+                    final reason = await promptText(context, tr.rejectAssignment, hint: tr.rejectReason, required: true);
                     if (reason == null) return;
-                    await act(() => Api.I.post('/worker/bookings/$id/reject', {'reason': reason}), 'تم الرفض — أُعيدت للإدارة');
+                    await act(() => Api.I.post('/worker/bookings/$id/reject', {'reason': reason}), tr.rejectedBack);
                   },
                   icon: const Icon(Icons.close),
-                  label: const Text('رفض'),
+                  label: Text(tr.reject),
                 ),
               ],
               if (leader)
@@ -99,12 +99,12 @@ class WorkerBookingDetailScreen extends StatelessWidget {
                     onPressed: () async {
                       final v = value(s);
                       if (v == 'completed' &&
-                          !await confirm(context, 'إتمام الزيارة', 'هل استلمت ${money(collect)} نقداً من العميل؟', ok: 'نعم، تم الاستلام')) {
+                          !await confirm(context, tr.completeVisit, tr.completeVisitQ(money(collect)), ok: tr.yesReceived)) {
                         return;
                       }
-                      await act(() => Api.I.post('/worker/bookings/$id/status', {'status': v}), 'تم التحديث: ${label(s)}');
+                      await act(() => Api.I.post('/worker/bookings/$id/status', {'status': v}), tr.updatedTo(label(s)));
                     },
-                    icon: Icon(_icons[value(s)] ?? Icons.arrow_back),
+                    icon: Icon(_icons[value(s)] ?? Icons.arrow_forward),
                     label: Text(label(s)),
                   ),
                   const SizedBox(height: 10),

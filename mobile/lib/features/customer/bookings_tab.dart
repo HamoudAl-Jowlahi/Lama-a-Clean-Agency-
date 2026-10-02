@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'booking_detail.dart';
@@ -11,11 +12,12 @@ class BookingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('زياراتي')),
+      appBar: AppBar(title: Text(tr.tabVisits)),
       body: Loader<List>(
+        skeleton: true,
         load: () async => (await Api.I.get('/bookings'))['data'] as List,
         builder: (context, list, reload) => list.isEmpty
-            ? ListView(children: const [EmptyState('لا توجد زيارات بعد — اطلب أول زيارة من الرئيسية', icon: Icons.event_busy_outlined)])
+            ? ListView(children: [EmptyState(tr.noVisits, icon: Icons.event_busy_outlined)])
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: list.length,
@@ -52,7 +54,7 @@ class BookingCard extends StatelessWidget {
             Row(children: [
               Expanded(
                 child: Text(
-                  items.isEmpty ? (booking['number'] ?? '') : items.map((i) => i['service']).join('، '),
+                  items.isEmpty ? (booking['number'] ?? '') : items.map((i) => i['service']).join(isEn ? ', ' : '، '),
                   style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                 ),
               ),

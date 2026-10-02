@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/brand.dart';
+import '../../core/i18n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -20,6 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   ApiException? _error;
 
   Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _error = null;
@@ -42,19 +45,20 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            const SizedBox(height: 40),
+            const Align(alignment: AlignmentDirectional.centerEnd, child: LanguageSwitch()),
+            const SizedBox(height: 16),
             const _Brand(),
-            const SizedBox(height: 40),
-            Text('تسجيل الدخول', style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 36),
+            Text(tr.loginTitle, style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
-            const Text('للعملاء وفرق التنظيف والعاملات', style: TextStyle(color: AppColors.gray500)),
+            Text(tr.loginSubtitle, style: const TextStyle(color: AppColors.gray500)),
             const SizedBox(height: 24),
             TextField(
               controller: _phone,
               keyboardType: TextInputType.phone,
               textDirection: TextDirection.ltr,
               decoration: InputDecoration(
-                labelText: 'رقم الجوال',
+                labelText: tr.phone,
                 hintText: '05XXXXXXXX',
                 prefixIcon: const Icon(Icons.phone_outlined),
                 errorText: _error?.field('phone'),
@@ -65,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _password,
               obscureText: _hide,
               decoration: InputDecoration(
-                labelText: 'كلمة المرور',
+                labelText: tr.password,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   icon: Icon(_hide ? Icons.visibility_outlined : Icons.visibility_off_outlined),
@@ -80,23 +84,14 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(_error!.message, style: const TextStyle(color: AppColors.danger600)),
             ],
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _busy ? null : _submit,
-              child: _busy
-                  ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                  : const Text('دخول'),
-            ),
+            BusyButton(label: tr.login, busy: _busy, onPressed: _submit),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-              child: const Text('عميل جديد؟ أنشئ حساباً'),
+              child: Text(tr.newCustomer),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'حسابات الفرق والعاملات تُنشأ من إدارة الوكالة.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.gray500, fontSize: 12.5),
-            ),
+            Text(tr.staffAccountsNote, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gray500, fontSize: 12.5)),
           ],
         ),
       ),
@@ -120,6 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   ApiException? _error;
 
   Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _error = null;
@@ -142,35 +138,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('حساب جديد')),
+      appBar: AppBar(title: Text(tr.registerTitle)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          TextField(controller: _name, decoration: InputDecoration(labelText: 'الاسم', errorText: _error?.field('name'))),
+          TextField(controller: _name, decoration: InputDecoration(labelText: tr.name, errorText: _error?.field('name'))),
           const SizedBox(height: 14),
           TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
             textDirection: TextDirection.ltr,
-            decoration: InputDecoration(labelText: 'رقم الجوال', hintText: '05XXXXXXXX', errorText: _error?.field('phone')),
+            decoration: InputDecoration(labelText: tr.phone, hintText: '05XXXXXXXX', errorText: _error?.field('phone')),
           ),
           const SizedBox(height: 14),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
             textDirection: TextDirection.ltr,
-            decoration: InputDecoration(labelText: 'البريد الإلكتروني (اختياري)', errorText: _error?.field('email')),
+            decoration: InputDecoration(labelText: tr.emailOptional, errorText: _error?.field('email')),
           ),
           const SizedBox(height: 14),
           TextField(
             controller: _password,
             obscureText: true,
-            decoration: InputDecoration(labelText: 'كلمة المرور', errorText: _error?.field('password')),
+            decoration: InputDecoration(labelText: tr.password, helperText: tr.passwordHint, errorText: _error?.field('password')),
           ),
           const SizedBox(height: 24),
-          FilledButton(onPressed: _busy ? null : _submit, child: Text(_busy ? 'جارٍ الإنشاء…' : 'إنشاء الحساب')),
+          BusyButton(label: tr.createAccount, busy: _busy, onPressed: _submit),
         ],
       ),
+    );
+  }
+}
+
+/// تبديل اللغة (عربي / English).
+class LanguageSwitch extends StatelessWidget {
+  const LanguageSwitch({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<String>(
+      showSelectedIcon: false,
+      style: SegmentedButton.styleFrom(visualDensity: VisualDensity.compact),
+      segments: const [
+        ButtonSegment(value: 'ar', label: Text('عربي')),
+        ButtonSegment(value: 'en', label: Text('English')),
+      ],
+      selected: {Session.I.lang},
+      onSelectionChanged: (s) => run(context, () => Session.I.setLang(s.first)),
     );
   }
 }
@@ -182,14 +197,19 @@ class _Brand extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Container(
-        width: 84,
-        height: 84,
-        decoration: BoxDecoration(color: AppColors.blue700, borderRadius: BorderRadius.circular(24)),
-        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 44),
+        width: 92,
+        height: 92,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.blue700,
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [BoxShadow(color: AppColors.blue700.withValues(alpha: .3), blurRadius: 24, offset: const Offset(0, 10))],
+        ),
+        child: const LamaaMark(color: Colors.white),
       ),
-      const SizedBox(height: 12),
-      Text('لمعة', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700, color: AppColors.blue700)),
-      const Text('خدمات تنظيف بثقة', style: TextStyle(color: AppColors.gray500)),
+      const SizedBox(height: 14),
+      Text(tr.appName, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700, color: AppColors.blue700)),
+      Text(tr.tagline, style: const TextStyle(color: AppColors.gray500)),
     ]);
   }
 }

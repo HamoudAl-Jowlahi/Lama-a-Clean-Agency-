@@ -1,0 +1,446 @@
+{
+    "@@locale": "ar",
+    "appName": "لمعة",
+    "tagline": "خدمات تنظيف بثقة",
+    "loading": "جارٍ التحميل…",
+    "retry": "إعادة المحاولة",
+    "back": "تراجع",
+    "confirm": "تأكيد",
+    "send": "إرسال",
+    "save": "حفظ",
+    "saved": "تم الحفظ",
+    "delete": "حذف",
+    "deleted": "تم الحذف",
+    "now": "الآن",
+    "today": "اليوم",
+    "tomorrow": "غداً",
+    "from": "من",
+    "to": "إلى",
+    "number": "الرقم",
+    "name": "الاسم",
+    "phone": "رقم الجوال",
+    "password": "كلمة المرور",
+    "passwordHint": "8 أحرف على الأقل",
+    "emailOptional": "البريد الإلكتروني (اختياري)",
+    "money": "{amount} ر.س",
+    "@money": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "buildingNo": "مبنى {n}",
+    "@buildingNo": {
+        "placeholders": {
+            "n": {
+                "type": "String"
+            }
+        }
+    },
+    "errNetwork": "تعذر الاتصال بالخادم — تحقق من الإنترنت ثم حاول مجدداً.",
+    "errUnexpected": "حدث خطأ غير متوقع ({code}).",
+    "@errUnexpected": {
+        "placeholders": {
+            "code": {
+                "type": "int"
+            }
+        }
+    },
+    "errSession": "تعذر فتح الجلسة.",
+    "errGeneric": "حدث خطأ: {error}",
+    "@errGeneric": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errLoad": "تعذر التحميل",
+    "errPick": "تعذر اختيار الصورة",
+    "loginTitle": "تسجيل الدخول",
+    "loginSubtitle": "للعملاء وفرق التنظيف والعاملات",
+    "login": "دخول",
+    "newCustomer": "عميل جديد؟ أنشئ حساباً",
+    "staffAccountsNote": "حسابات الفرق والعاملات تُنشأ من إدارة الوكالة.",
+    "registerTitle": "حساب جديد",
+    "createAccount": "إنشاء الحساب",
+    "language": "اللغة",
+    "tabHome": "الرئيسية",
+    "tabVisits": "زياراتي",
+    "tabContracts": "عقودي",
+    "tabAccount": "حسابي",
+    "hello": "أهلاً {name} 👋",
+    "@hello": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "heroTitle": "عاملة منزلية بعقد شهري",
+    "heroSubtitle": "استبدال العاملة أو إنهاء العقد من التطبيق مباشرة.",
+    "visitTitle": "زيارة تنظيف",
+    "visitSubtitle": "فريق متخصص يأتي في الموعد، ينظّف ويغادر — والدفع نقداً بعد الإتمام.",
+    "noServices": "لا توجد خدمات متاحة حالياً",
+    "startsFrom": "يبدأ من",
+    "stepOption": "1. اختر الخيار",
+    "quantity": "الكمية ({unit})",
+    "@quantity": {
+        "placeholders": {
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "stepAddress": "2. العنوان",
+    "stepDateTime": "3. اليوم والوقت",
+    "pickDayFirst": "اختر اليوم لعرض الأوقات المتاحة.",
+    "noSlots": "لا توجد أوقات في هذا اليوم.",
+    "notesForTeam": "ملاحظات للفريق (اختياري)",
+    "notesForTeamHint": "مثال: يوجد قطة في المنزل",
+    "summary": "الملخص",
+    "subtotal": "السعر قبل الضريبة",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "cashToLeader": "الدفع نقداً لقائد الفريق بعد إتمام الخدمة.",
+    "confirmBooking": "تأكيد الطلب",
+    "myAddresses": "عناويني",
+    "newAddress": "عنوان جديد",
+    "noAddresses": "لا توجد عناوين بعد",
+    "deleteAddress": "حذف العنوان",
+    "deleteAddressQ": "هل تريد حذف \"{label}\"؟",
+    "@deleteAddressQ": {
+        "placeholders": {
+            "label": {
+                "type": "String"
+            }
+        }
+    },
+    "addAddressFirst": "أضف عنواناً لإتمام الطلب.",
+    "addrLabel": "اسم العنوان (مثال: المنزل)",
+    "addrCity": "المدينة",
+    "addrDistrict": "الحي",
+    "addrStreet": "الشارع (اختياري)",
+    "addrBuilding": "رقم المبنى (اختياري)",
+    "addrFloor": "الدور (اختياري)",
+    "addrDetails": "وصف إضافي (اختياري)",
+    "defaultCity": "الرياض",
+    "defaultAddress": "العنوان الافتراضي",
+    "saveAddress": "حفظ العنوان",
+    "noVisits": "لا توجد زيارات بعد — اطلب أول زيارة من الرئيسية",
+    "visitDetails": "تفاصيل الزيارة",
+    "bookingReceived": "تم استلام طلبك! سنؤكده ونُسند فريقاً قريباً.",
+    "appointment": "الموعد",
+    "address": "العنوان",
+    "assignedTeam": "الفريق المنفذ",
+    "notAssignedYet": "لم يُسند بعد",
+    "yourNotes": "ملاحظاتك",
+    "cancelReason": "سبب الإلغاء",
+    "serviceAndAmount": "الخدمة والمبلغ",
+    "paymentMethod": "طريقة الدفع",
+    "cashOnCompletion": "نقداً عند الإتمام",
+    "paymentStatus": "حالة الدفع",
+    "tracking": "التتبع",
+    "yourRating": "تقييمك",
+    "service": "الخدمة",
+    "team": "الفريق",
+    "rateTeam": "تقييم الفريق",
+    "rateVisit": "قيّم الزيارة",
+    "rateService": "تقييم الخدمة",
+    "commentOptional": "تعليق (اختياري)",
+    "sendRating": "إرسال التقييم",
+    "thanksRating": "شكراً لتقييمك!",
+    "cancelVisit": "إلغاء الزيارة",
+    "cancelReasonOptional": "سبب الإلغاء (اختياري)",
+    "visitCancelled": "تم إلغاء الزيارة",
+    "haveProblem": "لديك مشكلة؟ قدّم شكوى",
+    "hireTitle": "استئجار عاملة بعقد",
+    "hireIntro": "اختر الباقة المناسبة. يمكنك طلب استبدال العاملة أو إنهاء العقد من التطبيق في أي وقت.",
+    "noPlans": "لا توجد باقات متاحة حالياً",
+    "perMonth": "{price} / شهر",
+    "@perMonth": {
+        "placeholders": {
+            "price": {
+                "type": "String"
+            }
+        }
+    },
+    "daysPerWeek": "{n} أيام/أسبوع",
+    "@daysPerWeek": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "hoursPerDay": "{n} ساعات/يوم",
+    "@hoursPerDay": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "contractRequest": "طلب عقد",
+    "durationAndStart": "المدة والبداية",
+    "contractDuration": "مدة العقد",
+    "months": "{n, plural, =1{شهر واحد} =2{شهران} few{{n} أشهر} other{{n} شهراً}}",
+    "@months": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "startDate": "تاريخ البدء: {date}",
+    "@startDate": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "workAddress": "عنوان العمل",
+    "notesOptional": "ملاحظات (اختياري)",
+    "contractNotesHint": "مثال: يفضّل من يتحدث العربية",
+    "monthly": "الشهري",
+    "payment": "الدفع",
+    "cashMonthly": "نقداً — دفعة كل شهر",
+    "acceptTerms": "أوافق على شروط العقد (الإصدار {version})",
+    "@acceptTerms": {
+        "placeholders": {
+            "version": {
+                "type": "String"
+            }
+        }
+    },
+    "sendContractRequest": "إرسال طلب العقد",
+    "newContract": "عقد جديد",
+    "noContracts": "لا توجد عقود — استأجر عاملة منزلية بعقد شهري",
+    "dayOf": "اليوم {day} من {total}",
+    "@dayOf": {
+        "placeholders": {
+            "day": {
+                "type": "int"
+            },
+            "total": {
+                "type": "int"
+            }
+        }
+    },
+    "contractDetails": "تفاصيل العقد",
+    "contractReceived": "تم إرسال طلب العقد. ستراجعه الإدارة وتعيّن لك عاملة.",
+    "plan": "الباقة",
+    "schedule": "الدوام",
+    "scheduleValue": "{days} أيام × {hours} ساعات",
+    "@scheduleValue": {
+        "placeholders": {
+            "days": {
+                "type": "String"
+            },
+            "hours": {
+                "type": "String"
+            }
+        }
+    },
+    "terminatedOn": "أُنهي في",
+    "housekeeper": "العاملة",
+    "noWorkerYet": "لم تُعيَّن عاملة بعد.",
+    "since": "منذ {date}",
+    "@since": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "amountsCash": "المبالغ (نقداً)",
+    "dueOn": "استحقاق {date}",
+    "@dueOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "changeRequests": "طلبات الاستبدال والإنهاء",
+    "adminReply": "رد الإدارة: {reply}",
+    "@adminReply": {
+        "placeholders": {
+            "reply": {
+                "type": "String"
+            }
+        }
+    },
+    "requestReplace": "طلب استبدال العاملة",
+    "requestTerminate": "طلب إنهاء العقد",
+    "requestPending": "لديك طلب قيد المراجعة لدى الإدارة.",
+    "cancelContract": "إلغاء العقد",
+    "cancelContractQ": "سيُلغى العقد قبل بدئه. هل أنت متأكد؟",
+    "contractCancelled": "تم إلغاء العقد",
+    "cancelBeforeStart": "إلغاء العقد قبل البدء",
+    "rateName": "قيّم {name}",
+    "@rateName": {
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
+    },
+    "fileComplaint": "قدّم شكوى",
+    "reasonDelay": "تأخر متكرر",
+    "reasonQuality": "جودة العمل",
+    "reasonAbsence": "غياب",
+    "reasonBehavior": "سلوك",
+    "reasonNotNeeded": "لم أعد بحاجة للخدمة",
+    "reasonOther": "سبب آخر",
+    "reason": "السبب",
+    "detailsOptional": "التفاصيل (اختياري)",
+    "terminateNote": "تراجع الإدارة الطلب، ويُحتسب المبلغ حتى آخر يوم عمل فعلي.",
+    "replaceNote": "تراجع الإدارة الطلب وتعيّن عاملة بديلة، ولا تُحتسب أيام الانتظار.",
+    "requestedEndDate": "تاريخ الإنهاء المطلوب: {date}",
+    "@requestedEndDate": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "sendRequest": "إرسال الطلب",
+    "requestSent": "تم إرسال طلبك للإدارة",
+    "attachmentsTitle": "صور مرفقة ({count}/{max})",
+    "@attachmentsTitle": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "gallery": "المعرض",
+    "camera": "الكاميرا",
+    "filesCount": "{n, plural, =1{مرفق واحد} =2{مرفقان} few{{n} مرفقات} other{{n} مرفقاً}}",
+    "@filesCount": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "cLate": "تأخر عن الموعد",
+    "cQuality": "جودة الخدمة",
+    "cBehavior": "سلوك",
+    "cPayment": "مشكلة في الدفع",
+    "cOther": "أخرى",
+    "myComplaints": "شكاواي",
+    "noComplaints": "لا توجد شكاوى. يمكنك تقديم شكوى من صفحة الزيارة أو العقد.",
+    "complaint": "الشكوى",
+    "regarding": "بخصوص",
+    "regardingX": "بخصوص: {number}",
+    "@regardingX": {
+        "placeholders": {
+            "number": {
+                "type": "String"
+            }
+        }
+    },
+    "complaintClosed": "الشكوى مغلقة.",
+    "writeReply": "اكتب ردك…",
+    "statusChangedTo": "تغيّرت الحالة إلى \"{status}\"",
+    "@statusChangedTo": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "complaintSent": "تم إرسال الشكوى — سنتواصل معك قريباً",
+    "newComplaint": "شكوى جديدة",
+    "problemType": "نوع المشكلة",
+    "describeProblem": "اشرح المشكلة",
+    "sendComplaint": "إرسال الشكوى",
+    "notifications": "الإشعارات",
+    "readAll": "قراءة الكل",
+    "noNotifications": "لا توجد إشعارات",
+    "notifyOrders": "إشعارات الطلبات والعقود",
+    "notifyComplaints": "إشعارات الشكاوى",
+    "editProfile": "تعديل الملف الشخصي",
+    "phoneLocked": "لتغيير الرقم تواصل مع الوكالة",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "passwordsDontMatch": "كلمتا المرور غير متطابقتين",
+    "passwordChanged": "تم تغيير كلمة المرور",
+    "otherDevicesLoggedOut": "سيتم تسجيل الخروج من الأجهزة الأخرى.",
+    "logout": "تسجيل الخروج",
+    "logoutQ": "هل تريد تسجيل الخروج من هذا الجهاز؟",
+    "logoutShort": "خروج",
+    "scopeNew": "جديدة",
+    "scopeUpcoming": "القادمة",
+    "scopeDone": "المنجزة",
+    "myTeam": "فريقي",
+    "youAreLeader": "أنت قائد الفريق",
+    "memberNote": "عضو — القائد يحدّث الحالة",
+    "noTeam": "لم تُضَف إلى فريق بعد. تواصل مع الإدارة.",
+    "noVisitsHere": "لا توجد زيارات هنا",
+    "awaitingYourAcceptance": "بانتظار قبولك",
+    "myRatings": "تقييماتي",
+    "assignment": "الإسناد",
+    "customerAndLocation": "العميل والموقع",
+    "customer": "العميل",
+    "description": "وصف",
+    "customerNotes": "ملاحظات العميل",
+    "callCustomer": "اتصال بالعميل  {phone}",
+    "@callCustomer": {
+        "placeholders": {
+            "phone": {
+                "type": "String"
+            }
+        }
+    },
+    "amountToCollect": "المبلغ المطلوب تحصيله نقداً عند الإتمام",
+    "leaderOnlyNote": "قائد الفريق هو من يقبل الزيارة ويحدّث حالتها.",
+    "acceptVisit": "قبول الزيارة",
+    "visitAccepted": "تم قبول الزيارة",
+    "reject": "رفض",
+    "rejectAssignment": "رفض الإسناد",
+    "rejectReason": "سبب الرفض",
+    "rejectedBack": "تم الرفض — أُعيدت للإدارة",
+    "completeVisit": "إتمام الزيارة",
+    "completeVisitQ": "هل استلمت {amount} نقداً من العميل؟",
+    "@completeVisitQ": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "yesReceived": "نعم، تم الاستلام",
+    "updatedTo": "تم التحديث: {status}",
+    "@updatedTo": {
+        "placeholders": {
+            "status": {
+                "type": "String"
+            }
+        }
+    },
+    "noAssignedContracts": "لا توجد عقود مسندة إليك حالياً",
+    "currentContract": "عقدي الحالي",
+    "otherContracts": "العقود السابقة والقادمة",
+    "contract": "العقد",
+    "myPeriod": "فترتي",
+    "contactDuringPeriodOnly": "تظهر بيانات التواصل والعنوان خلال فترة عملك فقط.",
+    "averageOf": "متوسط {n} تقييم",
+    "@averageOf": {
+        "placeholders": {
+            "n": {
+                "type": "int"
+            }
+        }
+    },
+    "noRatings": "لا توجد تقييمات بعد"
+}

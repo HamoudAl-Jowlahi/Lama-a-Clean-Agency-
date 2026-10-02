@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'complaints.dart';
@@ -16,7 +17,7 @@ class BookingDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل الزيارة')),
+      appBar: AppBar(title: Text(tr.visitDetails)),
       body: Loader<Map>(
         load: () async => (await Api.I.get('/bookings/$id'))['data'] as Map,
         builder: (context, b, reload) {
@@ -27,44 +28,34 @@ class BookingDetailScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              if (justCreated)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(12)),
-                  child: const Row(children: [
-                    Icon(Icons.check_circle, color: AppColors.success600),
-                    SizedBox(width: 8),
-                    Expanded(child: Text('تم استلام طلبك! سنؤكده ونُسند فريقاً قريباً.', style: TextStyle(color: AppColors.success600))),
-                  ]),
-                ),
+              if (justCreated) SuccessBanner(tr.bookingReceived),
               SectionCard(
                 title: b['number'],
                 trailing: StatusChip(b['status']),
                 children: [
-                  KV('الموعد', '${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}'),
-                  KV('العنوان', addressLine(b['address'])),
-                  KV('الفريق المنفذ', b['team']?['name'] ?? 'لم يُسند بعد'),
-                  if (b['customer_notes'] != null) KV('ملاحظاتك', b['customer_notes']),
-                  if (b['cancel_reason'] != null) KV('سبب الإلغاء', b['cancel_reason']),
+                  KV(tr.appointment, '${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}'),
+                  KV(tr.address, addressLine(b['address'])),
+                  KV(tr.assignedTeam, b['team']?['name'] ?? tr.notAssignedYet),
+                  if (b['customer_notes'] != null) KV(tr.yourNotes, b['customer_notes']),
+                  if (b['cancel_reason'] != null) KV(tr.cancelReason, b['cancel_reason']),
                 ],
               ),
               const SizedBox(height: 12),
-              SectionCard(title: 'الخدمة والمبلغ', children: [
+              SectionCard(title: tr.serviceAndAmount, children: [
                 for (final i in items) KV('${i['service']} — ${i['option']} × ${i['quantity']}', money(i['total'])),
                 const Divider(),
-                KV('الضريبة', money(b['tax'])),
-                KV('الإجمالي', money(b['total']), bold: true),
-                KV('طريقة الدفع', 'نقداً عند الإتمام'),
-                if (payment != null) KV('حالة الدفع', label(payment['status'])),
+                KV(tr.tax, money(b['tax'])),
+                KV(tr.total, money(b['total']), bold: true),
+                KV(tr.paymentMethod, tr.cashOnCompletion),
+                if (payment != null) KV(tr.paymentStatus, label(payment['status'])),
               ]),
               const SizedBox(height: 12),
-              SectionCard(title: 'التتبع', children: [Timeline(b['timeline'] as List? ?? [])]),
+              SectionCard(title: tr.tracking, children: [Timeline(b['timeline'] as List? ?? [])]),
               if (rating != null) ...[
                 const SizedBox(height: 12),
-                SectionCard(title: 'تقييمك', children: [
-                  KV('الخدمة', '★' * (rating['service_score'] as int? ?? 0)),
-                  if (rating['worker_score'] != null) KV('الفريق', '★' * (rating['worker_score'] as int)),
+                SectionCard(title: tr.yourRating, children: [
+                  KV(tr.service, '★' * (rating['service_score'] as int? ?? 0)),
+                  if (rating['worker_score'] != null) KV(tr.team, '★' * (rating['worker_score'] as int)),
                   if (rating['comment'] != null) Text(rating['comment']),
                 ]),
               ],
@@ -72,22 +63,22 @@ class BookingDetailScreen extends StatelessWidget {
               if (b['can_rate'] == true)
                 FilledButton.icon(
                   onPressed: () async {
-                    if (await showRatingSheet(context, path: '/bookings/$id/rating', workerLabel: 'تقييم الفريق')) reload();
+                    if (await showRatingSheet(context, path: '/bookings/$id/rating', workerLabel: tr.rateTeam)) reload();
                   },
                   icon: const Icon(Icons.star_outline),
-                  label: const Text('قيّم الزيارة'),
+                  label: Text(tr.rateVisit),
                 ),
               if (_cancellable.contains(status)) ...[
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {
-                    final reason = await promptText(context, 'إلغاء الزيارة', hint: 'سبب الإلغاء (اختياري)');
+                    final reason = await promptText(context, tr.cancelVisit, hint: tr.cancelReasonOptional);
                     if (reason == null || !context.mounted) return;
-                    if (await run(context, () => Api.I.post('/bookings/$id/cancel', {'reason': reason}), success: 'تم إلغاء الزيارة')) reload();
+                    if (await run(context, () => Api.I.post('/bookings/$id/cancel', {'reason': reason}), success: tr.visitCancelled)) reload();
                   },
                   icon: const Icon(Icons.close),
-                  label: const Text('إلغاء الزيارة'),
+                  label: Text(tr.cancelVisit),
                 ),
               ],
               const SizedBox(height: 10),
@@ -97,11 +88,37 @@ class BookingDetailScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => ComplaintFormScreen(subjectType: 'booking', subjectId: id, subjectNumber: b['number'])),
                 ),
                 icon: const Icon(Icons.report_outlined),
-                label: const Text('لديك مشكلة؟ قدّم شكوى'),
+                label: Text(tr.haveProblem),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class SuccessBanner extends StatelessWidget {
+  const SuccessBanner(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutBack,
+      builder: (_, v, child) => Opacity(opacity: v.clamp(0, 1), child: Transform.scale(scale: .9 + .1 * v, child: child)),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(12)),
+        child: Row(children: [
+          const Icon(Icons.check_circle, color: AppColors.success600),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: const TextStyle(color: AppColors.success600))),
+        ]),
       ),
     );
   }
@@ -119,12 +136,12 @@ Future<bool> showRatingSheet(BuildContext context, {required String path, requir
       builder: (c, set) => Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + MediaQuery.of(c).viewInsets.bottom),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Text('تقييم الخدمة', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(tr.rateService, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
           StarsInput(value: service, onChanged: (v) => set(() => service = v)),
           Text(workerLabel, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700)),
           StarsInput(value: worker, onChanged: (v) => set(() => worker = v)),
           const SizedBox(height: 8),
-          TextField(controller: comment, maxLines: 2, decoration: const InputDecoration(hintText: 'تعليق (اختياري)')),
+          TextField(controller: comment, maxLines: 2, decoration: InputDecoration(hintText: tr.commentOptional)),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () async {
@@ -136,12 +153,12 @@ Future<bool> showRatingSheet(BuildContext context, {required String path, requir
                   }));
               if (ok && c.mounted) Navigator.pop(c, true);
             },
-            child: const Text('إرسال التقييم'),
+            child: Text(tr.sendRating),
           ),
         ]),
       ),
     ),
   );
-  if (sent == true && context.mounted) toast(context, 'شكراً لتقييمك!');
+  if (sent == true && context.mounted) toast(context, tr.thanksRating);
   return sent == true;
 }

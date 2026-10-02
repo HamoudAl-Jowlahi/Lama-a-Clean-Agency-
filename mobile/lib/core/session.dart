@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'api.dart';
+import 'i18n.dart';
 
 /// واجهة التطبيق حسب المستخدم (CR-3): عميل · فريق زيارات · خادمة بعقود.
 enum AppRole { customer, teamMember, housekeeper }
@@ -14,10 +15,14 @@ class Session extends ChangeNotifier {
   static final Session I = Session._();
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'auth_token';
+  static const _langKey = 'lang';
 
   bool ready = false;
   String? bootError;
   Map<String, dynamic>? user;
+
+  /// لغة الواجهة: ar (افتراضي) أو en — تُحفظ في حساب المستخدم وعلى الجهاز.
+  String lang = 'ar';
 
   bool get signedIn => user != null;
 
@@ -38,6 +43,7 @@ class Session extends ChangeNotifier {
   Future<void> restore() async {
     bootError = null;
     try {
+      _applyLang(await _storage.read(key: _langKey) ?? lang);
       Api.I.token = await _storage.read(key: _tokenKey);
       if (Api.I.token != null) await refreshMe();
     } on ApiException catch (e) {
@@ -47,7 +53,7 @@ class Session extends ChangeNotifier {
         bootError = e.message;
       }
     } catch (_) {
-      bootError = 'تعذر فتح الجلسة.';
+      bootError = tr.errSession;
     }
     ready = true;
     notifyListeners();
@@ -56,6 +62,22 @@ class Session extends ChangeNotifier {
   Future<void> refreshMe() async {
     final res = await Api.I.get('/auth/me');
     user = res['data'] as Map<String, dynamic>;
+    final serverLang = user?['locale'] as String?;
+    if (serverLang != null && serverLang != lang) {
+      _applyLang(serverLang);
+      await _storage.write(key: _langKey, value: serverLang);
+    }
+    notifyListeners();
+  }
+
+  Future<void> setLang(String code) async {
+    if (signedIn) {
+      final res = await Api.I.patch('/auth/me', {'locale': code});
+      user = res['data'] as Map<String, dynamic>;
+    }
+    _applyLang(code);
+    await _storage.write(key: _langKey, value: code);
+    if (signedIn) await refreshMe(); // نصوص الحالات من الخادم باللغة الجديدة
     notifyListeners();
   }
 
@@ -67,6 +89,8 @@ class Session extends ChangeNotifier {
   Future<void> register(Map<String, dynamic> data) async {
     final res = await Api.I.post('/auth/register', {...data, 'device_name': 'lamaa-app'});
     await _signedIn(res['data']['token'] as String);
+    // الحساب الجديد يُنشأ بالعربية — نطابق لغة الجهاز
+    if (user?['locale'] != lang) await setLang(lang);
   }
 
   Future<void> logout() async {
@@ -76,6 +100,11 @@ class Session extends ChangeNotifier {
       // الخروج محلياً حتى لو فشل الطلب
     }
     await _clear();
+  }
+
+  void _applyLang(String code) {
+    lang = code == 'en' ? 'en' : 'ar';
+    Api.I.lang = lang;
   }
 
   Future<void> _signedIn(String token) async {

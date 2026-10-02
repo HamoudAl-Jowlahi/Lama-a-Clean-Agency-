@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/i18n.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -76,21 +77,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('الإشعارات'),
+        title: Text(tr.notifications),
         actions: [
           TextButton(
             onPressed: () async {
               if (await run(context, () => Api.I.post('/notifications/read-all'))) setState(() => _key = UniqueKey());
             },
-            child: const Text('قراءة الكل'),
+            child: Text(tr.readAll),
           ),
         ],
       ),
       body: Loader<List>(
         key: _key,
+        skeleton: true,
         load: () async => (await Api.I.get('/notifications'))['data'] as List,
         builder: (context, list, reload) => list.isEmpty
-            ? ListView(children: const [EmptyState('لا توجد إشعارات', icon: Icons.notifications_none)])
+            ? ListView(children: [EmptyState(tr.noNotifications, icon: Icons.notifications_none)])
             : ListView.separated(
                 itemCount: list.length,
                 separatorBuilder: (_, _) => const Divider(height: 1),

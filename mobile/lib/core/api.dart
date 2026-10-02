@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'i18n.dart';
 
 /// عنوان الـ API — يُغيَّر عند البناء:
 /// flutter build apk --dart-define=API_BASE=https://api.example.com/api/v1
@@ -31,10 +34,11 @@ class Api {
     dio = Dio(BaseOptions(
       baseUrl: apiBase,
       connectTimeout: const Duration(seconds: 12),
-      receiveTimeout: const Duration(seconds: 20),
-      headers: {'Accept': 'application/json', 'Accept-Language': 'ar'},
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {'Accept': 'application/json'},
     ));
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+      options.headers['Accept-Language'] = lang;
       if (token != null) options.headers['Authorization'] = 'Bearer $token';
       handler.next(options);
     }));
@@ -44,6 +48,7 @@ class Api {
 
   late final Dio dio;
   String? token;
+  String lang = 'ar';
 
   /// يُستدعى عند 401 (انتهاء الجلسة أو إيقاف الحساب) — تضبطه Session.
   void Function()? onUnauthenticated;
@@ -53,6 +58,19 @@ class Api {
 
   Future<Map<String, dynamic>> post(String path, [Object? data, Map<String, String>? headers]) =>
       _send(() => dio.post(path, data: data, options: Options(headers: headers)));
+
+  /// إرسال مع مرفقات (multipart) — `attachments[]` كما يتوقعها الخادم.
+  Future<Map<String, dynamic>> postWithFiles(String path, Map<String, dynamic> fields, List<XFile> files) async {
+    if (files.isEmpty) return post(path, fields);
+    final form = FormData.fromMap({
+      for (final e in fields.entries)
+        if (e.value != null) e.key: e.value.toString(),
+    });
+    for (final f in files) {
+      form.files.add(MapEntry('attachments[]', MultipartFile.fromBytes(await f.readAsBytes(), filename: f.name)));
+    }
+    return _send(() => dio.post(path, data: form));
+  }
 
   Future<Map<String, dynamic>> patch(String path, Object? data) => _send(() => dio.patch(path, data: data));
 
@@ -84,10 +102,8 @@ class Api {
           errors: body['errors'] is Map ? Map<String, dynamic>.from(body['errors']) : null,
         );
       }
-      if (res == null) {
-        throw ApiException('تعذر الاتصال بالخادم — تحقق من الإنترنت ثم حاول مجدداً.', code: 'NETWORK');
-      }
-      throw ApiException('حدث خطأ غير متوقع (${res.statusCode}).', status: res.statusCode);
+      if (res == null) throw ApiException(tr.errNetwork, code: 'NETWORK');
+      throw ApiException(tr.errUnexpected(res.statusCode ?? 0), status: res.statusCode);
     }
   }
 }
