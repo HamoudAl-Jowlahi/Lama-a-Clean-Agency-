@@ -15,7 +15,7 @@
 | 2. قاعدة البيانات | ✅ [docs/02](docs/02_phase2_database.md) |
 | 3. Backend API وتسجيل الدخول | ✅ [docs/03](docs/03_phase3_api.md) |
 | 4. لوحة الإدارة | ✅ [docs/04](docs/04_phase4_admin.md) — `/admin` |
-| 5. تطبيق Flutter | ⏳ بانتظار توصيل قرص Flutter |
+| 5. تطبيق Flutter | ✅ [mobile/](mobile/README.md) — عميل · فريق زيارات · خادمة |
 | 6. الإشعارات | ✅ [docs/05](docs/05_phase6_notifications.md) |
 | 7. الاختبارات والأمان | — |
 | 8. التوثيق والنشر | — |
@@ -28,3 +28,4 @@
 | `docs/` | التحليل والمعمارية وتوثيق كل مرحلة |
 | `design/` | Design System، شاشات الجوال، نموذج لوحة الإدارة، الشعار — تُفتح في المتصفح مباشرة |
 | `backend/` | Laravel 12 — انظر [backend/README.md](backend/README.md) للتشغيل |
+| `mobile/` | تطبيق Flutter (Android/iOS) — انظر [mobile/README.md](mobile/README.md) |

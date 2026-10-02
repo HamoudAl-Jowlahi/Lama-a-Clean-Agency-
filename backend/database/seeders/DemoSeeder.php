@@ -33,9 +33,16 @@ use Illuminate\Support\Carbon;
 /**
  * بيانات تجريبية للتطوير فقط (نفس سيناريوهات التصاميم في design/).
  * لا يعمل خارج local/testing.
+ *
+ * حسابات التطبيق التجريبية — كلمة المرور لكلها من UserFactory:
+ *   العملاء       050000000X  (1 سارة · 2 نورة · 3 خالد · 4 ريم · 5 منى · 6 عبدالله)
+ *   الخادمات      051000000X  (1 فاطمة · 2 مريم · 3 عائشة · 4 خديجة · 5 زينب/إجازة · 6 حليمة/غير نشطة)
+ *   فرق الزيارات  052000000X  (1 هدى قائدة فريق أ · 2 سلمى · 3 رحاب · 4 منيرة قائدة فريق ب · 5 جميلة · 6 أمل)
  */
 class DemoSeeder extends Seeder
 {
+    /** @var array<string, int> عداد أرقام الجوال لكل بادئة */
+    private array $phoneCounters = [];
     private AdminUser $ops;
 
     private AdminUser $support;
@@ -321,17 +328,28 @@ class DemoSeeder extends Seeder
 
     private function worker(string $name, WorkerStatus $status = WorkerStatus::Active, WorkerType $type = WorkerType::Housekeeper): Worker
     {
+        $phone = $this->nextPhone($type === WorkerType::Cleaner ? '052' : '051');
+
         return Worker::factory()
-            ->for(User::factory()->worker()->state(['name' => $name]))
+            ->for(User::factory()->worker()->state(['name' => $name, 'phone' => $phone]))
             ->create(['status' => $status, 'type' => $type]);
     }
 
     private function customer(string $name, string $district): Customer
     {
-        $customer = Customer::factory()->for(User::factory()->customer()->state(['name' => $name]))->create();
+        $user = User::factory()->customer()->state(['name' => $name, 'phone' => $this->nextPhone('050')]);
+        $customer = Customer::factory()->for($user)->create();
         $address = Address::factory()->for($customer)->create(['label' => 'المنزل', 'district' => $district]);
         $customer->update(['default_address_id' => $address->id]);
 
         return $customer;
+    }
+
+    /** 0500000001، 0500000002 ... حسب البادئة. */
+    private function nextPhone(string $prefix): string
+    {
+        $this->phoneCounters[$prefix] = ($this->phoneCounters[$prefix] ?? 0) + 1;
+
+        return $prefix.str_pad((string) $this->phoneCounters[$prefix], 7, '0', STR_PAD_LEFT);
     }
 }
