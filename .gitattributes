@@ -1,0 +1,3 @@
+# سكربتات الحاوية تُشغَّل على Linux — يجب أن تبقى بنهايات LF
+*.sh text eol=lf
+Dockerfile text eol=lf
