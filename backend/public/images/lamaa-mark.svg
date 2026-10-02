@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="لمعة">
-  <!-- رمز لمعة: بيت + نجمة لمعان. نسخة Vector تقريبية من الشعار المعتمد (للواجهات فقط) -->
-  <g fill="none" stroke="#1A499F" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M31 11.5 L10.5 28 V52 H44 V41"/>
-  </g>
-  <path fill="#1A499F" d="M45 3 C46.6 17.5 49.2 22.4 62 24 C49.2 25.6 46.6 30.5 45 45 C43.4 30.5 40.8 25.6 32 24 C40.8 22.4 43.4 17.5 45 3 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 102 102" role="img" aria-label="لمعة">
+  <!-- رمز لمعة — مقاس من الشعار المعتمد (لمعه.png)، نفس رسم التطبيق (mobile/lib/core/brand.dart) -->
   <g fill="#1A499F">
-    <rect x="19" y="35" width="5" height="5" rx=".8"/>
-    <rect x="25.5" y="35" width="5" height="5" rx=".8"/>
-    <rect x="19" y="41.5" width="5" height="5" rx=".8"/>
-    <rect x="25.5" y="41.5" width="5" height="5" rx=".8"/>
+    <line x1="43.55" y1="20.14" x2="7.09" y2="46.24" stroke="#1A499F" stroke-width="14.18" stroke-linecap="round"/>
+    <path d="M0 46.24H14.18V97.79Q14.18 99.29 12.68 99.29H5Q0 99.29 0 94.29Z"/>
+    <path d="M75.89 62.5C75.89 57.6 82.6 54.61 90.07 54.61V94Q90.07 99.29 84.8 99.29H77Q75.89 99.29 75.89 98.2Z"/>
+    <path d="M63.4 0Q63.4 41.84 100 41.84Q63.4 41.84 63.4 81.56Q63.4 41.84 33.33 41.84Q63.4 41.84 63.4 0Z"/>
+    <rect x="28.79" y="70.92" width="7.1" height="7.09" rx=".8"/>
+    <rect x="39.72" y="70.92" width="7.09" height="7.09" rx=".8"/>
+    <rect x="28.79" y="81.99" width="7.1" height="7.09" rx=".8"/>
+    <rect x="39.72" y="81.99" width="7.09" height="7.09" rx=".8"/>
   </g>
 </svg>
