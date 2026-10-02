@@ -1,5 +1,5 @@
 # لمعة — الـ Backend ولوحة الإدارة في حاوية واحدة (PHP 8.3 + Apache)
-# يعمل على Render / Koyeb / أي خادم Docker. التوثيق: docs/06_deployment_free.md
+# يعمل على Render / Koyeb / أي خادم Docker.
 FROM php:8.3-apache
 
 # امتدادات PHP: MySQL و PostgreSQL (Neon) و intl (Filament) وغيرها

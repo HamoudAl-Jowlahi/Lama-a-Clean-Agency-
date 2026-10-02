@@ -12,3 +12,7 @@ desktop.ini
 .env
 .env.*
 !.env.example
+
+# خطط النشر والمهام الخاصة بالمالك — تبقى على الجهاز فقط (لا تُرفع إلى GitHub)
+docs/06_deployment_free.md
+docs/07_action_plan.md

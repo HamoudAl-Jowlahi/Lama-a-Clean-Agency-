@@ -1,5 +1,4 @@
 # Render Blueprint — لمعة (الـ API + لوحة الإدارة في خدمة واحدة)
-# الخطوات الكاملة: docs/06_deployment_free.md
 services:
   - type: web
     name: lamaa-api
