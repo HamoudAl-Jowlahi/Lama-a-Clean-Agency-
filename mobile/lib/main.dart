@@ -5,6 +5,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'core/brand.dart';
 import 'core/i18n.dart';
 import 'core/motion.dart';
+import 'core/nav.dart';
+import 'core/push.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'features/auth/login_screen.dart';
@@ -12,12 +14,11 @@ import 'features/customer/customer_shell.dart';
 import 'features/worker/housekeeper_shell.dart';
 import 'features/worker/team_shell.dart';
 
-/// يُستبدل عند تغيير اللغة أو المظهر — حتى لا يحتفظ Flutter بالشاشات القديمة بألوانها ونصوصها السابقة.
-var navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
+  await Push.I.init();
   Session.I.restore();
   runApp(const LamaaApp());
 }
@@ -76,7 +77,10 @@ class _LamaaAppState extends State<LamaaApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final config = '$_lang-${_effective.name}';
-    if (_builtFor != null && _builtFor != config) navigatorKey = GlobalKey<NavigatorState>();
+    if (_builtFor != null && _builtFor != config) {
+      navigatorKey = GlobalKey<NavigatorState>();
+      messengerKey = GlobalKey<ScaffoldMessengerState>();
+    }
     _builtFor = config;
     return MaterialApp(
       // مفتاح اللغة والوضع: تغييرهما يعيد بناء التطبيق كاملاً بالنصوص والاتجاه والألوان الجديدة
@@ -84,6 +88,7 @@ class _LamaaAppState extends State<LamaaApp> with WidgetsBindingObserver {
       onGenerateTitle: (_) => tr.appName,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      scaffoldMessengerKey: messengerKey,
       theme: buildTheme(_effective),
       locale: Locale(_lang),
       supportedLocales: AppLocalizations.supportedLocales,

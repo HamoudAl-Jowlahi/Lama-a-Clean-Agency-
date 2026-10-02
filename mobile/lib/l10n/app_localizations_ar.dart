@@ -716,6 +716,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logoutQ => 'هل تريد تسجيل الخروج من هذا الجهاز؟';
 
   @override
+  String get view => 'عرض';
+
+  @override
   String get logoutShort => 'خروج';
 
   @override

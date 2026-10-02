@@ -1364,6 +1364,12 @@ abstract class AppLocalizations {
   /// **'هل تريد تسجيل الخروج من هذا الجهاز؟'**
   String get logoutQ;
 
+  /// No description provided for @view.
+  ///
+  /// In ar, this message translates to:
+  /// **'عرض'**
+  String get view;
+
   /// No description provided for @logoutShort.
   ///
   /// In ar, this message translates to:

@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'api.dart';
 import 'i18n.dart';
+import 'push.dart';
 
 /// واجهة التطبيق حسب المستخدم (CR-3): عميل · فريق زيارات · خادمة بعقود.
 enum AppRole { customer, teamMember, housekeeper }
@@ -50,7 +51,10 @@ class Session extends ChangeNotifier {
       _applyLang(await _storage.read(key: _langKey) ?? lang);
       theme = await _storage.read(key: _themeKey) ?? theme;
       Api.I.token = await _storage.read(key: _tokenKey);
-      if (Api.I.token != null) await refreshMe();
+      if (Api.I.token != null) {
+        await refreshMe();
+        Push.I.onSignedIn();
+      }
     } on ApiException catch (e) {
       if (e.status == 401 || e.status == 403) {
         await _clear(notify: false);
@@ -105,6 +109,7 @@ class Session extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await Push.I.onSigningOut();
     try {
       await Api.I.post('/auth/logout');
     } catch (_) {
@@ -122,6 +127,7 @@ class Session extends ChangeNotifier {
     Api.I.token = token;
     await _storage.write(key: _tokenKey, value: token);
     await refreshMe();
+    Push.I.onSignedIn();
   }
 
   Future<void> _clear({bool notify = true}) async {

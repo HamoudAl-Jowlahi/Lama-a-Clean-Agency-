@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# إعداد Firebase للتطبيق — يبقى على الجهاز (فيه مفتاح المشروع)
+google-services.json
+GoogleService-Info.plist

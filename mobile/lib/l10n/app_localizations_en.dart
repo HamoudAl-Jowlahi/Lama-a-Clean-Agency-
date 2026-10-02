@@ -716,6 +716,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutQ => 'Sign out of this device?';
 
   @override
+  String get view => 'View';
+
+  @override
   String get logoutShort => 'Sign out';
 
   @override

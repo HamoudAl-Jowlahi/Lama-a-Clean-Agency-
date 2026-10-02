@@ -12,6 +12,22 @@ import '../customer/contract_detail.dart';
 import '../worker/housekeeper_shell.dart';
 import '../worker/worker_booking_detail.dart';
 
+/// يفتح الشاشة المرتبطة بالإشعار حسب دور المستخدم.
+Widget? subjectScreen(Map? subject) {
+  if (subject == null) return null;
+  final id = subject['id'] as int?;
+  if (id == null) return null;
+  final role = Session.I.role;
+  return switch ((subject['type'], role)) {
+    ('booking', AppRole.customer) => BookingDetailScreen(id: id),
+    ('booking', AppRole.teamMember) => WorkerBookingDetailScreen(id: id),
+    ('contract', AppRole.customer) => ContractDetailScreen(id: id),
+    ('contract', AppRole.housekeeper) => HousekeeperContractScreen(id: id),
+    ('complaint', AppRole.customer) => ComplaintDetailScreen(id: id),
+    _ => null,
+  };
+}
+
 /// جرس الإشعارات مع عدد غير المقروء.
 class NotificationsButton extends StatefulWidget {
   const NotificationsButton({super.key});
@@ -58,22 +74,6 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   Key _key = UniqueKey();
 
-  /// يفتح الشاشة المرتبطة بالإشعار حسب دور المستخدم.
-  Widget? _target(Map? subject) {
-    if (subject == null) return null;
-    final id = subject['id'] as int?;
-    if (id == null) return null;
-    final role = Session.I.role;
-    return switch ((subject['type'], role)) {
-      ('booking', AppRole.customer) => BookingDetailScreen(id: id),
-      ('booking', AppRole.teamMember) => WorkerBookingDetailScreen(id: id),
-      ('contract', AppRole.customer) => ContractDetailScreen(id: id),
-      ('contract', AppRole.housekeeper) => HousekeeperContractScreen(id: id),
-      ('complaint', AppRole.customer) => ComplaintDetailScreen(id: id),
-      _ => null,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +112,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           await Api.I.post('/notifications/${n['id']}/read');
                         } catch (_) {}
                       }
-                      final page = _target(n['subject'] as Map?);
+                      final page = subjectScreen(n['subject'] as Map?);
                       if (page != null && context.mounted) await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
                       reload();
                     },
