@@ -14,7 +14,7 @@ fi
 
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
+php artisan view:cache || true  # لا يوقف التشغيل إذا لم توجد قوالب
 php artisan filament:optimize || true
 
 # الترحيلات في كل تشغيل (آمنة — تطبّق الجديد فقط)
