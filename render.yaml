@@ -25,19 +25,19 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: DB_CONNECTION
-        value: mysql         # Aiven MySQL — أو pgsql مع Neon
+        value: pgsql         # Neon PostgreSQL
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        sync: false
+        value: "5432"
       - key: DB_DATABASE
         sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
         sync: false
-      - key: DB_SSL_CA_BASE64
-        sync: false          # Aiven: ملف ca.pem بـ Base64 (لا يلزم مع Neon)
+      - key: DB_SSLMODE
+        value: require       # Neon يشترط اتصالاً مشفّراً
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
