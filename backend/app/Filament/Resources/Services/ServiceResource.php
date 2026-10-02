@@ -66,10 +66,11 @@ class ServiceResource extends Resource
                 Toggle::make('is_active')->label('مفعّلة في التطبيق')->default(true)->inline(false),
             ]),
             Section::make('الأسعار')->columnSpanFull()->schema([
-                Repeater::make('prices')->relationship()->hiddenLabel()->columns(4)->defaultItems(1)
+                Repeater::make('prices')->relationship()->hiddenLabel()->columns(5)->defaultItems(1)
                     ->addActionLabel('إضافة سعر')
                     ->schema([
-                        TextInput::make('label_ar')->label('الخيار')->required()->maxLength(120)->placeholder('شقة حتى 3 غرف'),
+                        TextInput::make('label_ar')->label('الخيار (عربي)')->required()->maxLength(120)->placeholder('شقة حتى 3 غرف'),
+                        TextInput::make('label_en')->label('الخيار (إنجليزي)')->maxLength(120)->placeholder('Apartment up to 3 rooms'),
                         Select::make('unit')->label('الوحدة')->options(PriceUnit::class)->required()->native(false)
                             ->default(PriceUnit::Fixed->value),
                         TextInput::make('amount')->label('السعر')->numeric()->required()->minValue(0),

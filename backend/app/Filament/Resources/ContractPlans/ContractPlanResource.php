@@ -58,7 +58,8 @@ class ContractPlanResource extends Resource
                 TextInput::make('min_months')->label('أقل مدة (شهر)')->numeric()->required()->minValue(1)->maxValue(24)->default(1),
                 TextInput::make('max_months')->label('أقصى مدة (شهر)')->numeric()->required()->minValue(1)->maxValue(24)->default(12)
                     ->gte('min_months'),
-                Textarea::make('description_ar')->label('الوصف')->rows(2)->columnSpan(2),
+                Textarea::make('description_ar')->label('الوصف (عربي)')->rows(2)->columnSpan(2),
+                Textarea::make('description_en')->label('الوصف (إنجليزي)')->rows(2)->columnSpan(2),
                 Toggle::make('is_active')->label('مفعّلة في التطبيق')->default(true)->inline(false),
             ]),
         ]);

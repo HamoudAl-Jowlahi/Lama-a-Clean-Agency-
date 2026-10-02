@@ -25,7 +25,7 @@ class ContractResource extends JsonResource
             'number' => $this->contract_number,
             'status' => $this->enum($this->status),
             'plan' => [
-                'name' => $this->plan_snapshot['name_ar'] ?? null,
+                'name' => $this->localizedSnapshot($this->plan_snapshot, 'name'),
                 'work_days_per_week' => $this->plan_snapshot['work_days_per_week'] ?? null,
                 'hours_per_day' => $this->plan_snapshot['hours_per_day'] ?? null,
             ],

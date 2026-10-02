@@ -43,7 +43,7 @@ class WorkerContractResource extends JsonResource
             'status' => $this->enum($this->status),
             'is_current' => $current,
             'plan' => [
-                'name' => $this->plan_snapshot['name_ar'] ?? null,
+                'name' => $this->localizedSnapshot($this->plan_snapshot, 'name'),
                 'work_days_per_week' => $this->plan_snapshot['work_days_per_week'] ?? null,
                 'hours_per_day' => $this->plan_snapshot['hours_per_day'] ?? null,
             ],

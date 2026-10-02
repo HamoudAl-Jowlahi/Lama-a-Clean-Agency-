@@ -41,9 +41,7 @@ class WorkerBookingResource extends JsonResource
             'assignment_status' => $this->enum($assignment?->status),
             'scheduled_date' => $this->date($this->scheduled_date),
             'scheduled_time' => $this->time($this->scheduled_time),
-            'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($i) => [
-                'service' => $i->service_name_snapshot,
-                'option' => $i->price_label_snapshot,
+            'items' => $this->whenLoaded('items', fn () => $this->items->map(fn ($i) => $this->itemNames($i) + [
                 'quantity' => $i->quantity,
             ])),
             'address' => $this->address_snapshot,

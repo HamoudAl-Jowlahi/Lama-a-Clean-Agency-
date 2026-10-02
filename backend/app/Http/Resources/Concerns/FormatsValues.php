@@ -41,6 +41,25 @@ trait FormatsValues
         return app()->getLocale() === 'en' && $en ? $en : $this->resource->{$field.'_ar'};
     }
 
+    /** قيمة من لقطة محفوظة (مثل plan_snapshot) حسب لغة الطلب، مع الرجوع للعربية. */
+    protected function localizedSnapshot(?array $snapshot, string $field): ?string
+    {
+        $en = $snapshot[$field.'_en'] ?? null;
+
+        return app()->getLocale() === 'en' && $en ? $en : ($snapshot[$field.'_ar'] ?? null);
+    }
+
+    /** اسم الخدمة والخيار في عنصر الطلب حسب اللغة. */
+    protected function itemNames($item): array
+    {
+        $en = app()->getLocale() === 'en';
+
+        return [
+            'service' => ($en ? $item->service_name_en_snapshot : null) ?: $item->service_name_snapshot,
+            'option' => ($en ? $item->price_label_en_snapshot : null) ?: $item->price_label_snapshot,
+        ];
+    }
+
     /**
      * السجل الزمني للحالة (شاشة التتبع).
      *
