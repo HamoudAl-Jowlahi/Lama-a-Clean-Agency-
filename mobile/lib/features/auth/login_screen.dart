@@ -44,22 +44,23 @@ class _LoginScreenState extends State<LoginScreen> {
       body: ListView(
         padding: EdgeInsets.zero,
         children: [
+          // الارتفاع حسب المحتوى (لا ارتفاع ثابت) — والمسافة السفلية أكبر من تداخل البطاقة (36)
+          // حتى لا تغطي البطاقة اسم التطبيق ووصفه على الشاشات الصغيرة أو مع تكبير الخط
           Container(
-            height: 300,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: AppColors.brandGradient,
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(36)),
             ),
             child: Stack(children: [
-              Positioned.fill(child: SparkleField(count: 12, maxSize: 26)),
-              SafeArea(
+              const Positioned.fill(child: SparkleField(count: 12, maxSize: 26)),
+              const SafeArea(
+                bottom: false,
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(children: [
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 64),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Align(alignment: AlignmentDirectional.centerEnd, child: LanguageSwitch(onBrand: true)),
-                    Spacer(),
+                    SizedBox(height: 12),
                     _Brand(),
-                    Spacer(flex: 2),
                   ]),
                 ),
               ),
