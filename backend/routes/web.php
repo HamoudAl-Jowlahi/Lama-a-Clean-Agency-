@@ -2,6 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// لا توجد واجهة ويب عامة: التطبيق يستخدم /api/v1، والإدارة على /admin
+Route::redirect('/', '/admin');
