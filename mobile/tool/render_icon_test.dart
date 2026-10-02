@@ -18,11 +18,13 @@ Future<void> _save(String path, ui.Image image) async {
 void main() {
   test('render brand assets', () async {
     // أيقونة كاملة (iOS + Android القديم): خلفية زرقاء ورمز أبيض
-    await _save('assets/brand/icon.png', await LamaaMarkPainter.render(size: 1024, mark: Colors.white, background: AppColors.blue700, padding: 190));
+    await _save('assets/brand/icon.png', await LamaaMarkPainter.render(size: 1024, mark: Colors.white, background: AppColors.brand, padding: 150));
     // أيقونة Android التكيفية: الرمز داخل المنطقة الآمنة (66%)
-    await _save('assets/brand/icon_foreground.png', await LamaaMarkPainter.render(size: 1024, mark: Colors.white, padding: 300));
+    await _save('assets/brand/icon_foreground.png', await LamaaMarkPainter.render(size: 1024, mark: Colors.white, padding: 250));
     // شاشة البداية
     await _save('assets/brand/splash.png', await LamaaMarkPainter.render(size: 480, mark: Colors.white, padding: 60));
-    await _save('assets/brand/splash_android12.png', await LamaaMarkPainter.render(size: 1152, mark: Colors.white, padding: 400));
+    // معاينة للمقارنة مع لمعه.png (لا تُستخدم في التطبيق)
+    await _save('build/mark_preview.png', await LamaaMarkPainter.render(size: 840, mark: AppColors.brand, background: Colors.white, padding: 60));
+    await _save('assets/brand/splash_android12.png', await LamaaMarkPainter.render(size: 1152, mark: Colors.white, padding: 380));
   });
 }

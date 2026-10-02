@@ -165,12 +165,12 @@ class _SparklePainter extends CustomPainter {
       final p = (t + s.phase) % 1;
       final twinkle = math.sin(p * math.pi); // 0 → 1 → 0
       final dy = -10 * p;
-      final scale = (maxSize / 42) * s.s * (.6 + .4 * twinkle);
+      final scale = (maxSize / 81) * s.s * (.6 + .4 * twinkle); // ارتفاع النجمة في الشعار ≈ 81
       canvas.save();
       canvas.translate(s.x * size.width, s.y * size.height + dy);
       canvas.rotate(p * math.pi / 2);
       canvas.scale(scale);
-      canvas.translate(-45, -24); // مركز النجمة في viewBox الشعار
+      canvas.translate(-LamaaMarkPainter.sparkleCenter.dx, -LamaaMarkPainter.sparkleCenter.dy);
       canvas.drawPath(star, Paint()..color = color.withValues(alpha: .08 + .32 * twinkle));
       canvas.restore();
     }

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import 'theme.dart';
 
-/// رمز لمعة (بيت + نجمة لمعان) مرسوم بالكود من design/assets/brand/lamaa-mark.svg
-/// (viewBox 64×64) — يُستخدم في الشعار واللودر وتوليد أيقونة التطبيق.
+/// رمز لمعة (بيت + نجمة لمعان) مرسوم بالكود ومقاس من الشعار المعتمد (لمعه.png — النسخة الثالثة
+/// "الرمز وحده")، في مربع 100×100 — يُستخدم في الشعار واللودر وتوليد أيقونة التطبيق وشاشة البداية.
 class LamaaMarkPainter extends CustomPainter {
   LamaaMarkPainter({
     this.color = AppColors.brand,
@@ -20,78 +20,125 @@ class LamaaMarkPainter extends CustomPainter {
 
   final Color color;
 
-  /// نسبة رسم خط البيت (0..1) — للأنيميشن.
+  /// نسبة رسم البيت (0..1) — للأنيميشن. 1 = الشعار كما هو.
   final double house;
 
   /// رسم البيت باهتاً تحت الجزء المتحرك.
   final bool houseTrack;
   final double sparkleScale;
 
-  /// دوران النجمة بالدورات (0.25 = ربع دورة — النجمة متماثلة فتبدو متصلة).
+  /// دوران النجمة بالدورات حول مركزها.
   final double sparkleTurn;
+
+  /// ظهور النوافذ والجدار الأيمن (0..1).
   final double windows;
   final double opacity;
 
-  static Path housePath() => Path()
-    ..moveTo(31, 11.5)
-    ..lineTo(10.5, 28)
-    ..lineTo(10.5, 52)
-    ..lineTo(44, 52)
-    ..lineTo(44, 41);
+  // ---- المقاسات (من الشعار) ----
+  static const _stroke = 14.18; // سماكة خط البيت
+  static const _roofEnd = Offset(43.55, 20.14); // طرف السقف المستدير
+  static const _corner = Offset(7.09, 46.24); // زاوية السقف مع الجدار الأيسر
+  static const _bottom = 99.29;
+  static const sparkleCenter = Offset(63.4, 41.84);
+  static const _windows = [
+    Rect.fromLTRB(28.79, 70.92, 35.89, 78.01),
+    Rect.fromLTRB(39.72, 70.92, 46.81, 78.01),
+    Rect.fromLTRB(28.79, 81.99, 35.89, 89.08),
+    Rect.fromLTRB(39.72, 81.99, 46.81, 89.08),
+  ];
 
-  static Path sparklePath() => Path()
-    ..moveTo(45, 3)
-    ..cubicTo(46.6, 17.5, 49.2, 22.4, 62, 24)
-    ..cubicTo(49.2, 25.6, 46.6, 30.5, 45, 45)
-    ..cubicTo(43.4, 30.5, 40.8, 25.6, 32, 24)
-    ..cubicTo(40.8, 22.4, 43.4, 17.5, 45, 3)
+  /// السقف + الجدار الأيسر كخط واحد (لأنيميشن الرسم).
+  static Path houseLine() => Path()
+    ..moveTo(_roofEnd.dx, _roofEnd.dy)
+    ..lineTo(_corner.dx, _corner.dy)
+    ..lineTo(_corner.dx, _bottom);
+
+  /// الجدار الأيمن: قمته منحنية نحو النجمة، وزاويته السفلية مستديرة.
+  static Path rightWall() => Path()
+    ..moveTo(75.89, 62.5)
+    ..cubicTo(75.89, 57.6, 82.6, 54.61, 90.07, 54.61)
+    ..lineTo(90.07, 94.0)
+    ..quadraticBezierTo(90.07, _bottom, 84.8, _bottom)
+    ..lineTo(77.0, _bottom)
+    ..quadraticBezierTo(75.89, _bottom, 75.89, 98.2)
     ..close();
+
+  /// نجمة اللمعان: أربعة أذرع غير متساوية (أعلى 41.8 · يمين 36.6 · أسفل 39.7 · يسار 30.1).
+  /// كل جانب منحنى تربيعي نقطة تحكمه في المركز — نفس تقعّر النجمة في الشعار.
+  static Path sparklePath() {
+    const c = sparkleCenter;
+    const t = 41.84, r = 36.6, b = 39.72, l = 30.07;
+    return Path()
+      ..moveTo(c.dx, c.dy - t)
+      ..quadraticBezierTo(c.dx, c.dy, c.dx + r, c.dy)
+      ..quadraticBezierTo(c.dx, c.dy, c.dx, c.dy + b)
+      ..quadraticBezierTo(c.dx, c.dy, c.dx - l, c.dy)
+      ..quadraticBezierTo(c.dx, c.dy, c.dx, c.dy - t)
+      ..close();
+  }
+
+  /// البيت كاملاً كما في الشعار (السقف بطرفين مستديرين + الجدار الأيسر بزاوية سفلية مستديرة + الجدار الأيمن).
+  static void _drawHouse(Canvas canvas, Paint fill, {bool rightWall = true}) {
+    canvas.drawLine(
+      _roofEnd,
+      _corner,
+      Paint()
+        ..color = fill.color
+        ..strokeWidth = _stroke
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawRRect(
+      RRect.fromLTRBAndCorners(_corner.dx - _stroke / 2, _corner.dy, _corner.dx + _stroke / 2, _bottom,
+          bottomLeft: const Radius.circular(5), bottomRight: const Radius.circular(1.5)),
+      fill,
+    );
+    if (rightWall) canvas.drawPath(LamaaMarkPainter.rightWall(), fill);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final s = size.shortestSide / 64;
+    final s = size.shortestSide / 100;
     canvas.save();
-    canvas.translate((size.width - 64 * s) / 2, (size.height - 64 * s) / 2);
+    canvas.translate((size.width - 100 * s) / 2, (size.height - 100 * s) / 2);
     canvas.scale(s);
 
     final c = color.withValues(alpha: color.a * opacity);
-    final stroke = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 7.5
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+    final fill = Paint()..color = c;
 
-    final housePath = LamaaMarkPainter.housePath();
-    if (houseTrack) canvas.drawPath(housePath, stroke..color = c.withValues(alpha: c.a * .18));
-    stroke.color = c;
+    if (houseTrack) _drawHouse(canvas, Paint()..color = c.withValues(alpha: c.a * .16));
+
     if (house >= 1) {
-      canvas.drawPath(housePath, stroke);
+      _drawHouse(canvas, fill, rightWall: false);
     } else if (house > 0) {
-      final metrics = housePath.computeMetrics().toList();
-      final total = metrics.fold<double>(0, (a, m) => a + m.length);
-      var remain = total * house;
-      for (final m in metrics) {
-        if (remain <= 0) break;
-        canvas.drawPath(m.extractPath(0, math.min(remain, m.length)), stroke);
-        remain -= m.length;
+      // الرسم التدريجي: من طرف السقف إلى أسفل الجدار
+      final stroke = Paint()
+        ..color = c
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = _stroke
+        ..strokeJoin = StrokeJoin.round;
+      canvas.drawCircle(_roofEnd, _stroke / 2, fill);
+      final m = houseLine().computeMetrics().first;
+      canvas.drawPath(m.extractPath(0, m.length * house), stroke);
+    }
+
+    // الجدار الأيمن والنوافذ يظهران مع `windows` (في الشعار الثابت = 1)
+    final w = house >= 1 && windows >= 1 ? 1.0 : windows;
+    if (w > 0) {
+      final p = Paint()..color = c.withValues(alpha: c.a * w);
+      canvas.drawPath(rightWall(), p);
+      for (final r in _windows) {
+        canvas.drawRRect(RRect.fromRectAndRadius(r, const Radius.circular(.8)), p);
       }
     }
 
-    final fill = Paint()..color = c;
     canvas.save();
-    canvas.translate(45, 24);
+    canvas.translate(sparkleCenter.dx, sparkleCenter.dy);
     canvas.rotate(sparkleTurn * 2 * math.pi);
     canvas.scale(sparkleScale);
-    canvas.translate(-45, -24);
-    canvas.drawPath(LamaaMarkPainter.sparklePath(), fill);
+    canvas.translate(-sparkleCenter.dx, -sparkleCenter.dy);
+    canvas.drawPath(sparklePath(), fill);
     canvas.restore();
 
-    if (windows > 0) {
-      final w = Paint()..color = c.withValues(alpha: c.a * windows);
-      for (final o in const [Offset(19, 35), Offset(25.5, 35), Offset(19, 41.5), Offset(25.5, 41.5)]) {
-        canvas.drawRRect(RRect.fromRectAndRadius(o & const Size(5, 5), const Radius.circular(.8)), w);
-      }
-    }
     canvas.restore();
   }
 
@@ -127,7 +174,7 @@ class LamaaMark extends StatelessWidget {
       CustomPaint(size: Size.square(size), painter: LamaaMarkPainter(color: color ?? AppColors.blue700));
 }
 
-/// اللودر: البيت يُرسم والنجمة تلمع وتدور ربع دورة — حلقة متصلة.
+/// اللودر: البيت يُرسم والنجمة تلمع وتتمايل — حلقة متصلة.
 class LamaaLoader extends StatefulWidget {
   const LamaaLoader({super.key, this.size = 56, this.color, this.label});
 
@@ -165,7 +212,7 @@ class _LamaaLoaderState extends State<LamaaLoader> with SingleTickerProviderStat
             house: draw * fade,
             houseTrack: true,
             sparkleScale: .72 + .34 * pulse,
-            sparkleTurn: Curves.easeInOutBack.transform(t) * .25,
+            sparkleTurn: .025 * math.sin(t * 2 * math.pi), // تمايل خفيف — أذرع النجمة غير متساوية
             windows: ((t - .45) / .2).clamp(0, 1) * fade,
           ),
         );
