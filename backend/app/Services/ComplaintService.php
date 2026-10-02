@@ -141,7 +141,7 @@ class ComplaintService
         foreach ($files as $file) {
             $complaint->attachments()->create([
                 'complaint_message_id' => $message->id,
-                'path' => $file->store("complaints/{$complaint->id}", 'local'),
+                'path' => $file->store("complaints/{$complaint->id}", config('agency.attachments.disk')),
                 'mime' => $file->getMimeType(),
                 'size' => $file->getSize(),
             ]);

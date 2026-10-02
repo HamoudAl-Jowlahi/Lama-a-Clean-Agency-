@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'addresses.dart';
@@ -22,26 +23,26 @@ class ContractPlansScreen extends StatelessWidget {
           final plans = res['data'] as List;
           final meta = res['meta'] as Map? ?? {};
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             children: [
-              Text(tr.hireIntro, style: const TextStyle(color: AppColors.gray500)),
-              const SizedBox(height: 12),
+              Text(tr.hireIntro, style: TextStyle(color: AppColors.gray500)),
+              SizedBox(height: 12),
               if (plans.isEmpty) EmptyState(tr.noPlans),
               for (final p in plans) ...[
-                Card(
+                Appear(index: plans.indexOf(p), child: Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ContractRequestScreen(plan: p, meta: meta))),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
-                          Expanded(child: Text(p['name'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17))),
-                          Text(tr.perMonth(money(p['monthly_price'])), style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
+                          Expanded(child: Text(p['name'] ?? '', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17))),
+                          Text(tr.perMonth(money(p['monthly_price'])), style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
                         ]),
                         if (p['description'] != null) ...[
-                          const SizedBox(height: 4),
-                          Text(p['description'], style: const TextStyle(color: AppColors.gray500)),
+                          SizedBox(height: 4),
+                          Text(p['description'], style: TextStyle(color: AppColors.gray500)),
                         ],
                         const SizedBox(height: 10),
                         Wrap(spacing: 8, children: [
@@ -51,7 +52,7 @@ class ContractPlansScreen extends StatelessWidget {
                       ]),
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 10),
               ],
             ],
@@ -170,11 +171,11 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
                   _requote();
                 }
               },
-              icon: const Icon(Icons.event),
+              icon: Icon(Icons.event),
               label: Text(tr.startDate(dayLabel(ymd(_start)))),
             ),
           ]),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           AddressPicker(
             title: tr.workAddress,
             addresses: _addresses,
@@ -182,11 +183,11 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
             onSelected: (v) => setState(() => _addressId = v),
             onCreated: (id) => _loadAddresses(select: id),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SectionCard(title: tr.notesOptional, children: [
             TextField(controller: _notes, maxLines: 2, decoration: InputDecoration(hintText: tr.contractNotesHint)),
           ]),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SectionCard(title: tr.summary, children: [
             if (_quote != null) ...[
               KV(tr.from, dayLabel(_quote!['start_date'])),
@@ -203,12 +204,12 @@ class _ContractRequestScreenState extends State<ContractRequestScreen> {
               title: Text(tr.acceptTerms('${widget.meta['terms_version'] ?? ''}')),
             ),
           ]),
-          const SizedBox(height: 90),
+          SizedBox(height: 90),
         ],
       ),
       bottomSheet: SafeArea(
         child: Container(
-          color: Colors.white,
+          color: AppColors.surface,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: BusyButton(
             label: tr.sendContractRequest,

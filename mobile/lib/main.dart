@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'core/brand.dart';
 import 'core/i18n.dart';
+import 'core/motion.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'features/auth/login_screen.dart';
@@ -11,7 +12,8 @@ import 'features/customer/customer_shell.dart';
 import 'features/worker/housekeeper_shell.dart';
 import 'features/worker/team_shell.dart';
 
-final navigatorKey = GlobalKey<NavigatorState>();
+/// يُستبدل عند تغيير اللغة أو المظهر — حتى لا يحتفظ Flutter بالشاشات القديمة بألوانها ونصوصها السابقة.
+var navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,34 +29,62 @@ class LamaaApp extends StatefulWidget {
   State<LamaaApp> createState() => _LamaaAppState();
 }
 
-class _LamaaAppState extends State<LamaaApp> {
+class _LamaaAppState extends State<LamaaApp> with WidgetsBindingObserver {
   String _lang = Session.I.lang;
+  Brightness _brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
 
   @override
   void initState() {
     super.initState();
     Session.I.addListener(_onSession);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     Session.I.removeListener(_onSession);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  void _onSession() {
-    if (Session.I.lang != _lang) setState(() => _lang = Session.I.lang);
+  /// إعداد الجهاز (يُستخدم عند اختيار "حسب النظام").
+  @override
+  void didChangePlatformBrightness() {
+    setState(() => _brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness);
   }
+
+  String _theme = Session.I.theme;
+
+  void _onSession() {
+    if (Session.I.lang != _lang || Session.I.theme != _theme) {
+      setState(() {
+        _lang = Session.I.lang;
+        _theme = Session.I.theme;
+      });
+    }
+  }
+
+  /// المظهر الفعلي: اختيار المستخدم، أو إعداد الجهاز عند "حسب النظام".
+  Brightness get _effective => switch (_theme) {
+        'light' => Brightness.light,
+        'dark' => Brightness.dark,
+        _ => _brightness,
+      };
+
+  String? _builtFor;
 
   @override
   Widget build(BuildContext context) {
+    final config = '$_lang-${_effective.name}';
+    if (_builtFor != null && _builtFor != config) navigatorKey = GlobalKey<NavigatorState>();
+    _builtFor = config;
     return MaterialApp(
-      // مفتاح اللغة: تغييرها يعيد بناء التطبيق كاملاً بالنصوص والاتجاه الجديدين
-      key: ValueKey(_lang),
+      // مفتاح اللغة والوضع: تغييرهما يعيد بناء التطبيق كاملاً بالنصوص والاتجاه والألوان الجديدة
+      key: ValueKey(config),
       onGenerateTitle: (_) => tr.appName,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      theme: buildTheme(),
+      theme: buildTheme(_effective),
       locale: Locale(_lang),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
@@ -124,14 +154,21 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.blue700,
-      body: Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const LamaaLoader(size: 96, color: Colors.white),
-          const SizedBox(height: 18),
-          Text(tr.appName, style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          Text(tr.tagline, style: const TextStyle(color: AppColors.blue100)),
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppColors.brandGradient),
+        child: Stack(children: [
+          const Positioned.fill(child: SparkleField(count: 12, maxSize: 26)),
+          Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const LamaaLoader(size: 104, color: Colors.white),
+              const SizedBox(height: 20),
+              Appear(
+                child: Text(tr.appName, style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+              const SizedBox(height: 4),
+              Appear(index: 2, child: Text(tr.tagline, style: const TextStyle(color: Color(0xFFDAE6FC)))),
+            ]),
+          ),
         ]),
       ),
     );
@@ -148,9 +185,9 @@ class _BootError extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.cloud_off_outlined, size: 56, color: AppColors.gray500),
+            Icon(Icons.cloud_off_outlined, size: 56, color: AppColors.gray500),
             const SizedBox(height: 12),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),

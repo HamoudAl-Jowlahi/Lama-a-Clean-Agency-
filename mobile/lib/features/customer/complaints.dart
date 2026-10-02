@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
@@ -32,7 +33,7 @@ class ComplaintsScreen extends StatelessWidget {
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (_, i) {
                   final c = list[i];
-                  return Card(
+                  return Appear(index: i, child: Card(
                     child: ListTile(
                       title: Text(c['type_label'] ?? ''),
                       subtitle: Text('${c['number']} · ${c['subject']?['number'] ?? ''}\n${c['description'] ?? ''}', maxLines: 3, overflow: TextOverflow.ellipsis),
@@ -43,7 +44,7 @@ class ComplaintsScreen extends StatelessWidget {
                         reload();
                       },
                     ),
-                  );
+                  ));
                 },
               ),
       ),
@@ -113,7 +114,7 @@ class _ComplaintDetailScreenState extends State<ComplaintDetailScreen> {
         ),
         SafeArea(
           child: Container(
-            color: Colors.white,
+            color: AppColors.surface,
             padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
             child: Row(children: [
               IconButton(
@@ -141,11 +142,11 @@ class _Bubble extends StatelessWidget {
     final change = m['status_change'] as Map?;
     if (change != null || value(m['kind']) == 'status_change') {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: 6),
         child: Text(
           '${tr.statusChangedTo(label(change?['to']))} · ${dateTimeLabel(m['at'])}',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.gray500, fontSize: 12.5),
+          style: TextStyle(color: AppColors.gray500, fontSize: 12.5),
         ),
       );
     }
@@ -155,15 +156,15 @@ class _Bubble extends StatelessWidget {
       alignment: mine ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
       child: Container(
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .75),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(12),
+        margin: EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: mine ? AppColors.blue600 : Colors.white,
+          color: mine ? AppColors.blue600 : AppColors.surface,
           border: mine ? null : Border.all(color: AppColors.gray200),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (!mine) Text(label(m['from']), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.blue700)),
+          if (!mine) Text(label(m['from']), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.blue700)),
           Text(m['body'] ?? '', style: TextStyle(color: mine ? Colors.white : AppColors.gray900)),
           if (files > 0)
             Row(mainAxisSize: MainAxisSize.min, children: [
@@ -215,9 +216,9 @@ class _ComplaintFormScreenState extends State<ComplaintFormScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(tr.newComplaint)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
-          if (widget.subjectNumber != null) Text(tr.regardingX(widget.subjectNumber!), style: const TextStyle(color: AppColors.gray500)),
+          if (widget.subjectNumber != null) Text(tr.regardingX(widget.subjectNumber!), style: TextStyle(color: AppColors.gray500)),
           const SizedBox(height: 12),
           Text(tr.problemType, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),

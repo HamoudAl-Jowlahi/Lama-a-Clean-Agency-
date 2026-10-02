@@ -31,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'worker.type' => EnsureWorkerType::class,
         ]);
         $middleware->api(prepend: [SetLocaleFromHeader::class]);
+        // خلف موزّع الاستضافة (Render وغيره) — لتكون الروابط https
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // كل أخطاء الـ API بشكل واحد: { message, code, errors? }

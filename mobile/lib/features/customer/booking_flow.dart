@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/api.dart';
 import '../../core/brand.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'addresses.dart';
@@ -10,9 +11,10 @@ import 'booking_detail.dart';
 
 /// طلب زيارة تنظيف: الخيار ← العنوان ← اليوم والوقت ← الملخص (الدفع نقداً).
 class BookingFlowScreen extends StatefulWidget {
-  const BookingFlowScreen({super.key, required this.service});
+  const BookingFlowScreen({super.key, required this.service, this.color});
 
   final Map service;
+  final Color? color;
 
   @override
   State<BookingFlowScreen> createState() => _BookingFlowScreenState();
@@ -117,9 +119,19 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.service['name'] ?? tr.visitTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
-          SectionCard(title: tr.stepOption, children: [
+          Appear(
+            child: Row(children: [
+              Hero(tag: 'service-${widget.service['id']}', child: IconTile(serviceIcon(widget.service['icon']), color: widget.color, size: 60)),
+              SizedBox(width: 14),
+              Expanded(
+                child: Text(widget.service['description'] ?? '', style: TextStyle(color: AppColors.gray500, height: 1.5)),
+              ),
+            ]),
+          ),
+          const SizedBox(height: 16),
+          Appear(index: 1, child: SectionCard(icon: Icons.tune, title: tr.stepOption, children: [
             RadioGroup<int>(
               groupValue: _price?['id'] as int?,
               onChanged: (id) {
@@ -150,17 +162,17 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                 ),
                 IconButton.outlined(onPressed: () => _setQty(_qty + 1), icon: const Icon(Icons.add)),
               ]),
-          ]),
+          ])),
           const SizedBox(height: 12),
-          AddressPicker(
+          Appear(index: 2, child: AddressPicker(
             title: tr.stepAddress,
             addresses: _addresses,
             selected: _addressId,
             onSelected: (v) => setState(() => _addressId = v),
             onCreated: (id) => _loadAddresses(select: id),
-          ),
+          )),
           const SizedBox(height: 12),
-          SectionCard(title: tr.stepDateTime, children: [
+          Appear(index: 3, child: SectionCard(icon: Icons.event_available_outlined, title: tr.stepDateTime, children: [
             SizedBox(
               height: 74,
               child: ListView.separated(
@@ -181,10 +193,10 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 10),
-            if (_date == null) Text(tr.pickDayFirst, style: const TextStyle(color: AppColors.gray500)),
-            if (_slotsLoading) const Padding(padding: EdgeInsets.all(12), child: Center(child: LamaaLoader(size: 40))),
-            if (_date != null && !_slotsLoading && _slots.isEmpty) Text(tr.noSlots, style: const TextStyle(color: AppColors.gray500)),
+            SizedBox(height: 10),
+            if (_date == null) Text(tr.pickDayFirst, style: TextStyle(color: AppColors.gray500)),
+            if (_slotsLoading) Padding(padding: EdgeInsets.all(12), child: Center(child: LamaaLoader(size: 40))),
+            if (_date != null && !_slotsLoading && _slots.isEmpty) Text(tr.noSlots, style: TextStyle(color: AppColors.gray500)),
             Wrap(spacing: 8, runSpacing: 8, children: [
               for (final s in _slots)
                 ChoiceChip(
@@ -193,36 +205,36 @@ class _BookingFlowScreenState extends State<BookingFlowScreen> {
                   onSelected: s['available'] == true ? (_) => setState(() => _time = s['time'] as String) : null,
                 ),
             ]),
-          ]),
-          const SizedBox(height: 12),
-          SectionCard(title: tr.notesForTeam, children: [
+          ])),
+          SizedBox(height: 12),
+          Appear(index: 4, child: SectionCard(icon: Icons.edit_note, title: tr.notesForTeam, children: [
             TextField(controller: _notes, maxLines: 2, decoration: InputDecoration(hintText: tr.notesForTeamHint)),
-          ]),
-          const SizedBox(height: 12),
-          SectionCard(title: tr.summary, children: [
-            if (_quote == null) const Text('—'),
+          ])),
+          SizedBox(height: 12),
+          Appear(index: 5, child: SectionCard(icon: Icons.receipt_long_outlined, title: tr.summary, children: [
+            if (_quote == null) Text('—'),
             if (_quote != null) ...[
               KV(tr.subtotal, money(_quote!['subtotal'])),
               KV(tr.tax, money(_quote!['tax'])),
               KV(tr.total, money(_quote!['total']), bold: true),
             ],
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(10)),
               child: Row(children: [
-                const Icon(Icons.payments_outlined, color: AppColors.success600),
-                const SizedBox(width: 8),
-                Expanded(child: Text(tr.cashToLeader, style: const TextStyle(color: AppColors.success600))),
+                Icon(Icons.payments_outlined, color: AppColors.success600),
+                SizedBox(width: 8),
+                Expanded(child: Text(tr.cashToLeader, style: TextStyle(color: AppColors.success600))),
               ]),
             ),
-          ]),
-          const SizedBox(height: 90),
+          ])),
+          SizedBox(height: 90),
         ],
       ),
       bottomSheet: SafeArea(
         child: Container(
-          color: Colors.white,
+          color: AppColors.surface,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: BusyButton(label: tr.confirmBooking, busy: _busy, onPressed: _ready ? _submit : null),
         ),

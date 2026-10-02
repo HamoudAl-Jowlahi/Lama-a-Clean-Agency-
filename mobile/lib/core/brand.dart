@@ -9,7 +9,7 @@ import 'theme.dart';
 /// (viewBox 64×64) — يُستخدم في الشعار واللودر وتوليد أيقونة التطبيق.
 class LamaaMarkPainter extends CustomPainter {
   LamaaMarkPainter({
-    this.color = AppColors.blue700,
+    this.color = AppColors.brand,
     this.house = 1,
     this.houseTrack = false,
     this.sparkleScale = 1,
@@ -117,22 +117,22 @@ class LamaaMarkPainter extends CustomPainter {
 
 /// الشعار الثابت.
 class LamaaMark extends StatelessWidget {
-  const LamaaMark({super.key, this.size = 48, this.color = AppColors.blue700});
+  const LamaaMark({super.key, this.size = 48, this.color});
 
   final double size;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) =>
-      CustomPaint(size: Size.square(size), painter: LamaaMarkPainter(color: color));
+      CustomPaint(size: Size.square(size), painter: LamaaMarkPainter(color: color ?? AppColors.blue700));
 }
 
 /// اللودر: البيت يُرسم والنجمة تلمع وتدور ربع دورة — حلقة متصلة.
 class LamaaLoader extends StatefulWidget {
-  const LamaaLoader({super.key, this.size = 56, this.color = AppColors.blue600, this.label});
+  const LamaaLoader({super.key, this.size = 56, this.color, this.label});
 
   final double size;
-  final Color color;
+  final Color? color;
   final String? label;
 
   @override
@@ -150,6 +150,7 @@ class _LamaaLoaderState extends State<LamaaLoader> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final color = widget.color ?? AppColors.blue600;
     final mark = AnimatedBuilder(
       animation: _c,
       builder: (_, _) {
@@ -160,7 +161,7 @@ class _LamaaLoaderState extends State<LamaaLoader> with SingleTickerProviderStat
         return CustomPaint(
           size: Size.square(widget.size),
           painter: LamaaMarkPainter(
-            color: widget.color,
+            color: color,
             house: draw * fade,
             houseTrack: true,
             sparkleScale: .72 + .34 * pulse,
@@ -174,7 +175,7 @@ class _LamaaLoaderState extends State<LamaaLoader> with SingleTickerProviderStat
     return Column(mainAxisSize: MainAxisSize.min, children: [
       mark,
       const SizedBox(height: 14),
-      Text(widget.label!, style: TextStyle(color: widget.color.withValues(alpha: .8), fontWeight: FontWeight.w500)),
+      Text(widget.label!, style: TextStyle(color: color.withValues(alpha: .8), fontWeight: FontWeight.w500)),
     ]);
   }
 }
@@ -242,16 +243,16 @@ class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderSt
   Widget _bar(double width, double height) => Container(
         width: width,
         height: height,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(6)),
       );
 
   Widget _card() => Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
+        margin: EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .35),
+          color: AppColors.surface.withValues(alpha: .4),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white),
+          border: Border.all(color: AppColors.surface),
         ),
         child: Row(children: [
           _bar(48, 48),
@@ -281,7 +282,9 @@ class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderSt
           shaderCallback: (rect) => LinearGradient(
             begin: Alignment(x - 1, -.3),
             end: Alignment(x + 1, .3),
-            colors: const [AppColors.gray200, Color(0xFFF2F4F7), AppColors.gray200],
+            colors: AppColors.dark
+                ? const [Color(0xFF1B2538), Color(0xFF2A3650), Color(0xFF1B2538)]
+                : const [Color(0xFFE6EAF0), Color(0xFFF6F8FB), Color(0xFFE6EAF0)],
             stops: const [.35, .5, .65],
           ).createShader(rect),
           child: child,
@@ -304,15 +307,15 @@ class BusyOverlay {
   static OverlayEntry show(BuildContext context, {String? label}) {
     final entry = OverlayEntry(
       builder: (_) => Stack(children: [
-        const ModalBarrier(dismissible: false, color: Color(0x66111827)),
+        ModalBarrier(dismissible: false, color: Color(0x66111827)),
         Center(
           child: TweenAnimationBuilder<double>(
             tween: Tween(begin: .85, end: 1),
-            duration: const Duration(milliseconds: 220),
+            duration: Duration(milliseconds: 220),
             curve: Curves.easeOutBack,
             builder: (_, v, child) => Transform.scale(scale: v, child: child),
             child: Material(
-              color: Colors.white,
+              color: AppColors.surfaceHigh,
               elevation: 8,
               borderRadius: BorderRadius.circular(20),
               child: Padding(

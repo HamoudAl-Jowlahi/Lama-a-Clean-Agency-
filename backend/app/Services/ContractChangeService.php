@@ -82,7 +82,7 @@ class ContractChangeService
 
             foreach ($files as $file) {
                 $request->attachments()->create([
-                    'path' => $file->store("change-requests/{$request->id}", 'local'),
+                    'path' => $file->store("change-requests/{$request->id}", config('agency.attachments.disk')),
                     'mime' => $file->getMimeType(),
                     'size' => $file->getSize(),
                 ]);

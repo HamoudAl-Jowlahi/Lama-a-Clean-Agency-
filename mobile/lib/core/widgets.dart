@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'api.dart';
 import 'brand.dart';
+import 'motion.dart';
 import 'i18n.dart';
 import 'theme.dart';
 
@@ -46,7 +47,7 @@ void toast(BuildContext context, String message, {bool error = false}) {
     ..showSnackBar(SnackBar(
       content: Row(children: [
         Icon(error ? Icons.error_outline : Icons.check_circle_outline, color: Colors.white),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(child: Text(message)),
       ]),
       backgroundColor: error ? AppColors.danger600 : AppColors.gray900,
@@ -83,7 +84,7 @@ Future<bool> confirm(BuildContext context, String title, String body, {String? o
         TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tr.back)),
         FilledButton(
           style: FilledButton.styleFrom(
-            minimumSize: const Size(96, 44),
+            minimumSize: Size(96, 44),
             backgroundColor: danger ? AppColors.danger600 : null,
           ),
           onPressed: () => Navigator.pop(c, true),
@@ -162,42 +163,46 @@ class StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     if (status is! Map) return const SizedBox.shrink();
     final c = statusColors(value(status));
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(color: c.bg, borderRadius: BorderRadius.circular(99)),
-      child: Text(label(status), style: TextStyle(color: c.fg, fontWeight: FontWeight.w600, fontSize: 12.5)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(width: 7, height: 7, decoration: BoxDecoration(color: c.fg, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
+        Text(label(status), style: TextStyle(color: c.fg, fontWeight: FontWeight.w600, fontSize: 12.5)),
+      ]),
     );
   }
 }
 
 class SectionCard extends StatelessWidget {
-  const SectionCard({super.key, this.title, required this.children, this.trailing});
+  const SectionCard({super.key, this.title, required this.children, this.trailing, this.icon});
 
   final String? title;
   final Widget? trailing;
+  final IconData? icon;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Row(children: [
-                  Expanded(
-                    child: Text(title!, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                  ),
-                  ?trailing,
-                ]),
-              ),
-            ...children,
-          ],
-        ),
+    return SoftCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (title != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: Row(children: [
+                if (icon != null) ...[Icon(icon, size: 20, color: AppColors.blue600), const SizedBox(width: 8)],
+                Expanded(
+                  child: Text(title!, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                ),
+                ?trailing,
+              ]),
+            ),
+          ...children,
+        ],
       ),
     );
   }
@@ -213,9 +218,9 @@ class KV extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: Text(k, style: const TextStyle(color: AppColors.gray500))),
+        Expanded(child: Text(k, style: TextStyle(color: AppColors.gray500))),
         const SizedBox(width: 12),
         Flexible(
           flex: 2,
@@ -236,16 +241,29 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(color: AppColors.blue50, shape: BoxShape.circle),
-            child: Icon(icon, size: 40, color: AppColors.blue600),
-          ),
-          const SizedBox(height: 14),
-          Text(text, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gray500)),
-        ]),
+        padding: EdgeInsets.all(32),
+        child: Appear(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(
+              width: 128,
+              height: 128,
+              child: Stack(alignment: Alignment.center, children: [
+                Container(
+                  width: 104,
+                  height: 104,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(colors: [AppColors.blue100, AppColors.blue50]),
+                  ),
+                ),
+                Icon(icon, size: 46, color: AppColors.blue600),
+                Positioned.fill(child: SparkleField(count: 4, color: AppColors.blue600, maxSize: 14)),
+              ]),
+            ),
+            SizedBox(height: 16),
+            Text(text, textAlign: TextAlign.center, style: TextStyle(color: AppColors.gray500, height: 1.6)),
+          ]),
+        ),
       ),
     );
   }
@@ -306,14 +324,14 @@ class _LoaderState<T> extends State<Loader<T>> {
           : Center(key: const ValueKey('loading'), child: LamaaLoader(label: tr.loading));
     } else if (_data == null) {
       child = Center(
-        key: const ValueKey('error'),
+        key: ValueKey('error'),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(color: AppColors.danger50, shape: BoxShape.circle),
-              child: const Icon(Icons.cloud_off_outlined, size: 40, color: AppColors.danger600),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(color: AppColors.danger50, shape: BoxShape.circle),
+              child: Icon(Icons.cloud_off_outlined, size: 40, color: AppColors.danger600),
             ),
             const SizedBox(height: 14),
             Text(_error is ApiException ? (_error as ApiException).message : tr.errLoad, textAlign: TextAlign.center),
@@ -344,7 +362,7 @@ class StarsInput extends StatelessWidget {
         final on = i < value;
         return IconButton(
           onPressed: () => onChanged(i + 1),
-          icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, size: 34, color: on ? const Color(0xFFF5B301) : AppColors.gray500),
+          icon: Icon(on ? Icons.star_rounded : Icons.star_outline_rounded, size: 34, color: on ? Color(0xFFF5B301) : AppColors.gray500),
         );
       }),
     );
@@ -367,7 +385,7 @@ class Timeline extends StatelessWidget {
               Container(
                 width: 12,
                 height: 12,
-                margin: const EdgeInsets.only(top: 4),
+                margin: EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
                   color: i == items.length - 1 ? AppColors.blue600 : AppColors.blue100,
                   shape: BoxShape.circle,
@@ -375,15 +393,15 @@ class Timeline extends StatelessWidget {
               ),
               if (i < items.length - 1) Container(width: 2, height: 34, color: AppColors.blue100),
             ]),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: 8),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(label(items[i]['status']), style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(label(items[i]['status']), style: TextStyle(fontWeight: FontWeight.w600)),
                   Text(
                     [dateTimeLabel(items[i]['at']), if (items[i]['note'] != null) items[i]['note']].join(' — '),
-                    style: const TextStyle(color: AppColors.gray500, fontSize: 12.5),
+                    style: TextStyle(color: AppColors.gray500, fontSize: 12.5),
                   ),
                 ]),
               ),

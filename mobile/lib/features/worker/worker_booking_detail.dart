@@ -37,7 +37,7 @@ class WorkerBookingDetailScreen extends StatelessWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             children: [
               SectionCard(title: b['number'], trailing: StatusChip(b['status']), children: [
                 KV(tr.team, b['team']?['name'] ?? '—'),
@@ -45,43 +45,43 @@ class WorkerBookingDetailScreen extends StatelessWidget {
                 KV(tr.appointment, '${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}'),
                 for (final i in items) KV(i['service'] ?? '', '${i['option']} × ${i['quantity']}'),
               ]),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SectionCard(title: tr.customerAndLocation, children: [
                 KV(tr.customer, b['customer']?['name'] ?? '—'),
                 KV(tr.address, addressLine(b['address'])),
                 if (b['address']?['details'] != null) KV(tr.description, b['address']['details']),
                 if (b['customer_notes'] != null) KV(tr.customerNotes, b['customer_notes']),
                 if (phone != null) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
-                    icon: const Icon(Icons.call),
+                    icon: Icon(Icons.call),
                     label: Text(tr.callCustomer(phone)),
                   ),
                 ],
               ]),
               if (collect != null) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(12)),
                   child: Row(children: [
-                    const Icon(Icons.payments_outlined, color: AppColors.success600, size: 30),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(tr.amountToCollect, style: const TextStyle(color: AppColors.success600))),
-                    Text(money(collect), style: const TextStyle(color: AppColors.success600, fontWeight: FontWeight.w700, fontSize: 18)),
+                    Icon(Icons.payments_outlined, color: AppColors.success600, size: 30),
+                    SizedBox(width: 12),
+                    Expanded(child: Text(tr.amountToCollect, style: TextStyle(color: AppColors.success600))),
+                    Text(money(collect), style: TextStyle(color: AppColors.success600, fontWeight: FontWeight.w700, fontSize: 18)),
                   ]),
                 ),
               ],
-              const SizedBox(height: 20),
-              if (!leader) Text(tr.leaderOnlyNote, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.gray500)),
+              SizedBox(height: 20),
+              if (!leader) Text(tr.leaderOnlyNote, textAlign: TextAlign.center, style: TextStyle(color: AppColors.gray500)),
               if (leader && pending) ...[
                 FilledButton.icon(
                   onPressed: () => act(() => Api.I.post('/worker/bookings/$id/accept'), tr.visitAccepted),
-                  icon: const Icon(Icons.check),
+                  icon: Icon(Icons.check),
                   label: Text(tr.acceptVisit),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {

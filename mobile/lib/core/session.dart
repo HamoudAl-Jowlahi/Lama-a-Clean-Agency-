@@ -16,6 +16,7 @@ class Session extends ChangeNotifier {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'auth_token';
   static const _langKey = 'lang';
+  static const _themeKey = 'theme';
 
   bool ready = false;
   String? bootError;
@@ -23,6 +24,9 @@ class Session extends ChangeNotifier {
 
   /// لغة الواجهة: ar (افتراضي) أو en — تُحفظ في حساب المستخدم وعلى الجهاز.
   String lang = 'ar';
+
+  /// المظهر: system (حسب الجهاز — الافتراضي) أو light أو dark — يُحفظ على الجهاز.
+  String theme = 'system';
 
   bool get signedIn => user != null;
 
@@ -44,6 +48,7 @@ class Session extends ChangeNotifier {
     bootError = null;
     try {
       _applyLang(await _storage.read(key: _langKey) ?? lang);
+      theme = await _storage.read(key: _themeKey) ?? theme;
       Api.I.token = await _storage.read(key: _tokenKey);
       if (Api.I.token != null) await refreshMe();
     } on ApiException catch (e) {
@@ -78,6 +83,12 @@ class Session extends ChangeNotifier {
     _applyLang(code);
     await _storage.write(key: _langKey, value: code);
     if (signedIn) await refreshMe(); // نصوص الحالات من الخادم باللغة الجديدة
+    notifyListeners();
+  }
+
+  Future<void> setTheme(String value) async {
+    theme = const ['light', 'dark'].contains(value) ? value : 'system';
+    await _storage.write(key: _themeKey, value: theme);
     notifyListeners();
   }
 

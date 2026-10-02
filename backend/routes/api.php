@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\CronController;
 use App\Http\Controllers\Api\V1\Customer\AddressController;
 use App\Http\Controllers\Api\V1\Customer\BookingController;
 use App\Http\Controllers\Api\V1\Customer\CatalogController;
@@ -28,6 +29,9 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('services/{id}', [CatalogController::class, 'service'])->whereNumber('id')->name('services.show');
     Route::get('contract-plans', [CatalogController::class, 'plans'])->name('plans.index');
 });
+
+// المهمة اليومية لاستضافة بدون cron (رمز سري — انظر CronController)
+Route::post('internal/cron/daily', [CronController::class, 'daily'])->middleware('throttle:6,1')->name('cron.daily');
 
 // ------------------------------------------------------- authenticated
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

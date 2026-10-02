@@ -320,6 +320,36 @@ abstract class AppLocalizations {
   /// **'إنشاء الحساب'**
   String get createAccount;
 
+  /// No description provided for @appearance.
+  ///
+  /// In ar, this message translates to:
+  /// **'المظهر'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسب النظام'**
+  String get themeSystem;
+
+  /// No description provided for @themeSystemHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'يتبع إعداد الهاتف تلقائياً'**
+  String get themeSystemHint;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In ar, this message translates to:
+  /// **'فاتح'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In ar, this message translates to:
+  /// **'داكن'**
+  String get themeDark;
+
   /// No description provided for @language.
   ///
   /// In ar, this message translates to:
@@ -385,6 +415,36 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'لا توجد خدمات متاحة حالياً'**
   String get noServices;
+
+  /// No description provided for @homeQuestion.
+  ///
+  /// In ar, this message translates to:
+  /// **'ماذا نلمّع لك اليوم؟'**
+  String get homeQuestion;
+
+  /// No description provided for @howItWorks.
+  ///
+  /// In ar, this message translates to:
+  /// **'كيف تعمل لمعة'**
+  String get howItWorks;
+
+  /// No description provided for @howStep1.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب الموعد'**
+  String get howStep1;
+
+  /// No description provided for @howStep2.
+  ///
+  /// In ar, this message translates to:
+  /// **'الفريق ينظّف'**
+  String get howStep2;
+
+  /// No description provided for @howStep3.
+  ///
+  /// In ar, this message translates to:
+  /// **'ادفع نقداً'**
+  String get howStep3;
 
   /// No description provided for @startsFrom.
   ///

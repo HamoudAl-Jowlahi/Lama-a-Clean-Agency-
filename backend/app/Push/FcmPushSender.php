@@ -20,7 +20,7 @@ class FcmPushSender implements PushSender
 
     private const TOKEN_CACHE_KEY = 'push.fcm.access_token';
 
-    /** @param array{credentials: ?string, project_id: ?string, timeout: int} $config */
+    /** @param array{credentials: ?string, credentials_base64?: ?string, project_id: ?string, timeout: int} $config */
     public function __construct(private array $config) {}
 
     public function send(array $tokens, string $title, string $body, array $data = []): array
@@ -65,12 +65,16 @@ class FcmPushSender implements PushSender
     /** @return array{project_id: string, client_email: string, private_key: string, token_uri: string} */
     private function credentials(): array
     {
-        $path = $this->config['credentials'] ?? null;
-        if (! $path || ! is_readable($path)) {
-            throw new RuntimeException('FCM credentials file is missing. Set FIREBASE_CREDENTIALS in .env.');
+        // الاستضافة بدون ملفات (Render وغيره): محتوى JSON مشفّر Base64 في متغير بيئة
+        if ($encoded = $this->config['credentials_base64'] ?? null) {
+            $json = json_decode((string) base64_decode($encoded, true), true);
+        } else {
+            $path = $this->config['credentials'] ?? null;
+            if (! $path || ! is_readable($path)) {
+                throw new RuntimeException('FCM credentials file is missing. Set FIREBASE_CREDENTIALS (path) or FIREBASE_CREDENTIALS_BASE64 in .env.');
+            }
+            $json = json_decode((string) file_get_contents($path), true);
         }
-
-        $json = json_decode((string) file_get_contents($path), true);
         foreach (['project_id', 'client_email', 'private_key'] as $key) {
             if (empty($json[$key])) {
                 throw new RuntimeException("FCM credentials file is missing [{$key}].");

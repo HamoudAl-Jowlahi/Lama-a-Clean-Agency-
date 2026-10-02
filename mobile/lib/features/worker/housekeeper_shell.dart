@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -48,7 +49,7 @@ class HousekeeperShell extends StatelessWidget {
               if (others.isNotEmpty) ...[
                 Text(tr.otherContracts, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 8),
-                for (final c in others) _ContractTile(c, onBack: reload),
+                for (final c in others) Appear(index: others.indexOf(c) + 1, child: _ContractTile(c, onBack: reload)),
               ],
             ],
           );
@@ -68,7 +69,7 @@ class _ContractTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10),
       child: Card(
         color: highlight ? AppColors.blue50 : null,
         clipBehavior: Clip.antiAlias,
@@ -102,29 +103,29 @@ class HousekeeperContractScreen extends StatelessWidget {
         builder: (context, c, reload) {
           final phone = c['customer']?['phone'] as String?;
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             children: [
               SectionCard(title: c['number'], trailing: StatusChip(c['status']), children: [
                 KV(tr.plan, c['plan']?['name'] ?? '—'),
                 KV(tr.schedule, tr.scheduleValue('${c['plan']?['work_days_per_week']}', '${c['plan']?['hours_per_day']}')),
                 KV(tr.myPeriod, '${dayLabel(c['my_period']?['from'])} $arrow ${dayLabel(c['my_period']?['to'])}'),
               ]),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SectionCard(title: tr.customer, children: [
                 KV(tr.name, c['customer']?['name'] ?? '—'),
                 if (c['is_current'] == true) ...[
                   KV(tr.address, addressLine(c['address'])),
                   if (c['customer_notes'] != null) KV(tr.customerNotes, c['customer_notes']),
                   if (phone != null) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: () => launchUrl(Uri(scheme: 'tel', path: phone)),
-                      icon: const Icon(Icons.call),
+                      icon: Icon(Icons.call),
                       label: Text(tr.callCustomer(phone)),
                     ),
                   ],
                 ] else
-                  Text(tr.contactDuringPeriodOnly, style: const TextStyle(color: AppColors.gray500)),
+                  Text(tr.contactDuringPeriodOnly, style: TextStyle(color: AppColors.gray500)),
               ]),
             ],
           );

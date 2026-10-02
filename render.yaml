@@ -1,0 +1,72 @@
+# Render Blueprint — لمعة (الـ API + لوحة الإدارة في خدمة واحدة)
+# الخطوات الكاملة: docs/06_deployment_free.md
+services:
+  - type: web
+    name: lamaa-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: Lamaa
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false          # php artisan key:generate --show  (على جهازك)
+      - key: APP_URL
+        sync: false          # https://lamaa-api.onrender.com
+      - key: APP_LOCALE
+        value: ar
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DB_CONNECTION
+        value: mysql         # Aiven MySQL — أو pgsql مع Neon
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL_CA_BASE64
+        sync: false          # Aiven: ملف ca.pem بـ Base64 (لا يلزم مع Neon)
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync          # لا عامل طابور في الخطة المجانية — الإشعارات تُرسل فوراً
+      - key: ATTACHMENTS_DISK
+        value: s3            # Cloudflare R2
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_DEFAULT_REGION
+        value: auto
+      - key: AWS_BUCKET
+        sync: false
+      - key: AWS_ENDPOINT
+        sync: false          # https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+      - key: AWS_USE_PATH_STYLE_ENDPOINT
+        value: "true"
+      - key: PUSH_DRIVER
+        value: log           # fcm بعد إضافة Firebase
+      - key: FIREBASE_CREDENTIALS_BASE64
+        sync: false
+      - key: CRON_TOKEN
+        generateValue: true
+      - key: SEED_ON_START
+        value: "true"        # اجعلها false بعد أول تشغيل ناجح
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false

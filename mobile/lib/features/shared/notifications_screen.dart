@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -99,8 +100,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 itemBuilder: (_, i) {
                   final n = list[i];
                   final unread = n['read'] != true;
-                  return ListTile(
-                    tileColor: unread ? AppColors.blue50 : Colors.white,
+                  return Appear(index: i, child: ListTile(
+                    tileColor: unread ? AppColors.blue50 : AppColors.surface,
                     leading: Icon(unread ? Icons.circle : Icons.circle_outlined, size: 12, color: AppColors.blue600),
                     title: Text(n['title'] ?? '', style: TextStyle(fontWeight: unread ? FontWeight.w700 : FontWeight.w500)),
                     subtitle: Text('${n['body'] ?? ''}\n${dateTimeLabel(n['created_at'])}'),
@@ -115,7 +116,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       if (page != null && context.mounted) await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
                       reload();
                     },
-                  );
+                  ));
                 },
               ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 
@@ -41,7 +42,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (_, i) {
                   final a = list[i];
-                  return Card(
+                  return Appear(index: i, child: Card(
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
                       title: Text(a['label'] ?? ''),
@@ -55,7 +56,7 @@ class _AddressesScreenState extends State<AddressesScreen> {
                         },
                       ),
                     ),
-                  );
+                  ));
                 },
               ),
       ),
@@ -89,11 +90,11 @@ class AddressPicker extends StatelessWidget {
           final created = await Navigator.push<Map>(context, MaterialPageRoute(builder: (_) => const AddressFormScreen()));
           if (created != null) onCreated(created['id'] as int);
         },
-        icon: const Icon(Icons.add_location_alt_outlined),
+        icon: Icon(Icons.add_location_alt_outlined),
         label: Text(tr.newAddress),
       ),
       children: [
-        if (addresses.isEmpty) Text(tr.addAddressFirst, style: const TextStyle(color: AppColors.gray500)),
+        if (addresses.isEmpty) Text(tr.addAddressFirst, style: TextStyle(color: AppColors.gray500)),
         RadioGroup<int>(
           groupValue: selected,
           onChanged: onSelected,

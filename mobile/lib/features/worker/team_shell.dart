@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/session.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
@@ -27,7 +28,7 @@ class TeamShell extends StatelessWidget {
             Text(team?['name'] ?? tr.myTeam),
             Text(
               Session.I.isLeader ? tr.youAreLeader : tr.memberNote,
-              style: const TextStyle(fontSize: 12.5, color: AppColors.gray500, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 12.5, color: AppColors.gray500, fontWeight: FontWeight.w500),
             ),
           ]),
           actions: [
@@ -68,7 +69,7 @@ class _BookingsList extends StatelessWidget {
                 final b = list[i];
                 final items = b['items'] as List? ?? [];
                 final pending = value(b['assignment_status']) == 'pending';
-                return Card(
+                return Appear(index: i, child: Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     onTap: () async {
@@ -76,26 +77,26 @@ class _BookingsList extends StatelessWidget {
                       reload();
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(14),
+                      padding: EdgeInsets.all(14),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [
                           Expanded(
-                            child: Text(items.map((i) => i['service']).join(isEn ? ', ' : '، '), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                            child: Text(items.map((i) => i['service']).join(isEn ? ', ' : '، '), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                           ),
                           StatusChip(pending ? b['assignment_status'] : b['status']),
                         ]),
-                        const SizedBox(height: 6),
-                        Text('${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}', style: const TextStyle(color: AppColors.gray500)),
-                        Text(addressLine(b['address']), style: const TextStyle(color: AppColors.gray500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        SizedBox(height: 6),
+                        Text('${dayLabel(b['scheduled_date'])} · ${b['scheduled_time']}', style: TextStyle(color: AppColors.gray500)),
+                        Text(addressLine(b['address']), style: TextStyle(color: AppColors.gray500), maxLines: 1, overflow: TextOverflow.ellipsis),
                         if (pending && b['is_leader'] == true)
                           Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(tr.awaitingYourAcceptance, style: const TextStyle(color: AppColors.warning600, fontWeight: FontWeight.w700)),
+                            padding: EdgeInsets.only(top: 6),
+                            child: Text(tr.awaitingYourAcceptance, style: TextStyle(color: AppColors.warning600, fontWeight: FontWeight.w700)),
                           ),
                       ]),
                     ),
                   ),
-                );
+                ));
               },
             ),
     );

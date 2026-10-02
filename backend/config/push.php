@@ -15,6 +15,7 @@ return [
 
     'fcm' => [
         'credentials' => env('FIREBASE_CREDENTIALS'), // مسار ملف JSON — لا تضعه داخل المشروع
+        'credentials_base64' => env('FIREBASE_CREDENTIALS_BASE64'), // بديل للمسار: محتوى الملف بـ Base64 (للاستضافة السحابية)
         'project_id' => env('FIREBASE_PROJECT_ID'),   // اختياري: يُقرأ من الملف إن لم يُحدد
         'timeout' => 10,
     ],

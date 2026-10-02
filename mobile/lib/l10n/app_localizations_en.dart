@@ -131,6 +131,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccount => 'Create account';
 
   @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeSystem => 'System default';
+
+  @override
+  String get themeSystemHint => 'Follows your phone setting';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -166,6 +181,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noServices => 'No services available right now';
+
+  @override
+  String get homeQuestion => 'What shall we make shine today?';
+
+  @override
+  String get howItWorks => 'How it works';
+
+  @override
+  String get howStep1 => 'Book a time';
+
+  @override
+  String get howStep2 => 'The team cleans';
+
+  @override
+  String get howStep3 => 'Pay in cash';
 
   @override
   String get startsFrom => 'From';

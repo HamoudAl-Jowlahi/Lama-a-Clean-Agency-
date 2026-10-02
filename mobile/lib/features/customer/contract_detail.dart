@@ -49,7 +49,7 @@ class ContractDetailScreen extends StatelessWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             children: [
               if (justCreated) SuccessBanner(tr.contractReceived),
               SectionCard(title: c['number'], trailing: StatusChip(c['status']), children: [
@@ -60,29 +60,29 @@ class ContractDetailScreen extends StatelessWidget {
                 KV(tr.address, addressLine(c['address'])),
                 if (c['terminated_at'] != null) KV(tr.terminatedOn, dayLabel(c['terminated_at'])),
                 if (progress != null) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   LinearProgressIndicator(value: (progress['day'] as int) / (progress['total_days'] as int), minHeight: 8, borderRadius: BorderRadius.circular(4)),
-                  const SizedBox(height: 4),
-                  Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: const TextStyle(color: AppColors.gray500, fontSize: 12.5)),
+                  SizedBox(height: 4),
+                  Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: TextStyle(color: AppColors.gray500, fontSize: 12.5)),
                 ],
               ]),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SectionCard(title: tr.housekeeper, children: [
-                if (worker == null) Text(tr.noWorkerYet, style: const TextStyle(color: AppColors.gray500)),
+                if (worker == null) Text(tr.noWorkerYet, style: TextStyle(color: AppColors.gray500)),
                 if (worker != null)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const CircleAvatar(backgroundColor: AppColors.blue50, child: Icon(Icons.person, color: AppColors.blue600)),
+                    leading: CircleAvatar(backgroundColor: AppColors.blue50, child: Icon(Icons.person, color: AppColors.blue600)),
                     title: Text(worker['name'] ?? ''),
                     subtitle: Text(tr.since(dayLabel(worker['since']))),
                   ),
                 if (history.length > 1) ...[
-                  const Divider(),
+                  Divider(),
                   for (final h in history)
                     KV(h['name'] ?? '', '${h['from']} $arrow ${h['to'] ?? tr.now}${h['end_reason'] != null ? ' (${label(h['end_reason'])})' : ''}'),
                 ],
               ]),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SectionCard(title: tr.amountsCash, children: [
                 KV(tr.monthly, money(c['monthly_price'])),
                 KV(tr.total, money(c['total_amount']), bold: true),
@@ -96,7 +96,7 @@ class ContractDetailScreen extends StatelessWidget {
                   ),
               ]),
               if (requests.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 SectionCard(title: tr.changeRequests, children: [
                   for (final r in requests)
                     ListTile(
@@ -107,23 +107,23 @@ class ContractDetailScreen extends StatelessWidget {
                     ),
                 ]),
               ],
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               SectionCard(title: tr.tracking, children: [Timeline(c['timeline'] as List? ?? [])]),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               if (running && !openRequest) ...[
-                FilledButton.icon(onPressed: () => openForm('replace_worker'), icon: const Icon(Icons.swap_horiz), label: Text(tr.requestReplace)),
-                const SizedBox(height: 10),
+                FilledButton.icon(onPressed: () => openForm('replace_worker'), icon: Icon(Icons.swap_horiz), label: Text(tr.requestReplace)),
+                SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () => openForm('terminate'),
-                  icon: const Icon(Icons.logout),
+                  icon: Icon(Icons.logout),
                   label: Text(tr.requestTerminate),
                 ),
               ],
               if (running && openRequest)
-                Text(tr.requestPending, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.warning600)),
+                Text(tr.requestPending, textAlign: TextAlign.center, style: TextStyle(color: AppColors.warning600)),
               if (['pending', 'confirmed', 'assigned'].contains(status)) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 TextButton(
                   style: TextButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {
@@ -202,9 +202,9 @@ class _ChangeRequestScreenState extends State<ChangeRequestScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(_terminate ? tr.requestTerminate : tr.requestReplace)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
-          Text(_terminate ? tr.terminateNote : tr.replaceNote, style: const TextStyle(color: AppColors.gray500)),
+          Text(_terminate ? tr.terminateNote : tr.replaceNote, style: TextStyle(color: AppColors.gray500)),
           const SizedBox(height: 16),
           Text(tr.reason, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),

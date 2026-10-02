@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'contract_detail.dart';
@@ -31,7 +32,7 @@ class ContractsTab extends StatelessWidget {
                 itemBuilder: (_, i) {
                   final c = list[i];
                   final progress = c['progress'] as Map?;
-                  return Card(
+                  return Appear(index: i, child: Card(
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
                       onTap: () async {
@@ -39,28 +40,28 @@ class ContractsTab extends StatelessWidget {
                         reload();
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: EdgeInsets.all(14),
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Row(children: [
-                            Expanded(child: Text(c['plan']?['name'] ?? c['number'], style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
+                            Expanded(child: Text(c['plan']?['name'] ?? c['number'], style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
                             StatusChip(c['status']),
                           ]),
-                          const SizedBox(height: 6),
-                          Text('${dayLabel(c['start_date'])} $arrow ${dayLabel(c['end_date'])}', style: const TextStyle(color: AppColors.gray500)),
+                          SizedBox(height: 6),
+                          Text('${dayLabel(c['start_date'])} $arrow ${dayLabel(c['end_date'])}', style: TextStyle(color: AppColors.gray500)),
                           if (progress != null) ...[
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             LinearProgressIndicator(
                               value: (progress['day'] as int) / (progress['total_days'] as int),
                               borderRadius: BorderRadius.circular(4),
                               minHeight: 6,
                             ),
-                            const SizedBox(height: 4),
-                            Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: const TextStyle(fontSize: 12, color: AppColors.gray500)),
+                            SizedBox(height: 4),
+                            Text(tr.dayOf(progress['day'] as int, progress['total_days'] as int), style: TextStyle(fontSize: 12, color: AppColors.gray500)),
                           ],
                         ]),
                       ),
                     ),
-                  );
+                  ));
                 },
               ),
       ),

@@ -94,5 +94,10 @@ return [
     'attachments' => [
         'max_kb' => 5120,
         'mimes' => ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+        // في الاستضافة المجانية قرص الخادم يُمسح عند كل إعادة تشغيل — استخدم s3 (Cloudflare R2)
+        'disk' => env('ATTACHMENTS_DISK', 'local'),
     ],
+
+    // ---- المهمة اليومية عبر HTTP (للاستضافة بدون cron) — POST /api/v1/internal/cron/daily ----
+    'cron_token' => env('CRON_TOKEN'),
 ];

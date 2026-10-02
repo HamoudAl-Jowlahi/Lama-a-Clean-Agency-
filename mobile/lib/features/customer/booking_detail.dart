@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'complaints.dart';
@@ -65,11 +66,11 @@ class BookingDetailScreen extends StatelessWidget {
                   onPressed: () async {
                     if (await showRatingSheet(context, path: '/bookings/$id/rating', workerLabel: tr.rateTeam)) reload();
                   },
-                  icon: const Icon(Icons.star_outline),
+                  icon: Icon(Icons.star_outline),
                   label: Text(tr.rateVisit),
                 ),
               if (_cancellable.contains(status)) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger600),
                   onPressed: () async {
@@ -107,17 +108,17 @@ class SuccessBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 500),
       curve: Curves.easeOutBack,
       builder: (_, v, child) => Opacity(opacity: v.clamp(0, 1), child: Transform.scale(scale: .9 + .1 * v, child: child)),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(12)),
-        child: Row(children: [
-          const Icon(Icons.check_circle, color: AppColors.success600),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(color: AppColors.success600))),
+        margin: EdgeInsets.only(bottom: 14),
+        padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+        decoration: BoxDecoration(color: AppColors.success50, borderRadius: BorderRadius.circular(20)),
+        child: Column(children: [
+          SuccessCheck(),
+          SizedBox(height: 12),
+          Text(text, textAlign: TextAlign.center, style: TextStyle(color: AppColors.success600, fontWeight: FontWeight.w600, height: 1.5)),
         ]),
       ),
     );

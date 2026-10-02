@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
 import '../../core/i18n.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../core/widgets.dart';
 import 'booking_detail.dart';
@@ -22,13 +23,13 @@ class BookingsTab extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 itemCount: list.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (_, i) => BookingCard(
+                itemBuilder: (_, i) => Appear(index: i, child: BookingCard(
                   booking: list[i],
                   onTap: () async {
                     await Navigator.push(context, MaterialPageRoute(builder: (_) => BookingDetailScreen(id: list[i]['id'] as int)));
                     reload();
                   },
-                ),
+                )),
               ),
       ),
     );
@@ -44,37 +45,38 @@ class BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = booking['items'] as List? ?? [];
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
+    return SoftCard(
+      onTap: onTap,
+      padding: EdgeInsets.all(14),
+      child: Row(children: [
+        IconTile(Icons.cleaning_services_outlined, color: statusColors(value(booking['status'])).fg, size: 46),
+        SizedBox(width: 12),
+        Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Expanded(
                 child: Text(
                   items.isEmpty ? (booking['number'] ?? '') : items.map((i) => i['service']).join(isEn ? ', ' : '، '),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                 ),
               ),
               StatusChip(booking['status']),
             ]),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Row(children: [
-              const Icon(Icons.schedule, size: 16, color: AppColors.gray500),
-              const SizedBox(width: 4),
-              Text('${dayLabel(booking['scheduled_date'])} · ${booking['scheduled_time'] ?? ''}', style: const TextStyle(color: AppColors.gray500)),
+              Icon(Icons.schedule, size: 16, color: AppColors.gray500),
+              SizedBox(width: 4),
+              Text('${dayLabel(booking['scheduled_date'])} · ${booking['scheduled_time'] ?? ''}', style: TextStyle(color: AppColors.gray500)),
             ]),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Row(children: [
-              Text(booking['number'] ?? '', style: const TextStyle(color: AppColors.gray500, fontSize: 12)),
-              const Spacer(),
-              Text(money(booking['total']), style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
+              Text(booking['number'] ?? '', style: TextStyle(color: AppColors.gray500, fontSize: 12)),
+              Spacer(),
+              Text(money(booking['total']), style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.blue700)),
             ]),
           ]),
         ),
-      ),
+      ]),
     );
   }
 }

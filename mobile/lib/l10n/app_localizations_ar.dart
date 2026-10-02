@@ -131,6 +131,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get createAccount => 'إنشاء الحساب';
 
   @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get themeSystem => 'حسب النظام';
+
+  @override
+  String get themeSystemHint => 'يتبع إعداد الهاتف تلقائياً';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
   String get language => 'اللغة';
 
   @override
@@ -166,6 +181,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noServices => 'لا توجد خدمات متاحة حالياً';
+
+  @override
+  String get homeQuestion => 'ماذا نلمّع لك اليوم؟';
+
+  @override
+  String get howItWorks => 'كيف تعمل لمعة';
+
+  @override
+  String get howStep1 => 'اطلب الموعد';
+
+  @override
+  String get howStep2 => 'الفريق ينظّف';
+
+  @override
+  String get howStep3 => 'ادفع نقداً';
 
   @override
   String get startsFrom => 'يبدأ من';
